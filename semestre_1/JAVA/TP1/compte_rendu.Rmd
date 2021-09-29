@@ -1,0 +1,139 @@
+---
+title: "Java avancé TP1"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-10-01"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{Rapport de stage}
+	\fancyfoot[L]{\thedate}
+footer-left: "2020-2021"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\newpage
+
+# Exercice 5
+
+__Rappeler à quoi sert l'interface Stream en Java__ 
+
+L'interface __Stream__ permet de manipuler les données d'une liste d'objet, qui
+sont représentées sous forme de flux de données, à l'aide de méthodes telle que
+_filter_, _map_, etc.
+L'interface permet aussi de se concentrer sur ce que l'on souhaite obtenir à
+partir du flux, au lieu de se focaliser sur le "comment".
+
+__Comment obtenir un stream à partir d'une liste__
+
+Il suffit d'appeler la méthode stream de la liste.
+
+__Comment marchent les méthodes filter, map et collect__
+
+filter est une méthode qui permet de filtrer les objets selon le prédicat
+spécifié en argument.
+
+map est une méthode qui permet de transformer les objets selon la fonction
+spécifié en argument.
+
+collect est une méthode qui permet de récupérer les objets sous la forme
+spécifié en argument.
+
+__Enfin comment peut-on utiliser le collecteur Collectors.joining() pour
+simplifier l'implantation de la méthode d'affichage que vous venez d'écrire.__
+
+```
+public String toString(){
+	return cars.stream()
+		.map(car -> car.toString())
+		.collect(Collectors.joining("\n"));
+}
+```
+
+# Exercice 6
+
+__Que faire si le véhicule n'a pas été préalablement ajouté ?__
+
+Si le véhicule n'a pas été préalablement ajouté, il faut renvoyé une exception.
+
+__Quelle est la méthode de Car appelée par CarRental.remove() qui fait en sorte 
+que le code ci-dessous fonctionne ?__
+
+Et la méthode __remove__ appelle equals pour comparer chaque objet dans la
+liste avec l'objet entré en paramètre.
+
+```
+public boolean equals(Object obj) {
+	if(null == obj)
+		return false;
+	if(obj == this)
+		return true;
+	if(obj.getClass() != getClass())
+		return false;
+	Car car = (Car)obj;
+	if(car.year() == year)
+		return false;
+	return model.equals(car.model());
+}
+
+public int hashCode() {
+	return Objects.hash(model, year);
+}
+```
+
+# Exercice 7
+
+__Que doit-on faire si il n'y a pas de voiture correspondant à l'année demandée.__
+
+Si il n'y a pas de voiture correspondant à l'année demandée, la méthode
+renvoie une liste vide.
+
+# Exercice 10
+
+__Si Car et Camel étaient des classes et non pas des records, serait-il vraiment 
+nécessaire d'utiliser une interface ?__
+
+L'interface n'aurait pas été nécessaire à cause de l'héritage.
+Néanmoins elle resterait la façon la plus de correcte de partager une méthode.
+(Un chameau qui hérite d'une voiture et vice-versa, ce n'est pas très cohérent)
+
+# Exercice 11
+
+__Expliquer de plus pourquoi cette méthode doit retourner un objet de type 
+Optional.__
+
+Cette méthode doit retourner un objet de type __Optional__ car il se peut qu'il
+n'y ait pas de voiture de ce type.
+
+# Exercice 12
+
+__Enfin, comment faire pour éviter d'avoir un default dans le case (indication, 
+on va déclarer l'interface sealed).__
+
+Il suffit d'utiliser sealed sur l'interface et de spécifier les classes qui
+peuvent implémenter cette interface.
+
+__Est-ce une bonne pratique lorsque l'on utilise le pattern matching ?__
+
+C'est une bonne pratique pour éviter que des personnes extérieures ajoutes du
+contenu inutile.
+
+# Conclusion
+
+Lors de ce TP, j'ai appris à utiliser JUnit pour tester mon code.
+J'ai revu quelques notions déjà abordées en L3 telles que les Streams, les
+interfaces et les bonnes pratiques en Java.
+Je comprend beaucoup mieux le fonctionnement des Streams et comment marche JUnit.
+Le pattern matching est un nouveau concept en Java que j'ai découvert pendant ce
+TP.
+Les difficultés de ce TP étaient principalement de prendre en main JUnit et
+réapprendre les bonnes pratiques.
+Je compte retravailler le pattern matching car c'est un tout nouveau concept en
+Java que je ne maîtrise pas totalement.
