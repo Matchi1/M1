@@ -1,0 +1,266 @@
+---
+title: "BDD TP2"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-10-02"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{Rapport de stage}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\newpage
+
+----------------
+# NOTES DU TP2 #
+----------------
+
+`mongorestore -d test -c tp2 ex.bson`
+
+# Exercice 2
+
+une seule collections : tp2 dans le db test
+
+# Exercice 3
+
+2000 documents
+
+# Exercice 4
+
+`db.tp2.findOne({"_id":99})`
+
+RESULT
+```
+{
+	"_id" : 99,
+	"score" : 110,
+	"items" : [
+		{
+			"prod" : "A",
+			"qte" : 6
+		},
+		{
+			"prod" : "B",
+			"qte" : 2
+		}
+	]
+}
+```
+
+# Exercice 5
+
+`db.tp2.findOne({"_id":99}, {"items":true})`
+
+RESULT
+```
+{
+	"_id" : 99,
+	"items" : [
+		{
+			"prod" : "A",
+			"qte" : 6
+		},
+		{
+			"prod" : "B",
+			"qte" : 2
+		}
+	]
+}
+```
+
+# Exercice 6
+
+` db.tp2.findOne({"_id":99}, {"items.qte":true}) `
+
+RESULT
+` { "_id" : 99, "items" : [ { "qte" : 6 }, { "qte" : 2 } ] } `
+
+# Exercice 7
+
+```
+db.tp2.aggregate([
+	{ $match: { score: { $gte: 100 }}},
+	{ $group: {
+		_id: null,
+		count: { $sum: 1 }
+		}
+	}
+])
+```
+
+RESULT
+` { "_id" : null, "count" : 339 } `
+
+# Exercice 8
+
+` db.runCommand({"distinct": "tp2", "key": "score"}) `
+
+RESULT
+```
+{
+	"values" : [
+		10,
+		20,
+		30,
+		40,
+		50,
+		60,
+		70,
+		80,
+		90,
+		100,
+		110
+	],
+	"ok" : 1
+}
+```
+
+# Exercice 9
+
+```
+db.tp2.aggregate([
+	{ $group: {
+		_id: null,
+		count: { $sum: "$score" }
+		}
+	}
+])
+```
+
+RESULT
+` { "_id" : null, "count" : 118650 } `
+
+# Exercice 10
+
+```
+db.tp2.aggregate([
+	{ $match: {_id: {$lt : 500}}},
+	{ $group: {
+		_id: null,
+		count: { $sum: "$score" }
+		}
+	}
+])
+```
+
+RESULT
+` { "_id" : null, "count" : 30030 } `
+
+# Exercice 11
+
+```
+db.tp2.aggregate([
+	{ $group: {
+		_id: "$score",
+		count: { $sum: "$score" }
+		}
+	},
+	{ $match: {count: {$gt : 4000}}}
+])
+```
+
+RESULT
+```
+{ "_id" : 30, "count" : 5730 }
+{ "_id" : 60, "count" : 10920 }
+{ "_id" : 80, "count" : 13600 }
+{ "_id" : 50, "count" : 9350 }
+{ "_id" : 70, "count" : 13790 }
+{ "_id" : 90, "count" : 16560 }
+{ "_id" : 110, "count" : 18150 }
+{ "_id" : 100, "count" : 17400 }
+{ "_id" : 40, "count" : 7880 }
+```
+
+# Exercice 12
+
+```
+db.tp2.aggregate([
+	{$unwind: "$items"},
+	{$group: {
+		_id: "$items.prod",
+		count: {$sum: "$items.qte"}
+	}}
+])
+```
+
+-------
+
+```
+{ "_id" : "B", "count" : 4028  }
+{ "_id" : "A", "count" : 7050  }
+```
+
+# Exercice 13
+
+```
+db.tp2.find({score: 30}).explain()
+```
+
+```
+"winningPlan" : {
+	"stage" : "COLLSCAN",
+	"filter" : {
+		"score" : {
+			"$eq" : 30
+		}
+	},
+	"direction" : "forward"
+}
+```
+
+# Exercice 14
+
+```
+db.tp2.ensureIndex({score: 1})
+```
+
+```
+{
+    "numIndexesBefore" : 1,
+	"numIndexesAfter" : 2,
+	"createdCollectionAutomatically" : false,
+	"ok" : 1
+}
+```
+
+```
+db.tp2.find({score: 30}).explain()
+```
+
+```
+"winningPlan" : {
+	"stage" : "FETCH",
+	"inputStage" : {
+		"stage" : "IXSCAN",
+		"keyPattern" : {
+			"score" : 1
+		},
+		"indexName" : "score_1",
+		"isMultiKey" : false,
+		"multiKeyPaths" : {
+			"score" : [ ]
+		},
+		"isUnique" : false,
+		"isSparse" : false,
+		"isPartial" : false,
+		"indexVersion" : 2,
+		"direction" : "forward",
+		"indexBounds" : {
+			"score" : [
+				"[30.0, 30.0]"
+			]
+		}
+	}
+}
+```
