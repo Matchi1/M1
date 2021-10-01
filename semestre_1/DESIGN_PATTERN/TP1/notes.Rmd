@@ -1,0 +1,24 @@
+# Exercice 4
+
+__On souhaite afficher sur la console (au moins dans un premier temps) la figure
+la plus proche de l'endroit où l'utilisateur a clique.
+Comment devez-vous modifier votre programme pour prendre en compte cette
+nouvelle fonctionnalité ?__
+
+Il suffit d'ajouter une méthode _distance_ pour chaque forme.
+Cette méthode renvoie la distance entre lui et les coordonnées entrées en
+paramètre.
+
+__Si vous ne l'avez pas déjà fait, il faut encapsuler la liste des figures dans
+une classe. Pourquoi est-ce nécessaire ?__
+
+C'est nécessaire pour pouvoir récupérer les données sur chaque figures.
+
+# Exercice 5
+
+__Sachant que l'on veut garder la figure étant selectionnée dans un champ pour
+la suite, expliquer pourquoi stocker une couleur dans chaque figure est une 
+erreur.__
+
+La couleur ne dépend pas réellement de la figure et c'est un élément qui peut
+varier énormément.
