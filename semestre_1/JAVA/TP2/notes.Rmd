@@ -1,0 +1,204 @@
+---
+title: "Java avancé TP2"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-10-10"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu de java}
+	\fancyfoot[L]{\thedate}
+footer-left: "2020-2021"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\newpage
+
+# Exercice 1
+
+## 1.1
+
+__Pourquoi, depuis la version 7 de Java, on représente un chemin en Java en
+utilisant la classe java.nio.file.Path et pas la classe java.io.File comme
+précédemment.__
+
+java.nio.file.Path est plus adapter pour accéder aux informations d'un fichier
+notamment l'url d'un fichier, sa taille...
+
+## 1.3
+
+```
+public static void main(String[] args) {
+		var path = Path.of("movies.txt");
+		try {
+			var text = Files.lines(path);
+			System.out.println(text.count());
+		} catch (IOException e) {
+			System.out.println("I/O Error");
+		}
+	}
+```
+
+## 1.4
+
+```
+public static void main(String[] args) {
+	var path = Path.of("movies.txt");
+	try {
+		var text = Files.lines(path);
+		System.out.println(text.count());
+		text.close();
+	} catch (IOException e) {
+		System.out.println("I/O Error");
+	}
+}
+```
+
+## 1.5
+
+```
+public static void main(String[] args) {
+	var path = Path.of("movies.txt");
+	Stream<String> text = null;
+	try {
+		text = Files.lines(path);
+		System.out.println(text.count());
+	} catch (IOException e) {
+		System.out.println("I/O Error");
+	} finally {
+		text.close();
+	}
+}
+```
+
+## 1.7
+
+__Quelle est la différence entre l'utilisation de la construction try-catch et
+un throws.__
+
+_try-catch_ permet de gérer les exceptions dans la méthode actuelle, contrairement
+à _throws_ qui spécifie que la méthode est susceptible d'avoir un certain type
+d'exception.
+Cela permet de gérer l'exception dans une autre méthode.
+
+__Pourquoi vaudrait-il mieux utiliser un throws ici ?__
+
+Cela permet d'éviter de gérer l'exception.
+
+```
+public static void main(String[] args) throws IOException {
+	var path = Path.of("movies.txt");
+	var text = Files.lines(path);
+	System.out.println(text.count());
+	text.close();
+}
+```
+
+## 1.8
+
+```
+public static void main(String[] args) {
+	var path = Path.of("movies.txt");
+	try (var text = Files.lines(path)){
+		System.out.println(text.count());
+	} catch (IOException e) {
+		System.out.println("I/O Error");
+	}
+}
+```
+
+## 1.9
+
+__Pourquoi le try(..) est mieux que le try/finally ?__
+
+Cela permet d'éviter d'oublier le _close_ du stream et donc du fichier.
+
+# Exercice 2
+
+## 2.3
+
+__quel Collector doit-on utiliser ?__
+
+On doit utiliser la méthode _toUnmodifiableMap_ de __Collectors__ pour renvoyer
+une map.
+
+## 2.4
+
+__Il existe une méthode Function.identity(). Comment peut-on l'utiliser dans
+notre cas ?__
+
+on peut l'utiliser dans la méthode _toUnmodifiableMap_ pour qu'il renvoie
+l'objet lui-même.
+
+## 2.5
+
+__À quoi sert la méthode Stream.flatMap() ?__
+
+La méthode __Stream.flatMap()__ permet de filtrer et effectuer une
+transformation sur des listes Elle renvoie un __Stream__
+
+__Comment peut-on l'utiliser dans notre cas ?__
+
+On peut l'utiliser pour obtenir un __Stream__ d'acteurs en l'appliquant à chaque
+liste d'acteur dans __Movie__
+
+## 2.7
+
+__Quelle est l'interface Java qui correspond à cette structure de données ?__
+
+Les __Set__ permettent de ne pas stocker de doublons
+
+__Quelle implantation de l'interface allons-nous choisir ?__
+
+Les __Set__
+
+
+## 2.8
+
+__En fait, il existe une méthode Stream.distinct(). Comment peut-on l'utiliser
+pour trouver le nombre total d'acteurs ?__
+
+On peut l'appliquer au stream après avoir appeler le __Stream.flatMap()__
+
+## 2.9
+
+__Quel est le type de retour de la méthode numberOfMoviesByActor ?__
+
+le type de retour est __Map<String, Long>__
+
+__Comment peut-on utiliser le collecteur ci-dessus pour grouper les acteurs en
+fonction d'eux-mêmes ?__
+
+On peut spécifier la clé pour grouper chaque objet, c'est-à-dire le nom des
+acteurs.
+
+__Quelle sera le type de retour de l'appel à collect ?__
+
+Le type dépend du type de retour __Collectors.groupingBy()__, c'est-à-dire un
+__Map__
+
+## 2.10
+
+__Sachant que la structure de donnée passée en paramètre pourrait être vide,
+quel doit être le type de retour de cette méthode ?__
+
+Le type de retour doit être un __Optional__
+
+# Conclusion
+
+Lors de ce TP, j'ai revu la différence entre un __try-catch__ et un __throws__.
+Les __try-catch__ sont principalement utilisés dans une méthode main pour gérer
+les exceptions. Les __throws__ permettent de transmettre l'exception à la
+méthode appelante, cela rend la gestion des exceptions plus simple.
+J'ai aussi pu revoir l'utilisation des streams dans l'exercice 2.
+Je comprend beaucoup mieux la logique derrière les __Stream__, il faut notamment
+faire attention au type de retour des streams.
+Les difficultés de ce TP étaient principalement la manipulation des __Stream__.
+Je compte retravailler les __Stream__ pour être un peu plus à l'aise avec.
