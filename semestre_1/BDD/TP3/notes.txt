@@ -1,0 +1,50 @@
+used port :
+	- 27017 (shard controller)
+	- 27019 (first replica set)
+	- 27020 (second replica set)
+	- 27031 (first shard)
+	- 27032 (second shard)
+
+mongod --configsvr --replSet configReplSet --port 27019 --dbpath /tmp/dbs/config1
+mongod --configsvr --replSet configReplSet --port 27020 --dbpath /tmp/dbs/config2
+
+mongo --port 27019
+
+config = { _id: "configReplSet", members: [ {"_id": 0, "host": "localhost:27019"}, {"_id": 1, "host": "localhost:27020"} ]}
+rs.initiate(config)
+
+PRIMARY: 27019
+SECONDARY: 27020
+
+mongod --shardsvr --replSet sh0 --port 27031 --dbpath /tmp/dbs/shard31
+mongod --shardsvr --replSet sh1 --port 27032 --dbpath /tmp/dbs/shard32
+
+mongo --eval "rs.initiate()" --port 27031
+mongo --eval "rs.initiate()" --port 27032
+
+mongos --configdb configReplSet/localhost:27019,localhost:27020 --port 27017
+
+mongo --port 27017
+
+use config
+
+db.settings.save( { _id:"chunksize", value: 1 } )
+
+use testdb
+
+sh.addShard( "sh0/localhost:27031");
+sh.addShard( "sh1/localhost:27032");
+
+sh.enableSharding("testdb")
+sh.shardCollection("testdb.col1", {testkey : 1})
+
+db.col1.getShardDistribution()
+db.adminCommand({getShardMap:1})
+
+for(var i=0;i<30000;i++) {
+
+  db.col1.insert( {testkey:(Math.random()*1000), text: "jezakejazkjekazjekajzeaaaaaaaaaaaaaaaaaaaaaaaaaaaaakejkaejzkaejalzjlaejlakzejlajzlleklajzejalzjelazjealkzjeklazje"});
+
+}
+
+db.col1.countDocuments({})
