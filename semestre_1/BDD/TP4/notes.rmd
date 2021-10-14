@@ -1,0 +1,45 @@
+# configure DB
+
+see TP3
+
+# 
+
+mongod --shardsvr --replSet sh2 --port 27033 --dbpath /tmp/dbs/shard2
+
+mongo --eval "rs.initiate()" --port 27033
+
+sh.addShard( "sh2/localhost:27033")
+
+sh.status()
+
+sh.getBalancerState()
+
+use admin
+db.runCommand({removeShard:"localhost:27033"})
+
+draining = true
+
+mongoimport -d resto -c restaurant --jsonArray restaurants.json
+
+db.restaurant.aggregate(
+	[
+		{$group: {"_id": "$borough",
+		minZip: {$min: "$address.zipcode"},
+		maxZip: {$max: "$address.zipcode"}
+		}}
+	]
+)
+
+sh.enableSharding("resto")
+sh.shardCollection("resto.restaurant", {testkey : 1})
+
+sh.addShardTag("sh0", "Manhattan")
+sh.addShardTag("sh0", "Bronx")
+sh.addShardTag("sh1", "Queens")
+sh.addShardTag("sh1", "Brooklyn")
+sh.addShardTag("sh1", "Staten Island")
+
+db.restaurant.createIndex({borough: 1})
+
+use config
+db.shards.find({})
