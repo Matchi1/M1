@@ -1,0 +1,87 @@
+---
+title: "Java avancé TP3: les Threads et la concurrence"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-10-15"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu de java}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\newpage
+
+# Exercice 1
+
+## 1.1
+
+__Rappeler à quoi sert un Runnable__
+
+Un Runnable est une interface fonctionnelle qui ne prend rien en paramètre et ne
+renvoie rien. Elle permet juste d'exécuter du code.
+
+## 1.3
+
+__Exécutez le programme plusieurs fois, que remarque-t-on ?__
+
+L'affichage n'est pas le même selon l'exécution.
+
+__Puis, en regardant l'affichage (scroller au besoin), qu'y a-t-il de bizarre
+?__
+
+On s'aperçoit aussi que les affichages ne se chevauchent pas.
+
+__Est-ce que tout ceci est bien normal ?__
+
+C'est une propriété particulière de println, elle bloque l'écriture à un seul
+thread.
+
+# Exercice 3
+
+## 3.2
+
+__Expliquer comment la taille de la liste peut être plus petite que le nombre
+total d'appels à la méthode add.__
+
+Pendant l'ajout d'un élément dans la list, un thread peut être désordonnancé,
+en conservant un certain indice.
+Le thread qui prend le relais possède le même indice, ainsi le même indice dans
+la liste est modifié 2 fois.
+
+## 3.3
+
+__Quel est le nouveau comportement observé ?__
+
+Des exceptions apparaissent du type ArrayOutOfBound
+
+## 3.6
+
+__Rappeler ce que thread-safe veut dire pour une classe__
+
+Une classe thread-safe est une classe qui permet d'éviter que les threads
+provoquent des états un incohérent
+
+# Conclusion
+
+Lors de ce TP, j'en ai appris plus sur les __Thread__, sur leur fonctionnement
+et sur les précautions à prendre en les manipulant.
+Les __Thread__ vont permettre d'exécuter un bout de code _simultanément_ entre
+eux.
+Ce sont des éléments qui sont gérer par le système et non par java.
+Les __Thread__ entrainent également l'implication d'une nouvelle notion, la
+concurrence. En effet, chaque données peuvent être accéder par plusieurs thread
+à la fois, ce qui peut entrainer l'incohérence des données si elles sont
+modifiées.
+Les difficultés de ce TP sont principalement la compréhension du fonctionnement
+d'une thread et de s'habituer à prendre les précautions nécessaires lié
+utilisation.
