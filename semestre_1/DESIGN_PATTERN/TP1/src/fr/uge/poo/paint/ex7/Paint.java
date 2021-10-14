@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-import fr.uge.poo.paint.ex7.ColorManager.CustomColor;
-
 public class Paint {
 	private final ArrayList<Shape> shapes;
 	private Shape particularShape;
@@ -19,21 +17,16 @@ public class Paint {
 	}
 	
 	private void addShapeFromString(String line) {
-		String[] tokens = line.split(" ");
-	    int x1 = Integer.parseInt(tokens[1]);
-	    int y1 = Integer.parseInt(tokens[2]);
-	    int x2 = Integer.parseInt(tokens[3]);
-	    int y2 = Integer.parseInt(tokens[4]);
-	    switch(tokens[0]) {
-			case "ellipse":
-				shapes.add(new Ellipse(x1, y1, x2, y2));
-				break;
-			case "rectangle":
-				shapes.add(new Rectangle(x1, y1, x2, y2));
-				break;
-			default:
-				shapes.add(new Line(x1, y1, x2, y2));
-	    }
+		var tokens = line.split(" ");
+	    var x1 = Integer.parseInt(tokens[1]);
+	    var y1 = Integer.parseInt(tokens[2]);
+	    var x2 = Integer.parseInt(tokens[3]);
+	    var y2 = Integer.parseInt(tokens[4]);
+		switch (tokens[0]) {
+			case "ellipse" -> shapes.add(new Ellipse(x1, y1, x2, y2));
+			case "rectangle" -> shapes.add(new Rectangle(x1, y1, x2, y2));
+			default -> shapes.add(new Line(x1, y1, x2, y2));
+		}
 	}
 	
 	public void initFigures(String pathName) throws IOException {
@@ -43,7 +36,7 @@ public class Paint {
 		lines.close();
 	}
 	
-	public void paintAll(GraphicManager area) {
+	public void paintAll(Graphic area) {
 		area.clearWindow(CustomColor.WHITE);
 		shapes.forEach(s -> {
 			if(s.equals(particularShape)) {
@@ -54,18 +47,17 @@ public class Paint {
 		});
 	}
 
-	public void mouse_cb(GraphicManager area, int x, int y) {
-		Comparator<Shape> c = (s1, s2) -> {
-			if (s1.distance(x, y) > s2.distance(x, y)) {
-				return 1;
-			} else if (s1.distance(x, y) == s2.distance(x, y)) {
-				return 0;
-			} else {
-				return -1;
-			}
-		};
+	public void mouse_cb(Graphic area, int x, int y) {
 		if (!shapes.isEmpty()) {
-			var sortedShape = this.shapes.stream().sorted(c).toList();
+			var sortedShape = this.shapes.stream().sorted((s1, s2) -> {
+				if (s1.distance(x, y) > s2.distance(x, y)) {
+					return 1;
+				} else if (s1.distance(x, y) == s2.distance(x, y)) {
+					return 0;
+				} else {
+					return -1;
+				}
+			}).toList();
 			this.particularShape = sortedShape.get(0);
 			this.paintAll(area);
 		}

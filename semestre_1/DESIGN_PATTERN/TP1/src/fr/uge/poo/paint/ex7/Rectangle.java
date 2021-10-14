@@ -1,13 +1,15 @@
 package fr.uge.poo.paint.ex7;
 
-import fr.uge.poo.paint.ex7.ColorManager.CustomColor;
+import java.util.Objects;
 
 public class Rectangle extends abstractShape {
 	public Rectangle(int x, int y, int width, int height) {
 		super(x, y, width, height);
 	}
 
-	public void draw(GraphicManager graphics, CustomColor color) {
+	public void draw(Graphic graphics, CustomColor color) {
+		Objects.requireNonNull(graphics);
+		Objects.requireNonNull(color);
         graphics.drawRectangle(super.getX(), super.getY(), super.getWidth(), super.getHeight(), color);
 	}
 

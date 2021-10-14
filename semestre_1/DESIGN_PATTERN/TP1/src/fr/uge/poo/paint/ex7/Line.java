@@ -1,6 +1,8 @@
 package fr.uge.poo.paint.ex7;
 
-import fr.uge.poo.paint.ex7.ColorManager.CustomColor;
+import fr.uge.poo.paint.ex7.CustomColor;
+
+import java.util.Objects;
 
 public class Line implements Shape {
 	private int x0;
@@ -15,7 +17,9 @@ public class Line implements Shape {
 		this.y1 = y1;
 	}
 	
-	public void draw(GraphicManager graphics, CustomColor color) {
+	public void draw(Graphic graphics, CustomColor color) {
+		Objects.requireNonNull(graphics);
+		Objects.requireNonNull(color);
         graphics.drawLine(x0, y0, x1, y1, color);
 	}
 	
