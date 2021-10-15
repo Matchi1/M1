@@ -1,12 +1,12 @@
-package fr.uge.poo.paint.ex7;
+package fr.uge.poo.paint.ex8;
 
 import java.util.Objects;
 
 public class Line implements Shape {
-	private final int x0;
-	private final int y0;
-	private final int x1;
-	private final int y1;
+	private int x0;
+	private int y0;
+	private int x1;
+	private int y1;
 	
 	public Line(int x0, int y0, int x1, int y1) {
 		this.x0 = x0;

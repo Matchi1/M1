@@ -1,4 +1,4 @@
-package fr.uge.poo.paint.ex7;
+package fr.uge.poo.paint.ex9;
 
 import java.util.Objects;
 
@@ -28,9 +28,6 @@ public class Ellipse extends abstractShape {
 		if(ellipse.getX() != super.getX() || ellipse.getY() != super.getY()) {
 			return false;
 		}
-		if(ellipse.getWidth() != super.getWidth() || ellipse.getHeight() != super.getHeight()) {
-			return false;
-		}
-		return true;
+		return ellipse.getWidth() == super.getWidth() && ellipse.getHeight() == super.getHeight();
 	}
 }

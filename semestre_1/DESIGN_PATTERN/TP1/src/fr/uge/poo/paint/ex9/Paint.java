@@ -1,4 +1,4 @@
-package fr.uge.poo.paint.ex7;
+package fr.uge.poo.paint.ex9;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,8 +26,8 @@ public class Paint {
 	}
 	
 	public void initFigures(String pathName) throws IOException {
-		Path path = Paths.get(pathName);
-		Stream<String> lines = Files.lines(path);
+		var path = Paths.get(pathName);
+		var lines = Files.lines(path);
 		lines.forEach(this::addShapeFromString);
 		lines.close();
 	}
@@ -41,24 +41,24 @@ public class Paint {
 				s.draw(area, CustomColor.BLACK);
 			}
 		});
+		area.refresh();
 	}
 
 	public void mouse_cb(Canvas area, int x, int y) {
 		if (!shapes.isEmpty()) {
-			var sortedShape = this.shapes.stream()
-					.sorted(Comparator.comparingInt(s -> s.distance(x, y)))
-					.toList();
-			this.particularShape = sortedShape.get(0);
-			this.paintAll(area);
+			 particularShape = shapes.stream()
+			 		.min(Comparator.comparingInt(s -> s.distance(x, y)))
+			 		.get();
 		}
+		paintAll(area);
 	}
 	
 	public Point minDimension() {
 		var widthMin = 0;
 		var heightMin = 0;
 		for(var shape : shapes) {
-			widthMin = Integer.max(shape.windowWidthMin(), heightMin);
 			heightMin = Integer.max(shape.windowHeightMin(), heightMin);
+			widthMin = Integer.max(shape.windowWidthMin(), widthMin);
 		}
 		return new Point(widthMin, heightMin);
 	}

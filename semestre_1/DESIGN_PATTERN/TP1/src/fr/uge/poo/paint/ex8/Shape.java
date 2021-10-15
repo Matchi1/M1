@@ -1,4 +1,4 @@
-package fr.uge.poo.paint.ex7;
+package fr.uge.poo.paint.ex8;
 
 public interface Shape {
 	public void draw(Canvas graphics, CustomColor Color);

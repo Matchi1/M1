@@ -1,4 +1,4 @@
-package fr.uge.poo.paint.ex7;
+package fr.uge.poo.paint.ex9;
 
 public abstract class abstractShape implements Shape {
 	private final int x;

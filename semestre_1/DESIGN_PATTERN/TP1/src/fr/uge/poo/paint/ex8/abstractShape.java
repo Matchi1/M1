@@ -1,10 +1,10 @@
-package fr.uge.poo.paint.ex7;
+package fr.uge.poo.paint.ex8;
 
 public abstract class abstractShape implements Shape {
-	private final int x;
-	private final int y;
-	private final int width;
-	private final int height;
+	private int x;
+	private int y;
+	private int width;
+	private int height;
 	
 	public abstractShape(int x, int y, int width, int height) {
 		this.x = x;

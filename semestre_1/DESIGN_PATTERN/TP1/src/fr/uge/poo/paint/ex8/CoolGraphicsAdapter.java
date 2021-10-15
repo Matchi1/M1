@@ -1,7 +1,7 @@
-package fr.uge.poo.paint.ex7;
+package fr.uge.poo.paint.ex8;
 
 import fr.uge.poo.coolgraphics.CoolGraphics;
-import fr.uge.poo.coolgraphics.CoolGraphics.ColorPlus;
+import fr.uge.poo.coolgraphics.CoolGraphics.*;
 
 import java.util.Objects;
 

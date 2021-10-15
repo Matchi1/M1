@@ -1,16 +1,19 @@
-package fr.uge.poo.paint.ex7;
+package fr.uge.poo.paint.ex8;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.stream.Stream;
 
 public class Paint {
-	private final ArrayList<Shape> shapes = new ArrayList<>();
+	private final ArrayList<Shape> shapes;
 	private Shape particularShape;
+	
+	public Paint() {
+		this.shapes = new ArrayList<>();
+	}
 	
 	private void addShapeFromString(String line) {
 		var tokens = line.split(" ");
@@ -28,7 +31,7 @@ public class Paint {
 	public void initFigures(String pathName) throws IOException {
 		Path path = Paths.get(pathName);
 		Stream<String> lines = Files.lines(path);
-		lines.forEach(this::addShapeFromString);
+		lines.forEach(line -> addShapeFromString(line));
 		lines.close();
 	}
 	
@@ -45,9 +48,15 @@ public class Paint {
 
 	public void mouse_cb(Canvas area, int x, int y) {
 		if (!shapes.isEmpty()) {
-			var sortedShape = this.shapes.stream()
-					.sorted(Comparator.comparingInt(s -> s.distance(x, y)))
-					.toList();
+			var sortedShape = this.shapes.stream().sorted((s1, s2) -> {
+				if (s1.distance(x, y) > s2.distance(x, y)) {
+					return 1;
+				} else if (s1.distance(x, y) == s2.distance(x, y)) {
+					return 0;
+				} else {
+					return -1;
+				}
+			}).toList();
 			this.particularShape = sortedShape.get(0);
 			this.paintAll(area);
 		}
@@ -57,8 +66,12 @@ public class Paint {
 		var widthMin = 0;
 		var heightMin = 0;
 		for(var shape : shapes) {
-			widthMin = Integer.max(shape.windowWidthMin(), heightMin);
-			heightMin = Integer.max(shape.windowHeightMin(), heightMin);
+			if(shape.windowHeightMin() > heightMin) {
+				heightMin = shape.windowHeightMin();
+			}
+			if(shape.windowWidthMin() > widthMin) {
+				widthMin = shape.windowWidthMin();
+			}
 		}
 		return new Point(widthMin, heightMin);
 	}

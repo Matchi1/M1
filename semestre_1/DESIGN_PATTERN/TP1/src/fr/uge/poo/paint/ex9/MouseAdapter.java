@@ -1,4 +1,4 @@
-package fr.uge.poo.paint.ex7;
+package fr.uge.poo.paint.ex9;
 
 @FunctionalInterface
 public interface MouseAdapter {

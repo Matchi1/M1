@@ -1,4 +1,4 @@
-package fr.uge.poo.paint.ex7;
+package fr.uge.poo.paint.ex9;
 
 import java.util.Objects;
 
@@ -22,17 +22,11 @@ public class Line implements Shape {
 	}
 	
 	public int windowWidthMin() {
-		if(x0 < x1) {
-			return x1;
-		}
-		return x0;
+		return Math.max(x0, x1);
 	}
 	
 	public int windowHeightMin() {
-		if(y0 < y1) {
-			return y1;
-		}
-		return y0;
+		return Math.max(y0, y1);
 	}
 
 	@Override
@@ -57,9 +51,6 @@ public class Line implements Shape {
 		if(line.x0 != x0 || line.x1 != x1) {
 			return false;
 		}
-		if(line.y0 != y0 || line.y1 != y1) {
-			return false;
-		}
-		return true;
+		return line.y0 == y0 && line.y1 == y1;
 	}
 }

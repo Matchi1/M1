@@ -1,4 +1,4 @@
-package fr.uge.poo.paint.ex7;
+package fr.uge.poo.paint.ex9;
 
 import fr.uge.poo.coolgraphics.CoolGraphics;
 import fr.uge.poo.coolgraphics.CoolGraphics.ColorPlus;
@@ -49,4 +49,7 @@ public class CoolGraphicsAdapter implements Canvas {
     public void waitForMouseEvents(MouseAdapter mouseCb) {
         graphics.waitForMouseEvents(mouseCb::mouseClicked);
     }
+
+    @Override
+    public void refresh() {}
 }
