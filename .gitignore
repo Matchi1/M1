@@ -5,3 +5,4 @@ lib
 \.*
 *.pdf
 *.zip
+__pycache__
