@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class InterruptNonBlocking {
+	
+	  static class MyException extends RuntimeException {
+		  public MyException(String message) {
+			  super(message);
+		}
+	  }
 	  private static int slow() {
 		  var result = 1;
 		  for (var i = 0; i < 1_000_000; i++) {
@@ -130,7 +136,6 @@ public class InterruptNonBlocking {
 		  }
 		  System.out.println("enter a thread id:");
 		  try(var scanner = new Scanner(System.in)) {
-			  
 			  while(scanner.hasNextInt()) {
 				  var threadId = scanner.nextInt();
 				  for(var thread : threads) {
