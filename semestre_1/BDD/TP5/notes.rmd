@@ -1,0 +1,266 @@
+# Exercice 1
+
+## 1.1
+
+`\i  clients.sql`
+
+## 1.2
+
+index de clé primaire
+
+## 1.3
+
+`ANALYZE client;`
+
+## 1.4
+
+`EXPLAIN SELECT * FROM client;`
+
+cost: coût estimé du lancement
+..: coût total estimé
+rows: Nombre lignes estimé en sortie par ce noeud de plan
+width: Largeur moyenne estimée (en octets) des lignes en sortie par ce nœud de plan.
+
+# Exercice 2
+
+## 2.7
+
+```
+EXPLAIN SELECT age FROM client_hash
+WHERE age IS NOT NULL
+GROUP BY age
+HAVING count(age) > 1000;
+
+                               QUERY PLAN                                
+-------------------------------------------------------------------------
+ HashAggregate  (cost=6131.15..6131.67 rows=41 width=4)
+   Group Key: age
+   Filter: (count(age) > 1000)
+   ->  Seq Scan on client_hash  (cost=0.00..4898.54 rows=246523 width=4)
+         Filter: (age IS NOT NULL)
+```
+```
+EXPLAIN SELECT age FROM client_btree
+WHERE age IS NOT NULL
+GROUP BY age
+HAVING count(age) > 1000;
+
+                                QUERY PLAN                                
+--------------------------------------------------------------------------
+ HashAggregate  (cost=6132.40..6132.91 rows=41 width=4)
+   Group Key: age
+   Filter: (count(age) > 1000)
+   ->  Seq Scan on client_btree  (cost=0.00..4898.54 rows=246772 width=4)
+         Filter: (age IS NOT NULL)
+```
+Utilisation de seq scan car on parcourt l'ensemble des éléments de la table
+
+## 2.8
+
+```
+EXPLAIN SELECT tel FROM client_hash
+WHERE tel IS NOT NULL
+GROUP BY tel
+HAVING count(tel) > 1;
+
+                                   QUERY PLAN                                   
+--------------------------------------------------------------------------------
+ GroupAggregate  (cost=31170.79..35848.81 rows=226427 width=11)
+   Group Key: tel
+   Filter: (count(tel) > 1)
+   ->  Sort  (cost=31170.79..31786.68 rows=246357 width=11)
+         Sort Key: tel
+         ->  Seq Scan on client_hash  (cost=0.00..4898.54 rows=246357 width=11)
+               Filter: (tel IS NOT NULL)
+```
+Un tri est effectué, seq scan est utilisé car on vérifie l'ensemble des éléments de
+la table
+```
+EXPLAIN SELECT tel FROM client_btree
+WHERE tel IS NOT NULL
+GROUP BY tel
+HAVING count(tel) > 1;
+
+                                            QUERY PLAN                                             
+---------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=0.42..23132.96 rows=244049 width=11)
+   Group Key: tel
+   Filter: (count(tel) > 1)
+   ->  Index Only Scan using tel_btree on client_btree  (cost=0.42..18849.90 rows=246489 width=11)
+         Index Cond: (tel IS NOT NULL)
+```	 
+Utilisation d'un index scan car il y a peu de numéro de téléphone associé à plusieurs personnes
+
+## 2.9
+
+```
+EXPLAIN SELECT age FROM client_hash
+WHERE age > 20 AND age < 60;
+
+                            QUERY PLAN                             
+-------------------------------------------------------------------
+ Seq Scan on client_hash  (cost=0.00..6143.31 rows=238215 width=4)
+   Filter: ((age > 20) AND (age < 60))
+```
+Seq scan -> on cherche des personnes selon un intervalle
+```
+EXPLAIN SELECT age FROM client_btree
+WHERE age > 20 AND age < 60;
+
+                             QUERY PLAN                             
+--------------------------------------------------------------------
+ Seq Scan on client_btree  (cost=0.00..6143.31 rows=238052 width=4)
+   Filter: ((age > 20) AND (age < 60))
+```
+Seq scan -> on cherche des personnes selon un intervalle
+
+## 2.10
+
+```
+EXPLAIN SELECT age FROM client_btree
+WHERE age IS NULL;
+
+                                 QUERY PLAN                                 
+----------------------------------------------------------------------------
+ Bitmap Heap Scan on client_btree  (cost=60.55..2599.54 rows=2597 width=4)
+   Recheck Cond: (age IS NULL)
+   ->  Bitmap Index Scan on age_btree  (cost=0.00..59.90 rows=2597 width=0)
+         Index Cond: (age IS NULL)
+```
+Bitmap index scan -> cherche les ages non spécifiés
+
+```
+EXPLAIN SELECT age FROM client_hash
+WHERE age IS NULL;
+
+                           QUERY PLAN                            
+-----------------------------------------------------------------
+ Seq Scan on client_hash  (cost=0.00..4898.54 rows=2448 width=4)
+   Filter: (age IS NULL)
+```
+seq scan -> recherche des ages non spécifiés avec un index btree
+
+## 2.11
+
+```
+EXPLAIN SELECT age FROM client_hash
+WHERE age IS NOT NULL;
+
+                            QUERY PLAN                             
+-------------------------------------------------------------------
+ Seq Scan on client_hash  (cost=0.00..4898.54 rows=246506 width=4)
+   Filter: (age IS NOT NULL)
+
+```
+
+```
+EXPLAIN SELECT age FROM client_btree
+WHERE age IS NOT NULL;
+                             QUERY PLAN                             
+--------------------------------------------------------------------
+ Seq Scan on client_btree  (cost=0.00..4898.54 rows=246357 width=4)
+   Filter: (age IS NOT NULL)
+
+```
+seq scan -> nombre d'élément avec un age spécifié est plus élevé
+
+## 2.12
+
+## 2.13
+
+```
+EXPLAIN SELECT age FROM client_btree
+WHERE tel >= '0611111111' AND tel <= '0611111119' AND age >= 5 AND age < 60;
+```
+
+# Exercice 3
+
+## 3.14
+
+```
+EXPLAIN SELECT c1.age FROM client_btree AS c1
+JOIN client_btree as c2 ON c1.age = c2.age;
+
+                                    QUERY PLAN                                     
+-----------------------------------------------------------------------------------
+ Hash Join  (cost=8983.47..40302839.32 rows=3406934574 width=4)
+   Hash Cond: (c1.age = c2.age)
+   ->  Seq Scan on client_btree c1  (cost=0.00..4898.54 rows=248954 width=4)
+   ->  Hash  (cost=4898.54..4898.54 rows=248954 width=4)
+         ->  Seq Scan on client_btree c2  (cost=0.00..4898.54 rows=248954 width=4)
+
+```
+```
+EXPLAIN SELECT c1.age FROM client_hash AS c1
+JOIN client_hash as c2 ON c1.age = c2.age;
+
+                                    QUERY PLAN                                    
+----------------------------------------------------------------------------------
+ Hash Join  (cost=8983.47..40441625.68 rows=3417794643 width=4)
+   Hash Cond: (c1.age = c2.age)
+   ->  Seq Scan on client_hash c1  (cost=0.00..4898.54 rows=248954 width=4)
+   ->  Hash  (cost=4898.54..4898.54 rows=248954 width=4)
+         ->  Seq Scan on client_hash c2  (cost=0.00..4898.54 rows=248954 width=4)
+```
+
+Le plan d'exécution ne change pas selon les index
+
+## 3.15
+
+```
+EXPLAIN SELECT c1.age FROM client_btree AS c1
+JOIN client_btree as c2 ON c1.age = c2.age
+ORDER BY c1.age;
+                                             QUERY PLAN                                              
+-----------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.84..41273606.52 rows=3406934574 width=4)
+   ->  Index Only Scan using age_btree on client_btree c1  (cost=0.42..16863.72 rows=248954 width=4)
+   ->  Index Only Scan using age_btree on client_btree c2  (cost=0.42..105.63 rows=6009 width=4)
+         Index Cond: (age = c1.age)
+```
+```
+EXPLAIN SELECT c1.age FROM client_hash AS c1
+JOIN client_hash as c2 ON c1.age = c2.age
+ORDER BY c1.age;
+
+                                       QUERY PLAN                                       
+----------------------------------------------------------------------------------------
+ Merge Join  (cost=61234.38..51330021.18 rows=3417794643 width=4)
+   Merge Cond: (c1.age = c2.age)
+   ->  Sort  (cost=30617.19..31239.57 rows=248954 width=4)
+         Sort Key: c1.age
+         ->  Seq Scan on client_hash c1  (cost=0.00..4898.54 rows=248954 width=4)
+   ->  Materialize  (cost=30617.19..31861.96 rows=248954 width=4)
+         ->  Sort  (cost=30617.19..31239.57 rows=248954 width=4)
+               Sort Key: c2.age
+               ->  Seq Scan on client_hash c2  (cost=0.00..4898.54 rows=248954 width=4)
+```
+Le plan d'exécution change selon les index dans la table, elle est notamment plus rapide
+
+## 3.16
+
+```
+EXPLAIN SELECT c1.age FROM client_hash AS c1
+NATURAL JOIN client_hash as c2
+WHERE c1.age < c2.age;
+                                              QUERY PLAN                                                                                                                                                       
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Merge Join  (cost=0.84..26486.93 rows=1 width=4)
+   Merge Cond: (c1.numcli = c2.numcli)
+   Join Filter: ((c1.age < c2.age) AND ((c1.nom)::text = (c2.nom)::text) AND ((c1.prenom)::text = (c2.prenom)::text) AND ((c1.prenom2)::text = (c2.prenom2)::text) AND ((c1.prenom3)::text = (c2.prenom3)::text) AND (c1.age = c2.age) AND ((c1.ville)::text = (c2.ville)::text) AND ((c1.tel)::text = (c2.tel)::text))
+   ->  Index Scan using client_hash_pkey on client_hash c1  (cost=0.42..8886.77 rows=248954 width=54)
+   ->  Index Scan using client_hash_pkey on client_hash c2  (cost=0.42..8886.77 rows=248954 width=54)
+
+```
+```
+EXPLAIN SELECT c1.age FROM client_btree AS c1
+NATURAL JOIN client_btree as c2
+WHERE c1.age < c2.age;
+                                              QUERY PLAN                                                                                                                                                       
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Merge Join  (cost=0.84..26486.88 rows=1 width=4)
+   Merge Cond: (c1.numcli = c2.numcli)
+   Join Filter: ((c1.age < c2.age) AND ((c1.nom)::text = (c2.nom)::text) AND ((c1.prenom)::text = (c2.prenom)::text) AND ((c1.prenom2)::text = (c2.prenom2)::text) AND ((c1.prenom3)::text = (c2.prenom3)::text) AND (c1.age = c2.age) AND ((c1.ville)::text = (c2.ville)::text) AND ((c1.tel)::text = (c2.tel)::text))
+   ->  Index Scan using client_btree_pkey on client_btree c1  (cost=0.42..8886.75 rows=248954 width=54)
+   ->  Index Scan using client_btree_pkey on client_btree c2  (cost=0.42..8886.75 rows=248954 width=54)
+```
