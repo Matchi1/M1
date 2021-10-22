@@ -5,9 +5,16 @@ import java.util.concurrent.locks.ReentrantLock;
 public class HonorBoard {
   private String firstName;
   private String lastName;
+  // private final Object monitor = new Object();
   private final ReentrantLock lock = new ReentrantLock();
   
   public void set(String firstName, String lastName) {
+	  /*
+	  synchronized(monitor) {
+		  this.firstName = firstName;
+		  this.lastName = lastName;
+	  }
+	  */
 	  lock.lock();
 	  try {
 		  this.firstName = firstName;
@@ -19,6 +26,11 @@ public class HonorBoard {
   
   @Override
   public String toString() {
+	  /*
+	  synchronized (monitor) {
+		  return firstName + ' ' + lastName;
+	  }
+	  */
 	  lock.lock();
 	  try {
 		  return firstName + ' ' + lastName;

@@ -1,3 +1,26 @@
+---
+title: "Java avancé TP4: les Threads et la concurrence"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-10-24"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu de java}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
 # Exercice 1
 
 ## 1.1
@@ -14,7 +37,7 @@ __Expliquer pourquoi la classe HonorBoard n'est pas thread safe__
 Elle n'est pas thread-safe car il est possible de créer des combinaisons de nom
 et prénom incohérent. par exemple __John Odd__ et __Jane Doe__.
 
-## 1.3
+`java -cp bin fr.umlv.conc.HonorBoard | grep "John Odd"`
 
 ## 1.4
 
@@ -96,4 +119,8 @@ __Pourquoi dit-on que la méthode Thread.interrupted est mal nommée ?__
 
 La méthode devrait s'appeler de __interruptedAndClear__
 
-## 3.8
+## 3.9
+
+__Comment faire pour que le programme se termine si l'on fait un Ctrl-D dans le terminal ?__
+
+Il suffit de créer des threads daemon à la place de thread classique

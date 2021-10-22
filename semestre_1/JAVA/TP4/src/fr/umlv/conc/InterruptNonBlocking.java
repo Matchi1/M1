@@ -12,14 +12,6 @@ public class InterruptNonBlocking {
 		  return result;
 	  }
 	  
-	  private static int slow36() {
-		  var result = 1;
-		  for (var i = 0; i < 1_000_000; i++) {
-			  result += (result * 7) % 513;
-		  }
-		  return result;
-	  }
-	  
 	  public static void ex31() throws InterruptedException {
 		  var thread = new Thread(() -> {
 			  var forNothing = 0;
@@ -36,18 +28,75 @@ public class InterruptNonBlocking {
 		  System.out.println("end");
 	  }
 
+	  private static int slow34() {
+		  var result = 1;
+		  for (var i = 0; i < 1_000_000; i++) {
+			  result += (result * 7) % 513;
+			  if(Thread.interrupted()) {
+				  throw new IllegalStateException("Thread interrupted");
+			  }
+		  }
+		  return result;
+	  }
+	  
+	  public static void ex34() throws InterruptedException {
+		  var thread = new Thread(() -> {
+			  var forNothing = 0;
+			  while(true) {
+				  try {
+					  forNothing += slow34();
+				  } catch (IllegalStateException e) {
+					  return;
+				  }
+			  }
+		  });
+		  thread.start();
+		  Thread.sleep(1_000);
+		  thread.interrupt();
+		  System.out.println("end");
+	  }
+	  
 	  public static void ex35() throws InterruptedException {
 		  var thread = new Thread(() -> {
 			  var forNothing = 0;
-			  while(!Thread.interrupted()) {
+			  while(true) {
 				  forNothing += slow();
 				  try {
-					  Thread.sleep(1_000); 
+					  Thread.sleep(1_000);
 				  } catch (InterruptedException e) {
-					  Thread.currentThread().interrupt();
-					  continue;
+					  return;
 				  }
 				  forNothing += slow(); 
+			  }
+		  });
+		  thread.start();
+		  Thread.sleep(1_000);
+		  thread.interrupt();
+		  System.out.println("end");
+	  }
+	  
+	  private static int slow36() throws InterruptedException {
+		  var result = 1;
+		  for (var i = 0; i < 1_000_000; i++) {
+			  result += (result * 7) % 513;
+			  if(Thread.interrupted()) {
+				  throw new InterruptedException("Thread interrupted");
+			  }
+		  }
+		  return result;
+	  }
+	  
+	  public static void ex36() throws InterruptedException {
+		  var thread = new Thread(() -> {
+			  var forNothing = 0;
+			  while(true) {
+				  try {
+					  forNothing += slow36();
+					  Thread.sleep(1_000);
+					  forNothing += slow36();
+				  } catch (InterruptedException e) {
+					  return;
+				  }
 			  }
 		  });
 		  thread.start();
@@ -62,24 +111,26 @@ public class InterruptNonBlocking {
 		  for(var i = 0; i < nbThreads; i++) {
 			  threads.add(new Thread(() -> {
 				  var counter = 0;
-				  while(!Thread.interrupted()) {	 
+				  while(true) {	 
 					  System.out.println("id : " + Thread.currentThread().getId());
 					  System.out.println("counter : " + counter);
 					  try {
-						  Thread.sleep(5_000);
+						  Thread.sleep(1_000); 
 					  } catch (InterruptedException e) {
-						  Thread.currentThread().interrupt();
-						  continue;
+						  return;
 					  }
 					  counter++;
 				  }
 			  }));
 		  }
 		  for(var thread : threads) {
+			  // pour le ctrl-D
+			  thread.setDaemon(true);
 			  thread.start();
 		  }
 		  System.out.println("enter a thread id:");
 		  try(var scanner = new Scanner(System.in)) {
+			  
 			  while(scanner.hasNextInt()) {
 				  var threadId = scanner.nextInt();
 				  for(var thread : threads) {
