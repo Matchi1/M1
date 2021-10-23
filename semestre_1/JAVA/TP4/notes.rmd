@@ -59,7 +59,7 @@ Non, il faudrait rendre ces méthodes thread-safe aussi.
 
 __Rappeler ce que ré-entrant veut dire__
 
-Système de verrou
+c'est système de verrou pour les threads
 
 # Exercice 3
 
@@ -124,3 +124,15 @@ La méthode devrait s'appeler de __interruptedAndClear__
 __Comment faire pour que le programme se termine si l'on fait un Ctrl-D dans le terminal ?__
 
 Il suffit de créer des threads daemon à la place de thread classique
+
+# Conclusion
+
+Lors de ce TP, j'en ai appris plus sur les __Thread__ notamment sur leur
+fonctionnement.
+J'ai aussi compris l'utilité d'une classe _thread-safe_ et le fonctionnement
+d'une demande d'interruption.
+Les difficultés de ce TP sont principalement de comprendre ce que l'on peut
+faire avec un thread mais aussi de savoir les actions adéquates que l'on peut
+exécuter sur elles. Notamment avec les interruptions.
+Je vais continuer à revoir le fonctionnement des threads et des verrous pour
+être plus efficace lors que je travaillerai dessus.
