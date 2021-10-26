@@ -1,24 +1,352 @@
-# Exercice 4
+---
+title: |
+	| \vspace{5cm} Design Pattern: Paint
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-10-24"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
 
-__On souhaite afficher sur la console (au moins dans un premier temps) la figure
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu de java}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+
+**Donnez la hiérarchie des sous-types de Shape sous la forme d'un diagramme de
+classe UML faisant apparaitre leurs relations entre-elles et avec les autres
+types de l'application Paint.**
+
+**Justifiez la manière dont vous avez factorisé le code entre Rectangle et
+Ellipse.**
+
+Pour factoriser le code entre Rectangle et Ellipse, il suffit juste de repérer 
+les similitudes entre les 2 classes, notamment au niveau des champs.
+Un rectangle et une ellipse sont formé de la même manière, elles possèdent
+chacun un point, une largeur et une longueur.
+Il faut aussi ajouté des getters pour l'abstractShape pour que les sous-classes
+puissent intéragir avec les champs.
+
+**Essayez de décrire brièvement les responsabilités (les fonctionnalités
+offertes) par chacun des types.**
+
+# Exercices 1 à 5
+
+## Class Paint
+
+Cette classe se charge des actions que l'on fait au niveau graphique.
+C'est-à-dire charger les formes depuis un fichier, les dessiner dans une fenêtre
+et gérer les boutons de la souris.
+
+### Champs
+
+| champs          | type             | modificateur  | description        |
+|-----------------+------------------+---------------+--------------------|
+| shapes          | ArrayList<Shape> | private final | Liste de forme     |
+| particularShape | Shape            | private       | forme sélectionnée |
+
+### Méthodes
+
+```java
+private void addShapeFromString(String line);
+private void initFigures(String pathName) throws IOException;
+public void paintAll(SimpleGraphics area);
+public void paintParticularShape(SimpleGraphics area);
+public static void mouse_cb(SimpleGraphics area, Paint paint, int x, int y);
+```
+
+## Interface Shape
+
+Shape est une interface qui est implémenté par des objets qui peuvent être
+dessiné sur une fenêtre.
+Le but de cette interface est de pouvoir considérer chaque forme comme un seul
+objet qui a la propriété d'être dessinable.
+
+**Si la méthode draw() n’était pas dans l’interface Shape, quel code serait-on
+obligé d’écrire dans la méthode en charge de dessiner toutes les figures?**
+
+On aurait été obligé de faire un switch pour déterminer le type de l'objet et
+d'effectuer un cast pour pouvoir appeler la méthode.
+Mettre la méthode **draw()** dans cette interface permet de d'éviter toutes ces
+manipulations qui rendent le code difficile à maintenir.
+
+### Méthodes
+
+```java
+void draw(Graphics2D graphics);
+int distance(int x, int y);
+```
+
+La méthode *draw* est une méthode qui permet dessiner une forme selon
+l'interface graphique entrée en paramètre.
+*distance* permet de calculer la distance du point central de la forme aux
+coordonnées spécifiées.
+
+## Classe Line
+
+Cette classe s'occupe de créer une ligne.
+Elle doit permettre de dessiner une ligne dans une fenêtre.
+
+### Champs
+
+| champs | type | modificateur | description               |
+|--------+------+--------------+---------------------------|
+| x1     | int  | private      | abscisse du premier point |
+| x2     | int  | private      | abscisse du second point  |
+| y1     | int  | private      | ordonnée du premier point |
+| y2     | int  | private      | ordonnée du second point  |
+
+### Méthodes
+
+```java
+public void draw(Graphics2D graphics);
+```
+
+## Classe Rectangle
+
+Cette classe s'occupe de créer un rectangle
+Elle doit permettre de dessiner une rectangle dans une fenêtre.
+
+### Champs
+
+| champs | type | modificateur | description                  |
+|--------+------+--------------+------------------------------|
+| x      | int  | private      | abscisse du point Nord-Ouest |
+| y      | int  | private      | ordonnée du point Nord-Ouest |
+| width  | int  | private      | largeur du rectangle         |
+| heigth | int  | private      | longueur du rectangle        |
+
+### Méthodes
+
+```java
+public void draw(Graphics2D graphics);
+```
+
+## Classe Ellipse
+
+Cette classe s'occupe de créer une ellipse.
+Elle doit permettre de dessiner une ellipse dans une fenêtre.
+
+### Champs
+
+| champs | type | modificateur | description                  |
+|--------+------+--------------+------------------------------|
+| x      | int  | private      | abscisse du point Nord-Ouest |
+| y      | int  | private      | ordonnée du point Nord-Ouest |
+| width  | int  | private      | largeur du rectangle         |
+| heigth | int  | private      | longueur du rectangle        |
+
+### Méthodes
+
+```java
+public void draw(Graphics2D graphics);
+```
+
+## Classe abstraite AbstractShape
+
+Cette classe abstraite se charge de factoriser le code entre Rectangle et
+Ellipse.
+
+### Champs
+
+| champs | type | modificateur | description                  |
+|--------+------+--------------+------------------------------|
+| x      | int  | private      | abscisse du point Nord-Ouest |
+| y      | int  | private      | ordonnée du point Nord-Ouest |
+| width  | int  | private      | largeur du rectangle         |
+| heigth | int  | private      | longueur du rectangle        |
+
+### Méthodes
+
+```java
+public int getX();
+public int getY();
+public int getWidth();
+public int getHeight();
+public int distance(int x, int y);
+```
+
+**Qu'est ce qui vous guide ou vous permet de justifier chacun de ces membres et
+leur visibilité?**
+
+Les champs pour chaque forme doivent être en _private_ pour éviter l'accès à ces
+champs depuis l'extérieur de la classe. Cela respecte le principe suivant:
+**une classe, une responsabilité**
+
+**On souhaite afficher sur la console (au moins dans un premier temps) la figure
 la plus proche de l'endroit où l'utilisateur a clique.
 Comment devez-vous modifier votre programme pour prendre en compte cette
-nouvelle fonctionnalité ?__
+nouvelle fonctionnalité ?**
 
 Il suffit d'ajouter une méthode _distance_ pour chaque forme.
 Cette méthode renvoie la distance entre lui et les coordonnées entrées en
 paramètre.
 
-__Si vous ne l'avez pas déjà fait, il faut encapsuler la liste des figures dans
-une classe. Pourquoi est-ce nécessaire ?__
+**Si vous ne l'avez pas déjà fait, il faut encapsuler la liste des figures dans
+une classe. Pourquoi est-ce nécessaire ?**
 
 C'est nécessaire pour pouvoir récupérer les données sur chaque figures.
 
-# Exercice 5
-
-__Sachant que l'on veut garder la figure étant selectionnée dans un champ pour
-la suite, expliquer pourquoi stocker une couleur dans chaque figure est une 
-erreur.__
+**Sachant que l'on veut garder la figure étant selectionnée dans un champ pour
+la suite, expliquer pourquoi stocker une couleur dans chaque figure est une
+erreur.**
 
 La couleur ne dépend pas réellement de la figure et c'est un élément qui peut
 varier énormément.
+
+---
+
+# Exercice 6 à 9
+
+## record Point
+
+Ce record permet stocker des coordonnées.
+
+### Champs
+
+| champs | type | modificateur | description       |
+|--------+------+--------------+-------------------|
+| x      | int  | private      | abscisse du point |
+| y      | int  | private      | ordonnée du point |
+
+## Classe Main
+
+Cette classe contient le programme principal.
+
+### Méthodes
+
+```java
+public static void main(String[] args);
+```
+
+## Interface Canvas
+
+Canvas est une interface qui est implémenté par des objets qui peuvent créer une
+fenêtre graphique.
+Le but de cette interface est de pouvoir gérer la présence de plusieurs
+interfaces graphiques dans le programme.
+
+### Méthodes
+
+```java
+public void clearWindow(CustomColor color);
+public void drawLine(int x1, int y1, int x2, int y2, CustomColor color);
+public void drawRectangle(int x, int y, int width, int height, CustomColor color);
+public void drawEllipse(int x, int y, int width, int height, CustomColor color);
+public void waitForMouseEvents(MouseAdapter mouseCb);
+```
+
+## Classe CoolGraphicsAdapter
+
+Cette classe est un adaptateur pour l'API CoolGraphics.
+Elle se charge de convertir les méthodes de l'API en méthodes plus adaptées pour
+le programme.
+Elle implémente l'interface Canvas
+
+### Champs
+
+```java
+private final CoolGraphics graphics;
+```
+
+### Méthodes
+
+Voir l'interface Canvas
+
+## Class SimpleGraphicsAdapter
+
+Cette classe est un adaptateur pour l'API SimpleGraphics.
+Elle se charge de convertir les méthodes de l'API en méthodes plus adaptées pour
+le programme.
+Elle implémente l'interface Canvas
+
+### Champs
+
+```java
+private final SimpleGraphics graphics;
+```
+
+### Méthodes
+
+Voir l'interface Canvas
+
+## interface CanvasFactory
+
+CanvasFactory est une interface qui est implémenté par des objets qui peuvent
+produire un Canvas.
+Le but de cette interface est de fournir une interface graphique selon les
+librairies présentes.
+
+### Méthodes
+
+```java
+public Canvas createCanvas(String title, int width, int height);
+```
+
+## class SimpleGraphicsFactory
+
+Cette classe se charge de produire un objet SimpleGraphicsAdapter
+
+### Méthodes
+
+Cette classe implémente l'interface CanvasFactory
+
+## class CoolGraphicsFactory
+
+Cette classe se charge de produire un objet CoolGraphicsAdapter
+
+### Méthodes
+
+Cette classe implémente l'interface CanvasFactory
+voir l'interface CanvasFactory
+
+**Dans l’exercice 9, il n’est pas nécessaire de stocker une liste de lambdas.
+On peut stocker une seule lambda (regardez Consumer.andThen pour vous inspirez).
+On vous demande de montrer du code.**
+
+On peut stocker une seule lambda qui va stocker l'ensemble des lambda.
+Un consumer possède une fonction _andThen_ qui permet de rajouter du code
+dans la lambda.
+
+
+**La classe Drawing ne respecte pas complètement le open-close principle.
+En effet, pour rajouter une Shape, il faut aller rouvrir le code de la classe
+Drawing pour modifier la méthode fromFile(Path path).
+Proposer une solution avec diagramme UML et un code permettant de rajouter des
+nouvelles shapes en respectant le plus possible le open-close principle.**
+
+
+**Expliquez votre implémentation du desgin pattern Adapter dans l’exercice 7, en
+fournissant un diagramme UML et en paragraphe d'explication.**
+
+**Dans l’exercice sur les ServiceLoader, proposez une solution pour fournir des
+canards nommés sans passer par une factory et en rajoutant une méthode
+setName().**
+
+**Donnez le code de la classe DuckFarmBetter dans ce cas.**
+
+**Expliquez pourquoi un jar fournissant CoolGraphics ne pourrait pas fournir
+l'interface Canvas ?**
+
+**Si l'on voulait fournir directement l'interface Canvas quelle méthode
+faudrait-il rajouter à l'interface Canvas ?**
+
+**Donnez le morceau de code dans Paint qui réalise la création du Canvas dans ce 
+cas.**
+
+**Est-ce que cela fait sens dans notre contexte ?**
+
+**On veut ajouter une figure Square, sous-type de Shape.
+Peut-on la faire hériter de Rectangle?
+Proposer une solution à base de composition sans héritage.**
+
