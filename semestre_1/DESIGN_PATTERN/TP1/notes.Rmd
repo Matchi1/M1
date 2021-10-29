@@ -57,6 +57,14 @@ et gérer les boutons de la souris.
 
 ### Méthodes
 
+| Méthode              | type de retour | type des arguments              | description                              |
+|----------------------+----------------+---------------------------------+------------------------------------------|
+| addShapeFromString   | void           | String                          | Create a shape from a String             |
+| initFigures          | void           | String                          | Create all shape from a file             |
+| paintAll             | void           | SimpleGraphics                  | Paint all the shapes into the window     |
+| paintParticularShape | void           | SimpleGraphics                  | Paint the selected shape into the window |
+| mouse_cb             | void           | SimpleGraphics, Paint, int, int | Mouse callback method                    |
+
 ```java
 private void addShapeFromString(String line);
 private void initFigures(String pathName) throws IOException;
@@ -325,28 +333,84 @@ Drawing pour modifier la méthode fromFile(Path path).
 Proposer une solution avec diagramme UML et un code permettant de rajouter des
 nouvelles shapes en respectant le plus possible le open-close principle.**
 
+On pourrait créer une classe qui se charge de gérer la création des **Shape**
+selon le **Path** entrer en paramètre.
 
 **Expliquez votre implémentation du desgin pattern Adapter dans l’exercice 7, en
 fournissant un diagramme UML et en paragraphe d'explication.**
+
+Le design pattern **Adapter** permet d'unifier les API graphiques.
+Chaque API possède un adapdateur qui va permettre d'appeler chaque méthode de
+l'API tout en étant adapter au programme.
+Cela permet de gérer le cas où il y a la présence de multiple API graphique.
+Chaque adaptateur se servent de la composition pour se lier à leur API graphique
+correspondante.
 
 **Dans l’exercice sur les ServiceLoader, proposez une solution pour fournir des
 canards nommés sans passer par une factory et en rajoutant une méthode
 setName().**
 
+On pourrait exécuter le serviceLoader sur les librairies de canard (et non sur
+l'usine à canard) et ensuite ajouter un nom à chaque canard avec la méthode
+*setName()*.
+
 **Donnez le code de la classe DuckFarmBetter dans ce cas.**
+
+```java
+public class DuckFarmBetter {
+
+    public static void main(String[] args) {
+        var ducks = new ArrayList<String>();
+        var loader = ServiceLoader.load(fr.uge.poo.ducks.Duck.class);
+        ducks.add("Fifi");
+        ducks.add("Riri");
+        ducks.add("Loulou");
+        for(var duck : loader) {
+            for(var name : ducks) {
+				duck.setName(name);
+                System.out.println(duck.quack());
+            }
+        }
+    }
+}
+```
 
 **Expliquez pourquoi un jar fournissant CoolGraphics ne pourrait pas fournir
 l'interface Canvas ?**
 
+Coolgraphics et Canvas ne sont pas fourni par les même créateur.
+En effet, Coolgraphics n'implémente pas directement Canvas, elle passe par le
+biais de CoolGraphicsAdapter.
+
 **Si l'on voulait fournir directement l'interface Canvas quelle méthode
 faudrait-il rajouter à l'interface Canvas ?**
+
+Il faudrait rajouter la classe CoolGraphicsAdapter car elle implémente
+directement l'inteface Canvas.
 
 **Donnez le morceau de code dans Paint qui réalise la création du Canvas dans ce 
 cas.**
 
+```java
+Canvas area;
+if(Arrays.stream(args).toList().contains("-legacy")) {
+    area = new SimpleGraphicsAdapter("area", widthMin, heightMin);
+} else {
+    area = new CoolGraphicsAdapter("area", widthMin, heightMin);
+}
+
+```
+
 **Est-ce que cela fait sens dans notre contexte ?**
 
 **On veut ajouter une figure Square, sous-type de Shape.
-Peut-on la faire hériter de Rectangle?
-Proposer une solution à base de composition sans héritage.**
+Peut-on la faire hériter de Rectangle?**
 
+Oui, il est possible de la faire hériter de Rectangle.
+Néanmoins, l'héritage est déconseillé car il est dur de garder le code 
+facilement maintenable au cours du temps.
+
+**Proposer une solution à base de composition sans héritage.**
+
+Il est possible de faire en sorte qu'un square contienne un rectangle.
+Le square appellera les rectangles dans les méthodes correspondantes.
