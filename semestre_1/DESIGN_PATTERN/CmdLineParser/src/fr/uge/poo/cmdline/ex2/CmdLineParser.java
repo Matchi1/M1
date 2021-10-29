@@ -29,8 +29,9 @@ public class CmdLineParser {
         Objects.requireNonNull(arguments);
         var files = new ArrayList<String>();
         var iterator = List.of(arguments).iterator();
-        for(var argument = iterator.next(); iterator.hasNext(); argument = iterator.next()) {
-        	if (registeredOptions.containsKey(argument)) {
+        while(iterator.hasNext()) {
+            var argument = iterator.next();
+            if (registeredOptions.containsKey(argument)) {
                 registeredOptions.get(argument).accept(iterator);
             } else {
                 files.add(argument);
