@@ -1,0 +1,72 @@
+---
+title: "Java avancé TP5: Producteur / Consommateur"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-10-30"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu de java}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+# Exercice 1
+
+**Rappeler quel problème est résolu par le design pattern Producer/Consumer.
+Comment fonctionne-t-il ?**
+
+le design pattern Producer/Consumer résout le problème concernant un serveur
+web.
+Lorsqu'il y a trop de client, il y a moins de ressources à leur disposition, ce
+qui oblige les clients à attendre.
+Il y a aussi le cas contraire, dans lequel il y a très peu de clients, ce qui
+met les threads en attente.
+
+Ce design pattern utilise un buffer intermédiaire qui va permettre de stocker
+des messages produit par des producers et récupérer par des consumer.
+Le but est de mettre en attente les consommateurs lorsque le buffer est vide et
+de mettre en attente les producers lorsque le buffer est rempli.
+
+**Comment s'appellent les méthodes de l'interface BlockingQueue qui permettent,
+respectivement, de mettre une valeur dans le buffer et d'en retirer une valeur ?**
+
+la méthode *put()* permet de mettre une valeur dans le buffer et *take()* permet
+de retirer la valeur du buffer.
+
+**Que se passe-t-il si l'implantation de BlockingQueue est une LinkedBlockingQueue
+?**
+
+Une **LinkedBlockingQueue** commence à devenir lent lorsqu'il y a beaucoup
+d'élément.
+
+**Même question si l'implantation est une ArrayBlockingQueue**
+
+Il faut préciser la taille du tableau en avance.
+
+**Que peut-on en conclure ?**
+
+Il est préférable d'utiliser les **ArrayBlockingQueue** par soucis de rapidité.
+
+# Conclusion
+
+Lors de ce TP, j'en ai appris plus sur le design pattern Producer/Consumer
+mais aussi sur la mise en attente des threads et le réveil des threads.
+Producer/Consumer permet de simuler la communication entre un client et un
+serveur. Il permet également d'introduire de nouveaux concepts sur les threads.
+Ce TP m'apprit qu'il est important d'économiser les ressources notamment en
+présence de thread.
+Les difficultés de ce TP sont principalement de comprendre le design pattern et
+l'associer à un problème concret qui est le serveur web.
+Je vais probablement voir dans quel cas est-ce que l'on peut utiliser ce design
+pattern et de voir s'il y a d'autre design pattern utilisant les threads.
