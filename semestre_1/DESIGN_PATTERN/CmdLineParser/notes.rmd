@@ -1,0 +1,28 @@
+# 29 October
+
+# Classe CmdLineParser
+
+La classe était de base incomplète car elle délégue une partie de sa
+responsabilité à la méthode *main* dans la classe **Application**.
+En effet, la méthode s'occupe de parcourir la liste des arguments et renvoie les
+options déjà rencontrées, ainsi elle laisse le *main* effectuer les actions
+correspondantes selon les options rencontrées.
+Il aurait été plus simple et plus judicieux de laisser la classe exécuter ces
+actions.
+
+## Champs
+
+| champs            | type    | modificateurs | description        |
+|-------------------+---------+---------------+--------------------|
+| registeredOptions | HashMap | private final | stocke les options |
+
+## Méthodes
+
+| méthodes | type de retour | type des arguments | description                |
+|----------+----------------+--------------------+----------------------------|
+| addFlag  | void           | String, Runnable   | Ajoute une nouvelle option |
+|          |                |                    | suivi de l'action          |
+|          |                |                    | correspondante             |
+| process  | List           | String             | Exécute les actions de     |
+|          |                |                    | chaque options rencontrées |
+
