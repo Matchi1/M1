@@ -27,13 +27,13 @@ public class Main {
 		for (var delay : delays) {
 			threads.add(new Thread(() -> {
 				while(true) {
-				System.out.println("hello " + Thread.currentThread().getId());
-				try {
-					Thread.currentThread().sleep(delay);
-				} catch (InterruptedException e) {
-					System.out.println(e);
+					System.out.println("hello " + Thread.currentThread().getId());
+					try {
+						Thread.currentThread().sleep(delay);
+					} catch (InterruptedException e) {
+						System.out.println(e);
+					}
 				}
-			}
 			}));
 		}
 		for(var thread : threads) {
@@ -107,8 +107,8 @@ public class Main {
 	
 	public static void ex1_5() {
 		var queue = new ArrayBlockingQueue<String>(10);
-		var producer1 = new Thread(createProducer(0, queue, 4_000));
-		var producer2 = new Thread(createProducer(1, queue, 5_000));
+		var producer1 = new Thread(createProducer(0, queue, 1_000));
+		var producer2 = new Thread(createProducer(1, queue, 1_000));
 		var consumer1 = new Thread(createConsumer(2, queue, 2_000));
 		var consumer2 = new Thread(createConsumer(3, queue, 3_000)); 
 		var consumer3 = new Thread(createConsumer(4, queue, 5_000)); 

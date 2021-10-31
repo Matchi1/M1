@@ -7,8 +7,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class LockedBlockingBuffer <E> implements BlockingBuffer<E> {
 	private final int capacity;
 	private final ArrayDeque<E> buffer;
-	private Condition condition;
 	private final ReentrantLock lock = new ReentrantLock();
+	private final Condition condition = lock.newCondition();
 	
 	public LockedBlockingBuffer(int capacity) {
 		if(capacity < 1) {
@@ -16,7 +16,6 @@ public class LockedBlockingBuffer <E> implements BlockingBuffer<E> {
 		}
 		this.capacity = capacity;
 		this.buffer = new ArrayDeque<E>(capacity);
-		this.condition = lock.newCondition();
 	}
 	
 	public void put(E element) throws InterruptedException {
