@@ -9,6 +9,7 @@ header-includes: |
 	\usepackage{titling}
 	\usepackage{fancyhdr}
 	\usepackage{graphicx}
+	\usepackage{caption}
 
 	\pagestyle{fancy}
 	\fancyhead[LO,LE]{compte rendu de java}
@@ -56,14 +57,6 @@ et gérer les boutons de la souris.
 | particularShape | Shape            | private       | forme sélectionnée |
 
 ### Méthodes
-
-| Méthode              | type de retour | type des arguments              | description                              |
-|----------------------+----------------+---------------------------------+------------------------------------------|
-| addShapeFromString   | void           | String                          | Create a shape from a String             |
-| initFigures          | void           | String                          | Create all shape from a file             |
-| paintAll             | void           | SimpleGraphics                  | Paint all the shapes into the window     |
-| paintParticularShape | void           | SimpleGraphics                  | Paint the selected shape into the window |
-| mouse_cb             | void           | SimpleGraphics, Paint, int, int | Mouse callback method                    |
 
 ```java
 private void addShapeFromString(String line);
@@ -259,7 +252,7 @@ public void waitForMouseEvents(MouseAdapter mouseCb);
 Cette classe est un adaptateur pour l'API CoolGraphics.
 Elle se charge de convertir les méthodes de l'API en méthodes plus adaptées pour
 le programme.
-Elle implémente l'interface Canvas
+Elle implémente l'interface Canvas.
 
 ### Champs
 
@@ -269,14 +262,20 @@ private final CoolGraphics graphics;
 
 ### Méthodes
 
-Voir l'interface Canvas
+```java
+public void clearWindow(CustomColor color);
+public void drawLine(int x1, int y1, int x2, int y2, CustomColor color);
+public void drawRectangle(int x, int y, int width, int height, CustomColor color);
+public void drawEllipse(int x, int y, int width, int height, CustomColor color);
+public void waitForMouseEvents(MouseAdapter mouseCb);
+```
 
 ## Class SimpleGraphicsAdapter
 
 Cette classe est un adaptateur pour l'API SimpleGraphics.
 Elle se charge de convertir les méthodes de l'API en méthodes plus adaptées pour
 le programme.
-Elle implémente l'interface Canvas
+Elle implémente l'interface Canvas.
 
 ### Champs
 
@@ -286,7 +285,13 @@ private final SimpleGraphics graphics;
 
 ### Méthodes
 
-Voir l'interface Canvas
+```java
+public void clearWindow(CustomColor color);
+public void drawLine(int x1, int y1, int x2, int y2, CustomColor color);
+public void drawRectangle(int x, int y, int width, int height, CustomColor color);
+public void drawEllipse(int x, int y, int width, int height, CustomColor color);
+public void waitForMouseEvents(MouseAdapter mouseCb);
+```
 
 ## interface CanvasFactory
 
@@ -318,14 +323,63 @@ Cette classe se charge de produire un objet CoolGraphicsAdapter
 Cette classe implémente l'interface CanvasFactory
 voir l'interface CanvasFactory
 
+\pagebreak
+
 **Dans l’exercice 9, il n’est pas nécessaire de stocker une liste de lambdas.
 On peut stocker une seule lambda (regardez Consumer.andThen pour vous inspirez).
 On vous demande de montrer du code.**
+
+```
+@Override
+public void clearWindow(CustomColor color) {
+	Objects.requireNonNull(color);
+	drawing = area -> {};
+	graphics.clear(convertColor(color));
+}
+
+@Override
+public void drawLine(int x1, int y1, int x2, int y2, CustomColor color) {
+	Objects.requireNonNull(color);
+	drawing = drawing.andThen(area -> {
+		area.setColor(convertColor(color));
+		area.drawLine(x1, y1, x2, y2);
+	});
+}
+
+@Override
+public void drawRectangle(int x, int y, int width, int height, CustomColor color) {
+	Objects.requireNonNull(color);
+	drawing = drawing.andThen(area -> {
+		area.setColor(convertColor(color));
+		area.drawRect(x, y, width, height);
+	});
+}
+
+@Override
+public void drawEllipse(int x, int y, int width, int height, CustomColor color) {
+	Objects.requireNonNull(color);
+	drawing = drawing.andThen(area -> {
+		area.setColor(convertColor(color));
+		area.drawOval(x, y, width, height);
+	});
+}
+
+@Override
+public void waitForMouseEvents(MouseAdapter mouseCb) {
+	graphics.waitForMouseEvents(mouseCb::mouseClicked);
+}
+
+@Override
+public void refresh() {
+	graphics.render(drawing);
+}
+```
 
 On peut stocker une seule lambda qui va stocker l'ensemble des lambda.
 Un consumer possède une fonction _andThen_ qui permet de rajouter du code
 dans la lambda.
 
+\pagebreak
 
 **La classe Drawing ne respecte pas complètement le open-close principle.
 En effet, pour rajouter une Shape, il faut aller rouvrir le code de la classe
@@ -333,11 +387,36 @@ Drawing pour modifier la méthode fromFile(Path path).
 Proposer une solution avec diagramme UML et un code permettant de rajouter des
 nouvelles shapes en respectant le plus possible le open-close principle.**
 
+Il faudrait récupérer le nom de chaque figure dans le fichier texte.
+Dans notre cas, il faut supposer que le nom de la figure correspond exactement
+au nom de la classe qui la représente.
+Il faut ensuite utiliser la classe **Class** pour récupérer la classe
+correspondante et récupérer **Constructor** pour produire une nouvelle instance
+de la classe sans changer quoique ce soit.
+
+\begin{figure}[h]
+	\centering
+	\caption{Exercice 1 à 5 UML}\label{fig:1}
+	\includegraphics[width=15cm]{images/UML_paint.png}
+\end{figure}
+
+\pagebreak
+
 On pourrait créer une classe qui se charge de gérer la création des **Shape**
-selon le **Path** entrer en paramètre.
+selon le **Path** entré en paramètre.
+Le but est de récupérer les tokens renvoyés par chaque objet qui implémente
+Shape.
+
+\pagebreak
 
 **Expliquez votre implémentation du desgin pattern Adapter dans l’exercice 7, en
 fournissant un diagramme UML et en paragraphe d'explication.**
+
+\begin{figure}[h]
+	\centering
+	\caption{Exercice 6 à 9 UML}\label{fig:2}
+	\includegraphics[width=17cm]{images/UML_canvas.png}
+\end{figure}
 
 Le design pattern **Adapter** permet d'unifier les API graphiques.
 Chaque API possède un adapdateur qui va permettre d'appeler chaque méthode de
@@ -346,6 +425,8 @@ Cela permet de gérer le cas où il y a la présence de multiple API graphique.
 Chaque adaptateur se servent de la composition pour se lier à leur API graphique
 correspondante.
 
+\pagebreak
+
 **Dans l’exercice sur les ServiceLoader, proposez une solution pour fournir des
 canards nommés sans passer par une factory et en rajoutant une méthode
 setName().**
@@ -353,6 +434,8 @@ setName().**
 On pourrait exécuter le serviceLoader sur les librairies de canard (et non sur
 l'usine à canard) et ensuite ajouter un nom à chaque canard avec la méthode
 *setName()*.
+
+\pagebreak
 
 **Donnez le code de la classe DuckFarmBetter dans ce cas.**
 
@@ -378,30 +461,26 @@ public class DuckFarmBetter {
 **Expliquez pourquoi un jar fournissant CoolGraphics ne pourrait pas fournir
 l'interface Canvas ?**
 
-Coolgraphics et Canvas ne sont pas fourni par les même créateur.
-En effet, Coolgraphics n'implémente pas directement Canvas, elle passe par le
-biais de CoolGraphicsAdapter.
+On ne pourrait pas fournir **Canvas** car Canvas n'utilise pas CoolGraphics
+directement.
 
 **Si l'on voulait fournir directement l'interface Canvas quelle méthode
 faudrait-il rajouter à l'interface Canvas ?**
 
-Il faudrait rajouter la classe CoolGraphicsAdapter car elle implémente
-directement l'inteface Canvas.
+On pourrait créer une fonction statique qui créer le graphique correspondant,
+createCoolGraphicsAdapter par exemple.
 
 **Donnez le morceau de code dans Paint qui réalise la création du Canvas dans ce 
 cas.**
 
 ```java
-Canvas area;
-if(Arrays.stream(args).toList().contains("-legacy")) {
-    area = new SimpleGraphicsAdapter("area", widthMin, heightMin);
-} else {
-    area = new CoolGraphicsAdapter("area", widthMin, heightMin);
-}
-
+Canvas area = Canvas.createCoolGraphicsAdapter("area", x, y);
 ```
 
 **Est-ce que cela fait sens dans notre contexte ?**
+
+Non car ça veut dire que l'on va créer une méthode pour chaque nouvelle API
+graphique.
 
 **On veut ajouter une figure Square, sous-type de Shape.
 Peut-on la faire hériter de Rectangle?**

@@ -1,17 +1,12 @@
 package fr.uge.poo.paint.ex9;
 
-import fr.uge.poo.paint.ex9.Canvas;
-import fr.uge.poo.paint.ex9.CoolGraphicsAdapter;
-import fr.uge.poo.paint.ex9.Paint;
-import fr.uge.poo.paint.ex9.SimpleGraphicsAdapter;
-
 import java.io.IOException;
 import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws IOException {
 		var paint = new Paint();
-		paint.initFigures("draw-big.txt");
+		paint.initFigures("draw2.txt");
 		var windowSize = paint.minDimension();
 		var widthMin = Integer.max(windowSize.x(), 500);
 		var heightMin = Integer.max(windowSize.y(), 500);
