@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 
 public class CmdLineParser {
     private final HashMap<String, Consumer<Iterator<String>>> registeredOptions = new HashMap<>();
-    
 
     public void addFlag(String option, Runnable code) {
         Objects.requireNonNull(option);

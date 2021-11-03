@@ -3,9 +3,6 @@ package fr.uge.poo.cmdline.ex1;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SuppressWarnings("static-method")
 class CmdLineParserTest {
 
