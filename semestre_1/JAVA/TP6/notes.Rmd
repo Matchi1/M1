@@ -1,0 +1,65 @@
+---
+title: "Java avancé TP5: Producteur / Consommateur"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-10-30"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu de java}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+# Exercice 1
+
+**Sans exécuter le code, que fait ce programme ?**
+
+Le programme lance un thread puis le met en pause pendant 100 ms.
+Le bout de code du thread n'est pas réellement exécuté.
+
+**Comment doit-on corriger le problème ?**
+
+Il faudrait retirer le *Thread.sleep()* et le remplacer par de l'attente active.
+
+# Exercice 2
+
+**Rappeler ce que "réentrant" veux dire**
+
+Cela signifie qu'une même thread peut reprendre plusieurs fois le même moniteur.
+
+**Expliquer, pour le code ci-dessous, quel est le comportement que l'on attend si
+la classe est thread-safe.**
+
+
+**Puis expliquer pourquoi le code du Runnable n'est pas thread-safe
+(même si on déclare counter volatile).**
+
+**Que doit-on faire si on arrive pas à acquérir le lock ?**
+
+**Quel est le problème ?**
+
+**Pourquoi utiliser Thread.onSpinWait permet de résoudre le problème ?**
+
+**Sachant que les CPUs modernes ont un pipeline, à votre avis, à quoi sert
+Thread.onSpinWait ?**
+
+# Exercice 3
+
+**Expliquer comment fonctionne un générateur pseudo-aléatoire et pourquoi
+l'implantation ci-dessous n'est pas thread-safe.**
+
+**Depuis le jdk 1.8, la classe AtomicLong possède une méthode updateAndGet,
+comment peut-on l'utiliser ici ?**
+
+# Exercice 4
