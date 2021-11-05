@@ -1,0 +1,282 @@
+# Exercice 1
+
+EXPLAIN ANALYZE SELECT ville FROM client WHERE prenom='Alice' AND age=38
+INTERSECT
+SELECT ville FROM client WHERE prenom='Robert' AND age=38;
+
+                                                           QUERY PLAN
+---------------------------------------------------------------------------------------------------------------------------------
+ HashSetOp Intersect  (cost=0.00..12340.92 rows=1 width=7) (actual time=99.272..99.273 rows=4 loops=1)
+   ->  Append  (cost=0.00..12340.86 rows=24 width=7) (actual time=2.648..99.225 rows=31 loops=1)
+         ->  Subquery Scan on "*SELECT* 1"  (cost=0.00..6170.43 rows=12 width=7) (actual time=2.647..61.610 rows=18 loops=1)
+               ->  Seq Scan on client  (cost=0.00..6170.31 rows=12 width=7) (actual time=2.645..61.593 rows=18 loops=1)
+                     Filter: (((prenom)::text = 'Alice'::text) AND (age = 38))
+                     Rows Removed by Filter: 248936
+         ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..6170.43 rows=12 width=7) (actual time=2.881..37.604 rows=13 loops=1)
+               ->  Seq Scan on client client_1  (cost=0.00..6170.31 rows=12 width=7) (actual time=2.879..37.597 rows=13 loops=1)
+                     Filter: (((prenom)::text = 'Robert'::text) AND (age = 38))
+                     Rows Removed by Filter: 248941
+ Planning time: 0.225 ms
+ Execution time: 99.373 ms
+
+
+EXPLAIN ANALYZE SELECT ville FROM client_btree WHERE prenom='Alice' AND age=38
+INTERSECT
+SELECT ville FROM client_btree WHERE prenom='Robert' AND age=38;
+
+                                                                      QUERY PLAN
+------------------------------------------------------------------------------------------------------------------------------------------------------
+ HashSetOp Intersect  (cost=98.16..5225.24 rows=1 width=7) (actual time=87.782..87.784 rows=4 loops=1)
+   ->  Append  (cost=98.16..5225.18 rows=24 width=7) (actual time=1.501..87.708 rows=31 loops=1)
+         ->  Subquery Scan on "*SELECT* 1"  (cost=98.16..2612.59 rows=12 width=7) (actual time=1.501..58.975 rows=18 loops=1)
+               ->  Bitmap Heap Scan on client_btree  (cost=98.16..2612.47 rows=12 width=7) (actual time=1.499..58.955 rows=18 loops=1)
+                     Recheck Cond: (age = 38)
+                     Filter: ((prenom)::text = 'Alice'::text)
+                     Rows Removed by Filter: 4545
+                     Heap Blocks: exact=2046
+                     ->  Bitmap Index Scan on age_btree  (cost=0.00..98.16 rows=4498 width=0) (actual time=0.850..0.850 rows=4563 loops=1)
+                           Index Cond: (age = 38)
+         ->  Subquery Scan on "*SELECT* 2"  (cost=98.16..2612.59 rows=12 width=7) (actual time=2.524..28.714 rows=13 loops=1)
+               ->  Bitmap Heap Scan on client_btree client_btree_1  (cost=98.16..2612.47 rows=12 width=7) (actual time=2.523..28.703 rows=13 loops=1)
+                     Recheck Cond: (age = 38)
+                     Filter: ((prenom)::text = 'Robert'::text)
+                     Rows Removed by Filter: 4550
+                     Heap Blocks: exact=2046
+                     ->  Bitmap Index Scan on age_btree  (cost=0.00..98.16 rows=4498 width=0) (actual time=0.688..0.688 rows=4563 loops=1)
+                           Index Cond: (age = 38)
+ Planning time: 0.349 ms
+ Execution time: 87.885 ms
+
+EXPLAIN ANALYZE SELECT DISTINCT c1.ville from client_btree c1, client_btree c2
+WHERE c1.prenom = 'Robert' and c1.age = 38
+AND c2.prenom = 'Alice' AND c2.age = 38
+AND c1.ville = c2.ville;
+
+EXPLAIN ANALYZE SELECT DISTINCT ville from client_btree c1
+WHERE prenom = 'Robert' AND age = 38
+AND EXISTS (
+	SELECT ville FROM client_btree c2
+	WHERE c2.prenom = 'Alice' and age = 38
+	AND c1.ville = c2.ville
+);
+
+# Exercice 2
+
+```sql
+EXPLAIN ANALYZE SELECT idmag, idpro, prixunit
+FROM   stocke NATURAL JOIN produit
+WHERE  libelle = 'bureau'; 
+```
+
+                                                   QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=16.02..680.73 rows=137 width=20) (actual time=0.569..12.473 rows=1031 loops=1)
+   Hash Cond: (stocke.idpro = produit.idpro)
+   ->  Seq Scan on stocke  (cost=0.00..539.70 rows=32970 width=20) (actual time=0.038..6.933 rows=32928 loops=1)
+   ->  Hash  (cost=16.00..16.00 rows=2 width=4) (actual time=0.416..0.416 rows=33 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 10kB
+         ->  Seq Scan on produit  (cost=0.00..16.00 rows=2 width=4) (actual time=0.049..0.400 rows=33 loops=1)
+               Filter: ((libelle)::text = 'bureau'::text)
+               Rows Removed by Filter: 967
+ Planning time: 0.516 ms
+ Execution time: 12.590 ms
+
+
+Sélectionne les boutiques possédant une chaise et renvoie également son identifiant
+et sont prix à l'unité.
+Associe la table stocke et produit à l'aide d'un natural join
+
+------------------------
+
+```sql
+EXPLAIN ANALYZE SELECT idmag, produit.idpro, prixunit
+FROM   stocke, produit
+WHERE  libelle = 'bureau'
+       AND stocke.idpro = produit.idpro; 
+```
+
+                                                   QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=16.02..680.73 rows=137 width=20) (actual time=0.476..13.912 rows=1031 loops=1)
+   Hash Cond: (stocke.idpro = produit.idpro)
+   ->  Seq Scan on stocke  (cost=0.00..539.70 rows=32970 width=20) (actual time=0.017..6.730 rows=32928 loops=1)
+   ->  Hash  (cost=16.00..16.00 rows=2 width=4) (actual time=0.434..0.434 rows=33 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 10kB
+         ->  Seq Scan on produit  (cost=0.00..16.00 rows=2 width=4) (actual time=0.035..0.412 rows=33 loops=1)
+               Filter: ((libelle)::text = 'bureau'::text)
+               Rows Removed by Filter: 967
+ Planning time: 0.278 ms
+ Execution time: 14.071 ms
+
+Renvoie les magasins possédant un bureau, renvoie également les identifiants du bureau 
+et son prix à l'unité.
+Associe la table stocke et produit selon l'identifiant du produit
+
+------------------------
+
+```sql
+EXPLAIN ANALYZE SELECT idmag, idpro, prixunit
+FROM   stocke
+WHERE  EXISTS (SELECT *
+               FROM   produit
+               WHERE  libelle = 'bureau'
+                      AND produit.idpro = stocke.idpro); 
+```
+
+                                                   QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=16.02..680.73 rows=16485 width=20) (actual time=0.304..10.069 rows=1031 loops=1)
+   Hash Cond: (stocke.idpro = produit.idpro)
+   ->  Seq Scan on stocke  (cost=0.00..539.70 rows=32970 width=20) (actual time=0.028..5.338 rows=32928 loops=1)
+   ->  Hash  (cost=16.00..16.00 rows=2 width=4) (actual time=0.248..0.248 rows=33 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 10kB
+         ->  Seq Scan on produit  (cost=0.00..16.00 rows=2 width=4) (actual time=0.027..0.229 rows=33 loops=1)
+               Filter: ((libelle)::text = 'bureau'::text)
+               Rows Removed by Filter: 967
+ Planning time: 0.368 ms
+ Execution time: 10.186 ms
+
+
+------------------------
+
+```sql
+EXPLAIN ANALYZE SELECT idmag, idpro, prixunit
+FROM   stocke
+WHERE  idpro IN (SELECT idpro
+                 FROM   produit
+                 WHERE  libelle = 'bureau'); 
+```
+
+                                                   QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=16.02..680.73 rows=16485 width=20) (actual time=0.505..12.181 rows=1031 loops=1)
+   Hash Cond: (stocke.idpro = produit.idpro)
+   ->  Seq Scan on stocke  (cost=0.00..539.70 rows=32970 width=20) (actual time=0.057..6.264 rows=32928 loops=1)
+   ->  Hash  (cost=16.00..16.00 rows=2 width=4) (actual time=0.408..0.408 rows=33 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 10kB
+         ->  Seq Scan on produit  (cost=0.00..16.00 rows=2 width=4) (actual time=0.091..0.387 rows=33 loops=1)
+               Filter: ((libelle)::text = 'bureau'::text)
+               Rows Removed by Filter: 967
+ Planning time: 0.550 ms
+ Execution time: 12.484 ms
+
+------------------------
+
+
+EXPLAIN ANALYSE
+SELECT idmag FROM magasin
+WHERE NOT EXISTS
+	(
+		SELECT * FROM produit
+		WHERE couleur IS NOT NULL
+		AND NOT EXISTS
+			(
+				SELECT *       
+				FROM stocke NATURAL JOIN produit as p
+				WHERE stocke.idmag = magasin.idmag
+				AND p.couleur = produit.couleur
+			) 
+	);
+
+Planning time: 0.376 ms
+Execution time: 152.702 ms
+
+
+# divisionin
+
+EXPLAIN ANALYSE
+SELECT idmag FROM magasin
+WHERE NOT EXISTS
+	(
+		SELECT * FROM produit
+		WHERE couleur IS NOT NULL
+		AND couleur NOT IN
+			(
+				SELECT couleur 
+				FROM stocke NATURAL JOIN produit  
+				WHERE stocke.idmag = magasin.idmag
+				AND couleur IS NOT NULL
+			) 
+	);
+
+Planning time: 0.765 ms
+Execution time: 162.356 ms
+
+
+# divisionincorr
+
+EXPLAIN ANALYSE
+SELECT idmag FROM magasin
+WHERE NOT EXISTS
+	(
+		SELECT * FROM produit
+		WHERE couleur IS NOT NULL
+		AND idmag NOT IN
+			(
+				SELECT idmag
+				FROM stocke NATURAL JOIN produit p
+				WHERE p.couleur = produit.couleur
+			)
+	);
+
+ Planning time: 0.370 ms
+ Execution time: 1319479.641 ms
+
+# Exercice 3
+
+SELECT most_common_vals FROM pg_stats WHERE tablename = 'client' AND attname = 'age';
+
+SELECT n_distinct FROM pg_stats WHERE tablename = 'client' AND attname = 'age';
+
+SELECT most_common_vals FROM pg_stats WHERE tablename = 'client' AND attname = 'tel';
+
+SELECT most_common_vals FROM pg_stats WHERE tablename = 'client' AND attname = 'prenom'; 
+
+SELECT null_frac FROM pg_stats WHERE tablename = 'client' AND attname = 'age' OR attname = 'tel' OR attname = 'prenom'; 
+
+show default_statistics_target;
+
+PostgreSQL stocke ses histogrammes sous forme de bandes
+
+7. ALTER TABLE client ALTER age SET STATISTICS 1000;
+
+
+CREATE TABLE test (val int);
+INSERT INTO test SELECT mod(i,1000)+1 FROM generate_series(1,1000000) AS s(i);
+
+ANALYZE VERBOSE test;
+EXPLAIN ANALYZE SELECT * FROM test WHERE val > 1000;
+EXPLAIN ANALYZE SELECT * FROM test WHERE val < 1000;
+
+SELECT most_common_vals FROM pg_stats WHERE tablename = 'test';
+
+ {808,895,231,385,688,731,771,424,490,844,875,169,252,412,587,25,122,206,244,351,465,521,532,737,815,837,883,891,903,927,58,69,214,269,389,466,526,529,559,639,692,693,856,873,973,995,21,38,80,89,152,279,359,377,379,382,479,509,575,704,762,782,792,13,23,32,84,100,125,135,171,199,303,334,352,431,448,541,653,694,801,902,941,953}
+
+SELECT n_distinct FROM pg_stats WHERE tablename = 'test';
+
+ n_distinct
+------------
+       1000
+
+
+ALTER TABLE test ALTER val SET STATISTICS 1000;
+
+Nombre de détail beaucoup plus élevé dans most_common_values
+
+EXPLAIN ANALYZE SELECT * FROM test WHERE val+1 = 10;
+
+Seq Scan on test  (cost=0.00..19425.00 rows=5000 width=4) (actual time=0.078..140.229 rows=1000 loops=1)
+   Filter: ((val + 1) = 10)
+   Rows Removed by Filter: 999000
+ Planning time: 0.408 ms
+ Execution time: 140.461 ms
+
+EXPLAIN ANALYZE SELECT * FROM test WHERE val > 1000;
+
+ Seq Scan on test  (cost=0.00..16925.00 rows=1 width=4) (actual time=130.160..130.160 rows=0 loops=1)
+   Filter: (val > 1000)
+   Rows Removed by Filter: 1000000
+ Planning time: 0.197 ms
+ Execution time: 130.203 ms
+
+EXPLAIN ANALYZE SELECT * FROM test WHERE val < 1000;
