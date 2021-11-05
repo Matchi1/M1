@@ -41,9 +41,18 @@ Cela signifie qu'une même thread peut reprendre plusieurs fois le même moniteu
 **Expliquer, pour le code ci-dessous, quel est le comportement que l'on attend si
 la classe est thread-safe.**
 
+Si la classe est thread-safe, on s'attend à ce que chaque action soit exécuter
+par une Thread à la fois.
 
 **Puis expliquer pourquoi le code du Runnable n'est pas thread-safe
 (même si on déclare counter volatile).**
+
+Il y a toujours une incohérence de données dans le runnable (même si on déclare
+le *counter* à volatile).
+
+En effet, une thread peut se faire désordonnancer entre la récupérer de la
+valeur de *counter* et l'incrémentation de sa valeur.
+Le code n'est pas thread-safe s'il n'y a pas lock.
 
 **Que doit-on faire si on arrive pas à acquérir le lock ?**
 
@@ -63,3 +72,5 @@ l'implantation ci-dessous n'est pas thread-safe.**
 comment peut-on l'utiliser ici ?**
 
 # Exercice 4
+
+# Conclusion
