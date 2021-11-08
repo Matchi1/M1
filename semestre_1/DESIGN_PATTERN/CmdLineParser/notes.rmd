@@ -26,3 +26,57 @@ actions.
 | process  | List           | String             | Exécute les actions de     |
 |          |                |                    | chaque options rencontrées |
 
+# Classe PaintSettings
+
+La classe possédait trop de responsabilité pour elle seule, en effet, elle
+fournissait des méthodes qui lui permettait de se créer elle-même et elle se
+chargeait aussi de fournir les valeurs dans les champs.
+J'ai désormais séparer la classe **PaintSettings** en 2 classes:
+
+* PaintSettings : elle se charge de fournir les valeurs des options
+* PaintSettingsBuilder : Elle se charge de construire la classe **PaintSettings**
+
+# Champs
+
+| champs          | type              | modificateurs | description                                    |
+|-----------------+-------------------+---------------+------------------------------------------------|
+| legacy          | boolean           | private final | Indique l'utilisation d'un graphique *legacy*  |
+| bordered        | boolean           | private final | Indique la présence de bordure dans la fenêtre |
+| borderWidth     | int               | private final | Définie la largeur de la fenêtre               |
+| windowName      | String            | private final | Définie le nom de la fenêtre                   |
+| windowWidthMin  | int               | private final | Définie la largeur minimale de la fenêtre      |
+| windowHeightMin | int               | private final | Définie la hauteur minimale de la fenêtre      |
+| socketAddress   | InetSocketAddress | private final | Définie l'adresse internet de l'API graphique  |
+
+# Méthodes
+
+| méthodes                | type de retour       | type des arguments | description                                      |
+|-------------------------+----------------------+--------------------+--------------------------------------------------|
+| isBordered              | boolean              | void               | Indique si la présence de bordure est activé     |
+| isLegacy                | boolean              | void               | Indique s'il faut utiliser un graphique *legacy* |
+| getPaintSettingsBuilder | PaintSettingsBuilder | void               | Renvoie un créateur de PaintSettings             |
+
+# Classe PaintSettinsBuilder
+
+# Champs
+
+| champs          | type              | modificateurs | description                                    |
+|-----------------+-------------------+---------------+------------------------------------------------|
+| legacy          | boolean           | private       | Indique l'utilisation d'un graphique *legacy*  |
+| bordered        | boolean           | private       | Indique la présence de bordure dans la fenêtre |
+| borderWidth     | int               | private       | Stocke la largeur de la fenêtre                |
+| windowName      | String            | private       | Stocke le nom de la fenêtre                    |
+| windowWidthMin  | int               | private       | Stocke la largeur minimale de la fenêtre       |
+| windowHeightMin | int               | private       | Stocke la hauteur minimale de la fenêtre       |
+| socketAddress   | InetSocketAddress | private       | Stocke l'adresse internet de l'API graphique   |
+
+# Méthodes
+
+| méthodes           | type de retour       | type des arguments | description                                      |
+|--------------------+----------------------+--------------------+--------------------------------------------------|
+| setBordered        | PaintSettingsBuilder | void               | Définie la présence de bordure                   |
+| setLegacy          | PaintSettingsBuilder | void               | Indique s'il faut utiliser un graphique *legacy* |
+| setBorderWidth     | PaintSettingsBuilder | void               | Définie la largeur de la bordure                 |
+| setWindowName      | PaintSettingsBuilder | void               | Définie le nom de la fenêtre                     |
+| setWindowHeightMin | PaintSettingsBuilder | void               | Définie la hauteur minimale de la fenêtre        |
+| setWindowWidthMin  | PaintSettingsBuilder | void               | Définie la largeur minimale de la fenêtre        |

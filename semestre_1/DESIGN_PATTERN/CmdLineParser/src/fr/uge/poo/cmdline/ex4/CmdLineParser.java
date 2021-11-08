@@ -1,4 +1,4 @@
-package fr.uge.poo.cmdline.ex3;
+package fr.uge.poo.cmdline.ex4;
 
 import java.util.*;
 import java.util.function.Consumer;

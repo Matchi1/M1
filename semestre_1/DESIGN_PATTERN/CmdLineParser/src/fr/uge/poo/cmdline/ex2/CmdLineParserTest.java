@@ -59,7 +59,6 @@ class CmdLineParserTest {
             assertEquals(files.get(i), expectedFiles[i]);
         }
     }
-<<<<<<< Updated upstream
 
     @Test
     public void runnableCorrectlyExecuted() {
@@ -102,6 +101,4 @@ class CmdLineParserTest {
             assertEquals(runOrder.get(i), expectedParameters[i]);
         }
     }
-=======
->>>>>>> Stashed changes
 }
