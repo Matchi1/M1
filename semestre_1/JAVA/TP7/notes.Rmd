@@ -1,0 +1,83 @@
+---
+title: "Java avancé TP7: Table de Hachage"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-11-14"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu de java}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+# Exercice 1
+
+**Quels doivent être les champs de la classe Entry correspondant à une case de la
+table de hachage**
+
+la classe Entry possédera champ **Object key** qui va permettre d'identifier une
+valeur, puis un champ **CustomArrayList listValues** qui va contenir l'ensemble
+des valeurs possédant une clé égale.
+
+**Quelle doit être la visibilité de cette classe ?**
+
+**default** car elle ne doit être accessible que par les tables de hachages,
+l'utilisateur n'a pas à créer d'instance de **Entry** manuellement.
+
+**Quels doivent être les modificateurs pour chaque champ ?**
+
+La clé doit être **private final** car elle est supposé être unique.
+La liste doit aussi être **private final**.
+
+**En fait, ne pourrait-on pas utiliser un record plutôt qu'une classe, ici ?**
+
+On pourrait utiliser un record mais il n'est pas vraiment conseiller de
+l'utiliser.
+
+**Pourquoi ?**
+
+Si l'on créer un record cela veut dire qu'on pourra faire un *get* de la clé,
+qui est supposé être créer à partir de l'identifiant.
+
+**Pour finir, il vaut mieux déclarer Entry en tant que classe interne de la classe
+IntHashSet plutôt qu'en tant que type dans le package fr.umlv.set
+Pourquoi ?**
+
+Cela permet de rendre la classe seulement visible par **IntHashSet** et que **Entry**
+soit accessible que par le biais de **IntHashSet**
+
+**Quelle doit être la visibilité de Entry ?**
+
+**private** pour que la seule classe qui puisse fournir **Entry** soit la classe
+**IntHashSet**
+
+**Comment écrire la fonction de hachage dans le cas où la taille de la table est 2
+?**
+
+**Pourquoi est-ce que ça n'est pas une bonne idée d'utiliser l'opérateur % ?**
+
+**Et si la taille de la table est 8 ?** 
+
+**Quelle doit être la signature de la functional interface prise en paramètre de
+la méthode forEach ?** 
+
+**Quel est le nom de la classe du package java.util.function qui a une méthode
+ayant la même signature ?**
+
+# Exercice 2
+
+
+# Exercice 3
+
+# Conclusion
