@@ -4,24 +4,32 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class CmdLineParser {
-    private final HashMap<String, Consumer<Iterator<String>>> registeredOptions = new HashMap<>();
+    private final HashMap<String, Option> registeredOptions = new HashMap<>();
 
     public void addFlag(String option, Runnable code) {
         Objects.requireNonNull(option);
         Objects.requireNonNull(code);
-        registeredOptions.put(option, iterator -> code.run());
+        var optionBuilder = Option.builder();
+        optionBuilder.setOption(option);
+        optionBuilder.setCode(arguments -> code.run());
+        optionBuilder.setNumberOfParameters(0);
+        registeredOptions.put(option, optionBuilder.build());
     }
     
     public void addFlagWithParameter(String option, Consumer<String> code) {
     	Objects.requireNonNull(option);
     	Objects.requireNonNull(code);
-    	registeredOptions.put(option, iterator -> {
-    		if(iterator.hasNext()) {
-    			code.accept(iterator.next());
-    		} else {
-    			throw new ArrayIndexOutOfBoundsException();
-    		}
-    	});
+        var optionBuilder = Option.builder();
+        optionBuilder.setOption(option);
+        optionBuilder.setCode(iterator -> {
+            if(iterator.hasNext()) {
+                code.accept(iterator.next());
+            } else {
+                throw new ArrayIndexOutOfBoundsException();
+            }
+        });
+        optionBuilder.setNumberOfParameters(1);
+    	registeredOptions.put(option, optionBuilder.build());
     }
 
     public List<String> process(String[] arguments) {

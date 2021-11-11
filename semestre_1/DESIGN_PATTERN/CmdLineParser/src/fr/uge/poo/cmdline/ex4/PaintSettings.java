@@ -12,12 +12,12 @@ public class PaintSettings {
     private final InetSocketAddress socketAddress;
 
     public static class PaintSettingsBuilder {
-    	private boolean legacy=false;
-        private boolean bordered=true;
-        private int borderWidth=0;
+    	private boolean legacy = false;
+        private boolean bordered = false;
+        private int borderWidth = 10;
         private String windowName = "";
-        private int windowWidthMin = 0;
-        private int windowHeightMin = 0;
+        private int windowWidthMin = 500;
+        private int windowHeightMin = 500;
         private InetSocketAddress socketAddress;
         
         public PaintSettingsBuilder setLegacy(boolean legacy) {
