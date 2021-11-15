@@ -1,6 +1,5 @@
 package fr.uge.poo.cmdline.ex4;
 
-import fr.uge.poo.cmdline.ex2.CmdLineParser;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -33,7 +32,7 @@ class CmdLineParserTest {
     public void processReturnCorrectNumberOfFiles() {
         var parser = new fr.uge.poo.cmdline.ex1.CmdLineParser();
         String[] arguments = {"filename1", "-opt", "filename2", "hello"};
-        parser.addFlag("-opt", () -> System.out.println("hello"));
+        parser.addFlag("-opt", () -> {});
         var files = parser.process(arguments);
         assertEquals(files.size(), 3);
     }
@@ -43,7 +42,7 @@ class CmdLineParserTest {
         var parser = new CmdLineParser();
         String[] arguments = {"filename1", "-opt", "filename2", "hello"};
         String[] expectedFiles = {"filename1", "filename2", "hello"};
-        parser.addFlag("-opt", () -> System.out.println("hello"));
+        parser.addFlag("-opt", () -> {});
         var files = parser.process(arguments);
         for(var i = 0; i < files.size(); i++){
             assertEquals(files.get(i), expectedFiles[i]);
@@ -102,5 +101,40 @@ class CmdLineParserTest {
         for(var i = 0; i < runOrder.size(); i++){
             assertEquals(runOrder.get(i), expectedParameters[i]);
         }
+    }
+
+    @Test
+    public void shouldThrowIllegalStateOption() {
+        var parser = new CmdLineParser();
+        String[] arguments = {"-window-name", "-border-width", "500", "filename"};
+        parser.addFlagWithParameter("-window-name", argument -> {});
+        parser.addFlagWithParameter("-border-width", argument -> {});
+        assertThrows(IllegalStateOptions.class, () -> parser.process(arguments));
+    }
+
+    @Test
+    public void shouldThrowIllegalStateOptionWithMandatoryOption() {
+        var parser = new CmdLineParser();
+        String[] arguments = {"-border-width", "500", "filename"};
+        parser.addFlagWithParameter("-window-name", argument -> {});
+        parser.addFlagWithParameter("-border-width", argument -> {});
+        parser.setFlagMandatory("-window-name");
+        assertThrows(IllegalStateOptions.class, () -> parser.process(arguments));
+    }
+
+    @Test
+    public void shouldThrowIllegalStateOptionNotEnoughArgument() {
+        var parser = new CmdLineParser();
+        String[] arguments = {"-import", "file1", "file2"};
+        parser.addFlagWithParameters("-import", list -> {}, 3);
+        assertThrows(IllegalStateOptions.class, () -> parser.process(arguments));
+    }
+
+    @Test
+    public void shouldBeSuccessfulWithMultipleParameters() {
+        var parser = new CmdLineParser();
+        String[] arguments = {"-import", "file1", "file2", "file3"};
+        parser.addFlagWithParameters("-import", list -> {}, 3);
+        assertEquals(new ArrayList<>(), parser.process(arguments));
     }
 }

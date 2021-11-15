@@ -1,6 +1,5 @@
 package fr.uge.poo.cmdline.ex4;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -35,9 +34,9 @@ public class Option {
 
         public Option build() {
             if(Objects.equals(option, "")) {
-                throw new IllegalArgumentException("name of the option should be initialized");
+                throw new IllegalStateOptions("Name of the option should be initialized");
             } else if(numberOfParameters == -1) {
-                throw new IllegalArgumentException("number of parameter should be initialized");
+                throw new IllegalStateOptions("Number of parameter should be initialized");
             } else if(code == null) {
                 this.code = it -> {};
             }
@@ -58,7 +57,11 @@ public class Option {
 
     public static boolean isOption(String argument) {
         Objects.requireNonNull(argument);
-        return argument.getBytes()[0] == '-';
+        return argument.toCharArray()[0] == '-';
+    }
+
+    public boolean isMandatory() {
+        return this.mandatory;
     }
 
     public void accept(Iterator<String> parameters) {
