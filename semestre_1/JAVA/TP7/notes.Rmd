@@ -1,5 +1,5 @@
 ---
-title: "Java avancé TP7: Table de Hachage"
+title: "Java avancé TP7: HashSet"
 subtitle: "M1 Informatique, groupe apprenti"
 author: "Mathieu Chan"
 date: "2021-11-14"
@@ -42,42 +42,72 @@ La liste doit aussi être **private final**.
 
 **En fait, ne pourrait-on pas utiliser un record plutôt qu'une classe, ici ?**
 
-On pourrait utiliser un record mais il n'est pas vraiment conseiller de
-l'utiliser.
+On peut utiliser un record à la place d'une classe dans ce cas-ci
 
 **Pourquoi ?**
 
-Si l'on créer un record cela veut dire qu'on pourra faire un *get* de la clé,
-qui est supposé être créer à partir de l'identifiant.
+Un record est une classe immutable, or les champs de **Entry** sont tous
+**private final** donc il est plus judicieux d'utiliser un record.
 
 **Pour finir, il vaut mieux déclarer Entry en tant que classe interne de la classe
 IntHashSet plutôt qu'en tant que type dans le package fr.umlv.set
 Pourquoi ?**
 
-Cela permet de rendre la classe seulement visible par **IntHashSet** et que **Entry**
-soit accessible que par le biais de **IntHashSet**
+Cela permet de rendre la classe seulement visible par **IntHashSet** et que 
+**Entry** soit accessible que par le biais de **IntHashSet**
 
 **Quelle doit être la visibilité de Entry ?**
 
-**private** pour que la seule classe qui puisse fournir **Entry** soit la classe
-**IntHashSet**
+**private** pour que la seule classe qui puisse fournir/utiliser **Entry** soit
+la classe **IntHashSet**
 
 **Comment écrire la fonction de hachage dans le cas où la taille de la table est 2
 ?**
 
 **Pourquoi est-ce que ça n'est pas une bonne idée d'utiliser l'opérateur % ?**
 
+l'opérateur % est trop couteux
+
 **Et si la taille de la table est 8 ?** 
 
 **Quelle doit être la signature de la functional interface prise en paramètre de
 la méthode forEach ?** 
 
+L'interface fonctionnelle doit pouvoir prendre un *int* en paramètre et ne
+rien renvoyer.
+
 **Quel est le nom de la classe du package java.util.function qui a une méthode
 ayant la même signature ?**
 
+Le nom de la classe est **IntConsumer**
+
 # Exercice 2
 
+**Avant de générifier votre code, quelle est le problème avec la création de
+tableau ayant pour type un type paramétré ?**
 
-# Exercice 3
+On ne peut pas créer de tableau avec un type paramétré
+
+**Rappeler pourquoi on a ce warning**
+
+On a un warning car on effectue un cast sans vérifier le type du tableau
+
+**Peut-on supprimer le warning ici, ou est-ce une bêtise ?**
+
+Il est possible de supprimer le warning
+
+**Comment fait-on pour supprimer le warning ?**
+
+Il faut ajouter l'annotation `@SuppressWarnings("unchecked")` avant
+l'implémentation de la méthode pour que le warning soit supprimer.
 
 # Conclusion
+
+Lors de ce TP, j'en ai appris plus sur le fonctionnement globale d'un hashset en
+java.
+Les difficultés de ce TP sont principalement de comprendre comment organiser les
+classes, surtout de leur visibilité par rapport à d'autres classes.
+Par exemple avec **Entry** et **IntHashSet**.
+Je vais probablement continuer à revoir ce TP et essayer d'améliorer les
+HashSet pour qu'ils répondent correctement aux tests unitaires (notamment
+DynamicHashSet).
