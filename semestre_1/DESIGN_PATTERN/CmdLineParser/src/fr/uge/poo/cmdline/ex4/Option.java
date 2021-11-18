@@ -1,27 +1,33 @@
 package fr.uge.poo.cmdline.ex4;
 
-import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public class Option {
-    private final String option;
+    private final String name;
     private final int numberOfParameters;
     private final boolean mandatory;
-    private final Consumer<Iterator<String>> code;
+    private final Consumer<List<String>> action;
 
     public static class OptionBuilder {
-        private String option = "";
+        private String name = "";
         private int numberOfParameters = -1;
         private boolean mandatory = false;
-        private Consumer<Iterator<String>> code = null;
+        private Consumer<List<String>> action = null;
+        
+        public OptionBuilder(String name, int numberOfParameters, Consumer<List<String>> action) {
+			this.name = name;
+			this.numberOfParameters = numberOfParameters;
+			this.action = action;
+		}
 
-        public void setOption(String option) {
-            this.option = option;
+        public void setName(String option) {
+            this.name = option;
         }
 
-        public void setCode(Consumer<Iterator<String>> code) {
-            this.code = code;
+        public void setCode(Consumer<List<String>> action) {
+            this.action = action;
         }
 
         public void setMandatory(boolean mandatory) {
@@ -33,26 +39,26 @@ public class Option {
         }
 
         public Option build() {
-            if(Objects.equals(option, "")) {
+            if(Objects.equals(name, "")) {
                 throw new IllegalStateOptions("Name of the option should be initialized");
             } else if(numberOfParameters == -1) {
                 throw new IllegalStateOptions("Number of parameter should be initialized");
-            } else if(code == null) {
-                this.code = it -> {};
+            } else if(action == null) {
+                this.action = it -> {};
             }
             return new Option(this);
         }
     }
 
     private Option(OptionBuilder builder) {
-        this.option = builder.option;
-        this.code = builder.code;
+        this.name = builder.name;
+        this.action = builder.action;
         this.numberOfParameters = builder.numberOfParameters;
         this.mandatory = builder.mandatory;
     }
 
-    public static OptionBuilder builder() {
-        return new OptionBuilder();
+    public static OptionBuilder createBuilder(String name, int numberOfParameters, Consumer<List<String>> action) {
+        return new OptionBuilder(name, numberOfParameters, action);
     }
 
     public static boolean isOption(String argument) {
@@ -61,10 +67,14 @@ public class Option {
     }
 
     public boolean isMandatory() {
-        return this.mandatory;
+        return mandatory;
+    }
+    
+    public int getNumberOfParameters() {
+    	return numberOfParameters;
     }
 
-    public void accept(Iterator<String> parameters) {
-        this.code.accept(parameters);
+    public void accept(List<String> parameters) {
+        this.action.accept(parameters);
     }
 }
