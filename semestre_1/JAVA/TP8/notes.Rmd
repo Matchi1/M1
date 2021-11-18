@@ -1,0 +1,86 @@
+---
+title: "Java avancé TP8: Faites la queue"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-11-21"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu de java}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+# Exercice 1
+
+**Comment doit-on faire pour détecter si la file est pleine ou vide ?**
+
+1. Lors de la création de l'objet on peut créer un champ (boolean) qui va
+   indiquer si la liste est remplie ou non.
+   Ce champ contiendra *false* jusqu'au moment où l'on ajoute un élément et
+   que les 2 indices sont égales.
+   Inversement, lorsque l'on retire un élément de la liste **pleine**, alors on
+   actualise le status de la file.
+
+2. On peut stocker la taille actuelle de la liste, on va ainsi pouvoir comparer
+   la capacité actuelle de la liste avec le nombre d'élement dans la liste.
+
+J'utilise l'option n°2, donc mes prochaines réponses se feront selon cette
+implémentation.
+
+**Comment détecter que la file est pleine ?**
+
+Pour détecter si la file est pleine, il suffit de comparer le nombre d'élément
+présent la file et la capacité de la file.
+
+**Que faire si la file est pleine ?**
+
+Si la file est pleine, il faut renvoyer une exception du type
+**QueueFullException** lorsqu'un utilisateur tente d'ajouter un élément dans la
+file.
+
+**Que faire si la file est vide ?**
+
+Si la file est vide, il faut renvoyer une exception du type
+**QueueEmptyException** lorsqu'un utilisateur tente de retirer un élément dans
+la file.
+
+**Rappelez ce qu'est un memory leak en Java**
+
+Un *memory leak* en Java est le fait de laisser une référence sur un objet après
+l'avoir retirer d'un array.
+Cela implique que le garbage collector ne peut pas faire son travail
+correctement
+
+**Rappelez quel est le principe d'un itérateur**
+
+Un itérateur va permettre de parcourir une liste d'objet.
+
+**Quel doit être le type de retour de la méthode iterator() ?**
+
+Le type de retour de **iterator()** est une **Iterator<E>**
+
+**Rappeler à quoi sert l'interface Iterable**
+
+L'interface **Iterable** est une interface qui permet à une classe d'être
+parcourable à l'aide d'une boucle *for-each* ou autre.
+
+# Conclusion
+
+Ce tp m'a permit de comprendre le fonctionnement global d'une file d'attente en
+utilisant un tableau circulaire.
+L'intérêt de ce tp est de prendre en main les types paramétrés et de comprendre
+en détail les erreurs qui peuvent se produire.
+Au début de ce tp, le sujet était difficile à prendre en main car il fallait
+utiliser un *array* et non des listes.
+Je pense revoir ce tp et le cours pour mieux comprendre les types paramétrés.
