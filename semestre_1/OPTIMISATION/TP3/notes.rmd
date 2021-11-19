@@ -1,0 +1,64 @@
+# Exercice 1
+
+```lp
+max: 2 x1 + x2;
+x1 + 2 x2 <= 20;
+3.2 x1 + x2 <= 15;
+```
+
+-----------
+
+```
+Value of objective function: 12.77777778
+
+Actual values of the variables:
+x1                        1.85185
+x2                        9.07407
+```
+
+# Exercice 2
+
+```lp
+max: -2 x1 + x2;
+x1 + 2 x2 <= 20;
+3.2 x1 + x2 <= 15;
+```
+
+---------
+
+```
+Value of objective function: 10.00000000
+
+Actual values of the variables:
+x1                              0
+x2                             10
+```
+
+---------
+
+`This problem is unbounded`
+
+With *free x1, x2;*
+
+---------
+
+```lp
+max: 150 x + 100 y;
+10 x + 10 y <= 350;
+30 x + 10 y <= 750;
+10 x + 20 y <= 600;
+```
+
+---------
+
+```
+Value of objective function: 4500.00000000
+
+Actual values of the variables:
+x                              20
+y                              15
+```
+
+# Exercice 4
+
+
