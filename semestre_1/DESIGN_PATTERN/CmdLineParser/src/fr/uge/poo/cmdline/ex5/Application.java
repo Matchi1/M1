@@ -1,4 +1,4 @@
-package fr.uge.poo.cmdline.ex4;
+package fr.uge.poo.cmdline.ex5;
 
 import java.nio.file.Path;
 import java.util.stream.Collectors;
@@ -6,7 +6,8 @@ import java.util.stream.Collectors;
 public class Application {
     public static void main(String[] args) {
         var paintSettingBuilder = PaintSettings.getPaintSettingBuilder();
-        String[] arguments={"-legacy","-no-borders","filename1","filename2","-border-width","100","-window-name", "area"};
+        String[] arguments = {"-legacy", "-no-borders", "filename1", "filename2", "-border-width", "100",
+                "-window-name", "area", "-h"};
         var cmdParser = new CmdLineParser();
         cmdParser.addFlag("-legacy", () -> paintSettingBuilder.setLegacy(true));
         cmdParser.addFlag("-with-borders", () -> paintSettingBuilder.setBordered(true));

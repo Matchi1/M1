@@ -1,6 +1,5 @@
 package fr.uge.poo.cmdline.ex3;
 
-import fr.uge.poo.cmdline.ex2.CmdLineParser;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -13,25 +12,25 @@ class CmdLineParserTest {
 
     @Test
     public void processShouldFailFastOnNullArgument(){
-        var parser = new fr.uge.poo.cmdline.ex1.CmdLineParser();
+        var parser = new CmdLineParser();
         assertThrows(NullPointerException.class, () -> parser.process(null));
     }
 
     @Test
     public void addFlagShouldFailOnNullArgument() {
-        var parser = new fr.uge.poo.cmdline.ex1.CmdLineParser();
+        var parser = new CmdLineParser();
         assertThrows(NullPointerException.class, () -> parser.addFlag(null, null));
     }
 
     @Test
     public void addFlagWithParameterShouldFailFastOnNullArguments() {
-        var parser = new fr.uge.poo.cmdline.ex2.CmdLineParser();
+        var parser = new CmdLineParser();
         assertThrows(NullPointerException.class, () -> parser.addFlagWithParameter(null, null));
     }
 
     @Test
     public void processReturnCorrectNumberOfFiles() {
-        var parser = new fr.uge.poo.cmdline.ex1.CmdLineParser();
+        var parser = new CmdLineParser();
         String[] arguments = {"filename1", "-opt", "filename2", "hello"};
         parser.addFlag("-opt", () -> System.out.println("hello"));
         var files = parser.process(arguments);
@@ -40,7 +39,7 @@ class CmdLineParserTest {
 
     @Test
     public void processReturnCorrectArgument() {
-        var parser = new fr.uge.poo.cmdline.ex2.CmdLineParser();
+        var parser = new CmdLineParser();
         String[] arguments = {"filename1", "-opt", "filename2", "hello"};
         String[] expectedFiles = {"filename1", "filename2", "hello"};
         parser.addFlag("-opt", () -> System.out.println("hello"));
@@ -52,7 +51,7 @@ class CmdLineParserTest {
 
     @Test
     public void processReturnCorrectArgumentWithParameter() {
-        var parser = new fr.uge.poo.cmdline.ex2.CmdLineParser();
+        var parser = new CmdLineParser();
         String[] arguments = {"filename1", "-opt", "filename2", "hello"};
         String[] expectedFiles = {"filename1", "hello"};
         parser.addFlagWithParameter("-opt", argument -> {});
@@ -64,7 +63,7 @@ class CmdLineParserTest {
 
     @Test
     public void runnableCorrectlyExecuted() {
-        var parser = new fr.uge.poo.cmdline.ex2.CmdLineParser();
+        var parser = new CmdLineParser();
         var runExecuted = new ArrayList<Integer>();
         String[] arguments = {"filename1", "-opt", "filename2", "hello", "-legacy"};
         parser.addFlag("-legacy", () -> runExecuted.add(0));
@@ -75,7 +74,7 @@ class CmdLineParserTest {
 
     @Test
     public void runnableExecutionOrder() {
-        var parser = new fr.uge.poo.cmdline.ex2.CmdLineParser();
+        var parser = new CmdLineParser();
         var runOrder = new ArrayList<Integer>();
         String[] arguments = {"filename1", "-opt", "filename2", "hello", "-legacy"};
         Integer[] expectedRunOrder = {1, 0};

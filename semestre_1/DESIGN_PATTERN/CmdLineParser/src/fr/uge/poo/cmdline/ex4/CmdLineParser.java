@@ -5,31 +5,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class CmdLineParser {
     private final HashMap<String, Option> registeredOptions = new HashMap<>();
     private final HashSet<String> mandatoryOptions = new HashSet<>();
-    
-    private List<String> getListOfArguments(String option, List<String> parameters, int numberOfParameters) {
-        var arguments = new ArrayList<String>();
-        if(parameters.size() < numberOfParameters) {
-        	throw new IllegalStateOptions("Not enough arguments for this option");
-        }
-        for(var argument : parameters) {
-        	if(--numberOfParameters == 0) {
-        		break;
-        	}
-            if(Option.isOption(argument)) {
-                throw new IllegalStateOptions("Option '"+ option +"' is waiting for an argument");
-            }
-            arguments.add(argument);
-        }
-        return arguments;
-    }
 
     public void addFlag(String option, Runnable code) {
         Objects.requireNonNull(option);
@@ -54,41 +35,28 @@ public class CmdLineParser {
     	registeredOptions.put(option, optionBuilder.build());
     }
 
-    public void addFlagWithParameters(String option, Consumer<List<String>> code, int numberOfParameters, boolean mandatory) {
+    public void addOption(String option, Consumer<List<String>> code, int numberOfParameters, boolean mandatory) {
         Objects.requireNonNull(option);
         Objects.requireNonNull(code);
-        Consumer<List<String>> action = iterator -> {
-            var arguments = getListOfArguments(option, iterator, numberOfParameters);
-            code.accept(arguments);
-        };
-        var optionBuilder = Option.createBuilder(option, numberOfParameters, action);
+        var optionBuilder = Option.createBuilder(option, numberOfParameters, code);
         optionBuilder.setMandatory(mandatory);
-        mandatoryOptions.add(option);
+        if(mandatory) {
+            mandatoryOptions.add(option);
+        }
         registeredOptions.put(option, optionBuilder.build());
     }
-
-    public void setFlagMandatory(String optionName) {
-        mandatoryOptions.add(optionName);
-    }
-
-    public List<String> getMandatoryOptions() {
-        return registeredOptions.entrySet().stream()
-                .filter(entry -> entry.getValue().isMandatory())
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-    }
     
-    public List<String> getArguments(Iterator<String> arguments, int numberOfParameters){
+    private List<String> getArguments(Iterator<String> arguments, int numberOfParameters){
     	var nextArguments = new ArrayList<String>();
     	for(var i = 0; i < numberOfParameters; i++) {
     		if(arguments.hasNext()) {
     			var argument = arguments.next();
     			if(Option.isOption(argument)) {
-    				throw new IllegalStateException();
+    				throw new IllegalStateOptions("Option is waiting for parameters");
     			}
-    			nextArguments.add(arguments.next());
+    			nextArguments.add(argument);
     		} else {
-    			throw new IllegalStateOptions("option error");
+    			throw new IllegalStateOptions("Not enough parameters");
     		}
     	}
     	return nextArguments;
@@ -97,8 +65,7 @@ public class CmdLineParser {
     public List<String> process(String[] arguments) {
         Objects.requireNonNull(arguments);
         var files = new ArrayList<String>();
-        var iterator = List.of(arguments).iterator();
-        for(; iterator.hasNext(); ) {
+        for(var iterator = List.of(arguments).iterator(); iterator.hasNext();) {
         	var argument = iterator.next();
             var option = registeredOptions.get(argument);
             mandatoryOptions.remove(argument);
