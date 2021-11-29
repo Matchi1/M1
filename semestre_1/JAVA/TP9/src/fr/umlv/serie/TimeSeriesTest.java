@@ -449,7 +449,6 @@ public class TimeSeriesTest {
     assertThrows(NullPointerException.class, () -> index.or(null));
   }
 
-  /*
   @Test @Tag("Q9")
   public void indexAnd() {
     var timeSerie = new TimeSeries<String>();
@@ -559,7 +558,7 @@ public class TimeSeriesTest {
     assertThrows(NullPointerException.class, () -> index.and(null));
   }
 
-
+/*
   @Test @Tag("Q10")
   public void indexOrCovariant() {
     TimeSeries<String> timeSerie = new TimeSeries<String>();

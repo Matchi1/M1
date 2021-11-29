@@ -1,0 +1,75 @@
+---
+title: "Java avancé TP9: TimeSeries"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-11-28"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu de java}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+# Exercice 1
+
+## Question 5
+
+**Quel doit être le type du paramètre de la méthode index(lambda) ?**
+
+le type de la **lambda** doit être un **Predicate<? super E>** car la méthode
+joue le rôle consommateur.
+
+## Question 6
+
+**Quel doit être le type du paramètre de la méthode forEach(lambda) ?**
+
+le type de la **lambda** doit être un **Consumer<? super Data<E>>** car la méthode
+joue le rôle consommateur.
+
+## Question 7
+
+**Quelle interface doit implanter la classe Index pour pouvoir être utilisée dans
+une telle boucle ?**
+
+L'interface **Iterable** est l'interface la plus convenable pour ça.
+
+**Quelle méthode de l'interface doit-on implanter ?**
+
+On doit implanter les méthodes **iterator**.
+
+**Et quel est le type de retour de cette méthode ?**
+
+La méthode doit renvoyer un **Iterator<Data<E>>**.
+
+## Question 8
+
+**Expliquer pourquoi on ne peut pas juste concaténer les deux tableaux
+d'indices ?**
+
+Si on ne supprime pas les doublons, on risque d'effectuer des actions en trop
+qui peuvent provoquer des incohérences.
+Il faut de même vérifier que les index sont issues de la même instance de
+**TimeSeries** car on créer un index selon les éléments d'une **TimeSeries**
+
+# Conclusion
+
+Ce tp m'a permit de comprendre le fonctionnement globale des **?** mais aussi
+sur comment utiliser les classes internes.
+L'intérêt de ce tp est de prendre en main les types paramétrés, les **?** et
+l'utilisation des classes internes.
+Les classes anonymes ont aussi été utilisé notamment dans la fonction 
+**iterator** qui renvoie un **Iterator**.
+Les classes internes ont été personnellement difficiles à prendre en main.
+Je pense revoir ce tp et le cours pour mieux comprendre ces concepts un peu dur
+à prendre en main.

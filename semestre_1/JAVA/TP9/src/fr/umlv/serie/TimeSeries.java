@@ -1,11 +1,12 @@
 package fr.umlv.serie;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -74,8 +75,31 @@ public class TimeSeries <E> {
 			};
 		}
 		
+		private TimeSeries<E> getTimeSeriesInstance() {
+			return getTimeSeries();
+		}
+
 		public Index or(Index index) {
-			var array = IntStream.concat(Arrays.stream(indexes), Arrays.stream(index.indexes));
+			Objects.requireNonNull(index);
+			index.
+			if(this.getTimeSeriesInstance() != index.getTimeSeriesInstance()) {
+				throw new IllegalArgumentException("Indexes should be created from the same timeseries");
+			}
+			var array = IntStream.concat(Arrays.stream(indexes), Arrays.stream(index.indexes))
+					.sorted()
+					.distinct()
+					.toArray();
+			return new Index(array);
+		}
+		
+		public Index and(Index index) {
+			Objects.requireNonNull(index);
+			if(this.getTimeSeriesInstance() != index.getTimeSeriesInstance()) {
+				throw new IllegalArgumentException("Indexes should be created from the same timeseries");
+			}
+			var set = new HashSet<>();
+			Arrays.stream(indexes).forEach(set::add);
+			var array = Arrays.stream(index.indexes).filter(i -> set.contains(i)).toArray();
 			return new Index(array);
 		}
 	}
@@ -96,9 +120,12 @@ public class TimeSeries <E> {
 	}
 	
 	public Index index() {
-		var indexes = IntStream.range(0, list.size()).toArray();
-		return new Index(indexes);
+		return index(value -> true);
 	} 
+	
+	private TimeSeries<E> getTimeSeries() {
+		return this;
+	}
 	
 	public Index index(Predicate<? super E> predicate) {
 		var array = IntStream.range(0,  list.size())

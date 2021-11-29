@@ -75,6 +75,21 @@ Le type de retour de **iterator()** est une **Iterator<E>**
 L'interface **Iterable** est une interface qui permet à une classe d'être
 parcourable à l'aide d'une boucle *for-each* ou autre.
 
+**Sachant qu'il existe une classe AbstractQueue qui fournit déjà des
+implantations par défaut de l'interface Queue indiquer**
+**quelles sont les méthodes supplémentaires à implanter**
+
+Il va falloir ajouter la méthode **peek**
+
+**quelles sont les méthodes dont l'implantation doit être modifiée**
+
+Il faudra modifier la méthode **offer()** pour qu'elle renvoie un **boolean**
+
+**quelles sont les méthodes que l'on peut supprimer**
+
+On peut supprimer les autres méthodes car elles sont déjà implémenter sur dans
+le **abstractQueue**
+
 # Conclusion
 
 Ce tp m'a permit de comprendre le fonctionnement global d'une file d'attente en
