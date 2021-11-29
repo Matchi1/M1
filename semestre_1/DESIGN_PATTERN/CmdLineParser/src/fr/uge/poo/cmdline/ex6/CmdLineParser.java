@@ -8,19 +8,17 @@ import java.util.function.IntConsumer;
 
 public class CmdLineParser {
     private final OptionsManager manager = new OptionsManager();
-    private final HashSet<String> mandatoryOptions = new HashSet<>();
-    private final HashSet<String> encounteredLabels = new HashSet<>();
-    
-    interface OptionsManagerObserver {
-        default void onRegisteredOption(OptionsManager optionsManager,Option option) {};
+    private final UsageObserver usageObserver = new UsageObserver();
 
-        default void onProcessedOption(OptionsManager optionsManager,Option option) {};
+    interface OptionsManagerObserver {
+        default void onRegisteredOption(OptionsManager optionsManager, Option option) {};
+
+        default void onProcessedOption(OptionsManager optionsManager, Option option) {};
 
         default void onFinishedProcess(OptionsManager optionsManager) {};
     }
     
-    class LoggerObserver implements OptionsManagerObserver {
-
+    static class LoggerObserver implements OptionsManagerObserver {
         @Override
         public void onRegisteredOption(OptionsManager optionsManager, Option option) {
             System.out.println("Option "+option+ " is registered");
@@ -36,11 +34,67 @@ public class CmdLineParser {
             System.out.println("Process method is finished");
         }
     }
+
+    static class MandatoryOptionObserver implements OptionsManagerObserver {
+        @Override
+        public void onRegisteredOption(OptionsManager optionsManager, Option option) {
+            if(option.isMandatory()) {
+                optionsManager.mandatoryOptions.add(option.getName());
+            }
+        }
+
+        @Override
+        public void onProcessedOption(OptionsManager optionsManager, Option option) {
+            optionsManager.mandatoryOptions.remove(option.getName());
+        }
+
+        @Override
+        public void onFinishedProcess(OptionsManager optionsManager) {
+            if(!optionsManager.mandatoryOptions.isEmpty()) {
+                throw new IllegalStateOptions("Following mandatory options are still not called : " + optionsManager.mandatoryOptions);
+            }
+        }
+    }
+
+    static class UsageObserver implements OptionsManagerObserver {
+        public String usage(OptionsManager optionsManager) {
+            var options = new HashSet<>(optionsManager.byName.values());
+            var usage = new StringBuilder();
+            usage.append("java [application]");
+            options.forEach(option -> {
+                var optionUsage = new StringJoiner(", ", "[", "]");
+                optionUsage.add(option.getName());
+                option.getAliases().forEach(optionUsage::add);
+                usage.append(optionUsage);
+            });
+            usage.append("\n\n");
+            options.forEach(option -> usage.append(option.toString()));
+            return usage.toString();
+        }
+    }
+
+    static class ConflictObserver implements OptionsManagerObserver {
+        @Override
+        public void onRegisteredOption(OptionsManager optionsManager, Option option) {
+            optionsManager.encounteredOptions.add(option.getName());
+        }
+
+        @Override
+        public void onProcessedOption(OptionsManager optionsManager, Option option) {
+            var conflicts = option.getConflicts();
+            conflicts.forEach(name -> {
+                if(optionsManager.encounteredOptions.contains(name)) {
+                    throw new IllegalStateOptions("Options conflict between" + option.getName() + " and " + name);
+                }
+            });
+        }
+    }
     
     private static class OptionsManager {
-
         private final HashMap<String, Option> byName = new HashMap<>();
         private final HashSet<OptionsManagerObserver> observers = new HashSet<>();
+        private final HashSet<String> mandatoryOptions = new HashSet<>();
+        private final HashSet<String> encounteredOptions = new HashSet<>();
 
         /**
          * Register the option with all its possible names
@@ -71,9 +125,7 @@ public class CmdLineParser {
 
         Optional<Option> processOption(String optionName) {
         	var option = Optional.ofNullable(byName.get(optionName));
-        	if(option.isPresent()) {
-        		notifyAllObserverProcessedOption(option.get());
-        	}
+            option.ifPresent(this::notifyAllObserverProcessedOption);
             return option;
         }
 
@@ -122,18 +174,12 @@ public class CmdLineParser {
     		code.accept(arguments.get(0));
         };
         var optionBuilder = Option.createBuilder(option, 1, action);
-    	manager.register(optionBuilder.build());    	
+    	manager.register(optionBuilder.build());
     }
 
-    public void addOption(String option, Consumer<List<String>> code, int numberOfParameters, boolean mandatory) {
+    public void addOption(Option option) {
         Objects.requireNonNull(option);
-        Objects.requireNonNull(code);
-        var optionBuilder = Option.createBuilder(option, numberOfParameters, code);
-        optionBuilder.setMandatory(mandatory);
-        if(mandatory) {
-            mandatoryOptions.add(option);
-        }
-        manager.register(optionBuilder.build());
+        manager.register(option);
     }
 
 	public static Option.OptionBuilder oneIntParameter(String optionName, int numberOfParameters, IntConsumer action) {
@@ -156,23 +202,6 @@ public class CmdLineParser {
 				numberOfParameters,
 				arguments -> action.accept(new InetSocketAddress(arguments.get(0), Integer.parseInt(arguments.get(1)))));
 	}
-
-
-    public void addOptions(String option, Consumer<List<String>> code, int numberOfParameters,
-						   boolean mandatory, List<String> aliases, String description) {
-        Objects.requireNonNull(option);
-        Objects.requireNonNull(code);
-        Objects.requireNonNull(aliases);
-		Objects.requireNonNull(description);
-        var optionBuilder = Option.createBuilder(option, numberOfParameters, code);
-        optionBuilder.setMandatory(mandatory);
-        if(mandatory) {
-            mandatoryOptions.add(option);
-        }
-        aliases.forEach(optionBuilder::addAlias);
-		optionBuilder.setDescription(description);
-        manager.register(optionBuilder.build());
-    }
     
     private List<String> getArguments(Iterator<String> arguments, int numberOfParameters){
     	var nextArguments = new ArrayList<String>();
@@ -197,6 +226,10 @@ public class CmdLineParser {
 				"Show this message");
 	}
 	*/
+
+    private String usage() {
+        return usageObserver.usage(manager);
+    }
     
     public void registerObserver(OptionsManagerObserver observer) {
     	manager.registerObserver(observer);
@@ -208,12 +241,12 @@ public class CmdLineParser {
         for(var iterator = List.of(arguments).iterator(); iterator.hasNext();) {
         	var argument = iterator.next();
 		 	if(Option.isOption(argument)) {
+                 var option = manager.byName.get(argument);
+                 option.accept(getArguments(iterator, option.getNumberOfParameters()));
+                 manager.processOption(argument);
             } else {
                 files.add(argument);
             }
-        }
-        if(!mandatoryOptions.isEmpty()) {
-            throw new IllegalStateOptions("Mandatory options are missing : " + mandatoryOptions);
         }
         manager.finishProcess();
         return files;

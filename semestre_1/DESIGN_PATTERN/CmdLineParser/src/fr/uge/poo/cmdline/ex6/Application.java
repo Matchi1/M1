@@ -9,7 +9,9 @@ public class Application {
         String[] arguments = {"-legacy", "-no-borders", "filename1", "filename2", "-border-width", "100",
                 "-window-name", "area", "-h"};
         var cmdParser = new CmdLineParser();
-        cmdParser.registerObserver(new LoggerObserver());
+        cmdParser.registerObserver(new CmdLineParser.LoggerObserver());
+        cmdParser.registerObserver(new CmdLineParser.ConflictObserver());
+        cmdParser.registerObserver(new CmdLineParser.MandatoryOptionObserver());
         cmdParser.addFlag("-legacy", () -> paintSettingBuilder.setLegacy(true));
         cmdParser.addFlag("-with-borders", () -> paintSettingBuilder.setBordered(true));
         cmdParser.addFlag("-no-borders", () -> paintSettingBuilder.setBordered(false));

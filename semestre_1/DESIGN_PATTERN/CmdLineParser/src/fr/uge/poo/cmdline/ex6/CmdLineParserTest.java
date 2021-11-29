@@ -106,9 +106,11 @@ class CmdLineParserTest {
     @Test
     public void shouldThrowIllegalStateOptionWithMandatoryOption() {
         var parser = new CmdLineParser();
-        String[] arguments = {"-border-width", "500", "filename"};
-        parser.addOption("-window-name", argument -> {}, 1, true);
-        parser.addFlagWithParameter("-border-width", argument -> {});
+        parser.registerObserver(new CmdLineParser.MandatoryOptionObserver());
+        String[] arguments = {"500", "filename"};
+        var builder = CmdLineParser.oneIntParameter("-window-name", 1, value -> {})
+                .required();
+        parser.addOption(builder.build());
         assertThrows(IllegalStateOptions.class, () -> parser.process(arguments));
     }
 
@@ -116,7 +118,8 @@ class CmdLineParserTest {
     public void shouldThrowIllegalStateOptionNotEnoughArgument() {
         var parser = new CmdLineParser();
         String[] arguments = {"-import", "file1", "file2"};
-        parser.addOption("-import", list -> {}, 3, false);
+        var builder = Option.createBuilder("-import", 3, list -> {});
+        parser.addOption(builder.build());
         assertThrows(IllegalStateOptions.class, () -> parser.process(arguments));
     }
 
@@ -124,7 +127,8 @@ class CmdLineParserTest {
     public void shouldBeSuccessfulWithMultipleParameters() {
         var parser = new CmdLineParser();
         String[] arguments = {"-import", "file1", "file2", "file3"};
-        parser.addOption("-import", list -> {}, 3, false);
+        var builder = Option.createBuilder("-import", 3, list -> {});
+        parser.addOption(builder.build());
         assertEquals(new ArrayList<>(), parser.process(arguments));
     }
 
@@ -133,17 +137,36 @@ class CmdLineParserTest {
         var parser = new CmdLineParser();
         String[] expectedOrder = {"file1", "file2", "file3"};
         String[] arguments = {"-import", "file1", "file2", "file3"};
-        parser.addOption("-import", list -> {
+        var builder = Option.createBuilder("-import", 3, list -> {
             assertEquals(list, List.of(expectedOrder));
-        }, 3, false);
+        });
+        parser.addOption(builder.build());
         parser.process(arguments);
     }
 
     @Test
-    public void shouldThrowIllegalStateOptionsWhenNotEnoughParameters() {
+    public void testWithNoConflictsShouldBeSuccessful() {
         var parser = new CmdLineParser();
-        String[] arguments = {"-import", "file1", "file2"};
-        parser.addOption("-import", list -> {}, 3, false);
+        parser.registerObserver(new CmdLineParser.ConflictObserver());
+        String[] arguments = {"-import", "file1", "file2", "-no-conflict"};
+        var builder = Option.createBuilder("-import", 2, list -> {})
+                .conflictWith("-conflict");
+        parser.addOption(builder.build());
+        builder = Option.createBuilder("-no-conflict", 0, list -> {});
+        parser.addOption(builder.build());
+        parser.process(arguments);
+    }
+
+    @Test
+    public void testWithConflictsShouldThrowIllegalStateOption() {
+        var parser = new CmdLineParser();
+        parser.registerObserver(new CmdLineParser.ConflictObserver());
+        String[] arguments = {"-import", "file1", "file2", "-no-conflict"};
+        var builder = Option.createBuilder("-import", 2, list -> {})
+                .conflictWith("-no-conflict");
+        parser.addOption(builder.build());
+        builder = Option.createBuilder("-no-conflict", 0, list -> {});
+        parser.addOption(builder.build());
         assertThrows(IllegalStateOptions.class, () -> parser.process(arguments));
     }
 }

@@ -9,7 +9,8 @@ public class Option {
     private final boolean mandatory;
     private final Consumer<List<String>> action;
     private final HashSet<String> aliases;
-	private final String description;
+    private final HashSet<String> conflicts;
+    private final String description;
 
     public static class OptionBuilder {
         private String name = "";
@@ -17,6 +18,7 @@ public class Option {
         private boolean mandatory = false;
         private Consumer<List<String>> action = null;
         private HashSet<String> aliases = new HashSet<>();
+        private HashSet<String> conflicts = new HashSet<>();
 		private String description = "";
 
         public OptionBuilder(String name, int numberOfParameters, Consumer<List<String>> action) {
@@ -38,8 +40,8 @@ public class Option {
             return this;
         }
 
-        public OptionBuilder setMandatory(boolean mandatory) {
-            this.mandatory = mandatory;
+        public OptionBuilder required() {
+            this.mandatory = true;
             return this;
         }
 
@@ -53,8 +55,14 @@ public class Option {
             return this;
 		}
 
-        public void addAlias(String alias) {
+        public OptionBuilder conflictWith(String name) {
+            conflicts.add(name);
+            return this;
+        }
+
+        public OptionBuilder alias(String alias) {
             this.aliases.add(alias);
+            return this;
         }
 
         public Option build() {
@@ -79,6 +87,7 @@ public class Option {
         this.mandatory = builder.mandatory;
         this.aliases = builder.aliases;
         this.description = builder.description;
+        this.conflicts = builder.conflicts;
     }
 
     public static OptionBuilder createBuilder(String name, int numberOfParameters, Consumer<List<String>> action) {
@@ -116,5 +125,16 @@ public class Option {
 
     public void accept(List<String> parameters) {
         this.action.accept(parameters);
+    }
+
+    public HashSet<String> getConflicts() {
+        return new HashSet<>(conflicts);
+    }
+
+    @Override
+    public String toString() {
+        var aliasesMessage = new StringJoiner(", ", "", "");
+        aliases.forEach(aliasesMessage::add);
+        return aliasesMessage + "\t\t" + description;
     }
 }
