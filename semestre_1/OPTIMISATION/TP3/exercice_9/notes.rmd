@@ -1,0 +1,7 @@
+opt =
+number of ressources =
+excution time = 
+
+```
+python3 generic.py bigdata.txt output.lp -int -min
+```

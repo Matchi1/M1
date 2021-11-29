@@ -1,0 +1,7 @@
+opt = 21638.0
+number of ressources = 12
+excution time = 20s
+
+```
+python3 generic.py data.txt output.lp -int
+```
