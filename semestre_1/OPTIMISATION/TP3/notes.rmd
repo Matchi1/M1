@@ -1,64 +1,120 @@
+---
+title: "OPTIMISATION: TP3"
+subtitle: "M1 Informatique, groupe apprenti, chargé de td: Yohann Thapper"
+author: "Mathieu Chan - Orhan Uyar"
+date: "2021-12-02"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu Optimisation}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+# User specification
+
+## generic.py
+
+The following command executes the lp solver on the input file and redirect the
+result into the specified output file.
+
+`python3 generic.py <input file> <output file>`
+
+Some option can be used to have specific actions on the input file.
+
+| option | description                                            |
+| -int   | type of all ressources are set to int instead of float |
+| -min   | change objective from 'max' to 'min' and '<=' to '>='  |
+
+This script will show all relevant information about the input file.
+It will show the number of equation, the number of variable, the list of
+solution and the list of all resources and its corresponding coefficient.
+
+## decoupe.py
+
+To execute the split of a bar:
+
+`python3 decoupe.py <maximum size> -l [list of measurement]`
+
+This script will show the list of all possible combinations for the specified
+value on the command line, and the number of combinations.
+
 # Exercice 1
 
-```lp
-max: 2 x1 + x2;
-x1 + 2 x2 <= 20;
-3.2 x1 + x2 <= 15;
-```
-
------------
-
-```
-Value of objective function: 12.77777778
-
-Actual values of the variables:
-x1                        1.85185
-x2                        9.07407
-```
+Optimal values for x1 and x2 are correspondingly 1.85185 and 9.07407.
 
 # Exercice 2
 
-```lp
-max: -2 x1 + x2;
-x1 + 2 x2 <= 20;
-3.2 x1 + x2 <= 15;
-```
+With **free** we can see the problem is not bounded anymore.
 
----------
+# Exercice 3
 
-```
-Value of objective function: 10.00000000
-
-Actual values of the variables:
-x1                              0
-x2                             10
-```
-
----------
-
-`This problem is unbounded`
-
-With *free x1, x2;*
-
----------
-
-```lp
-max: 150 x + 100 y;
-10 x + 10 y <= 350;
-30 x + 10 y <= 750;
-10 x + 20 y <= 600;
-```
-
----------
-
-```
-Value of objective function: 4500.00000000
-
-Actual values of the variables:
-x                              20
-y                              15
-```
+With the solver, we correctly find 4500.0 for objective function, 20 for x1 and
+15 for x2.
 
 # Exercice 4
 
+see `exercice_4/generic.py` file.
 
+# Exercice 5
+
+see `exercice_5/generic.py` file.
+
+# Exercice 6
+
+a. The objective function value is : 21654.79332331
+b. There are 6 different product that needs to be created.
+c. The time spent for the calculation was 25 ms
+
+# Exercice 7
+
+a. The objective function value is : 21638.0
+b. There are 12 different product that needs to be created.
+c. The time spent for the calculation was 20 s
+
+# Exercice 8
+
+## without -int option
+
+a. The objective function value is : 5050533.10609334
+b. There are ? different product that needs to be created.
+c. The time spent for the calculation was 1 s
+
+## with -int option
+
+Took too much time to solve problem (more than an hour)
+
+# Exercice 9
+
+We have actually 7 ways to split a segment of 3 m and maximize the production.
+The table below represents all the possible combinations with the specified
+measures.
+
+| 1.20 | 1.0 | 0.5 |
+|------+-----+-----|
+| 0    | 0   | 6   |
+| 4    | 1   | 0   |
+| 3    | 0   | 1   |
+| 2    | 2   | 0   |
+| 1    | 0   | 2   |
+| 1    | 1   | 1   |
+| 0    | 3   | 0   |
+
+# Exercice 10
+
+See `exercice_10/decoupe.py`
+
+With 500 as the length of the bar and [200, 120, 100, 50] as the list of all
+the measurement, 25 combinations are possible.
+
+# Exercice 11
+
+TODO

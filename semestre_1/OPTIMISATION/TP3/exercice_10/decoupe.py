@@ -1,3 +1,5 @@
+import argparse
+
 def decoupe(maximum, elements):
     element = elements[0]
     max_iter = int(maximum / element)
@@ -12,7 +14,17 @@ def decoupe(maximum, elements):
             result.append(elt)
     return result
 
-value = decoupe(300, [120, 100, 50])
-print(len(value))
-value = decoupe(500, [200, 120, 100, 50])
-print(len(value))
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Cut element combination')
+    parser.add_argument('-l', '--list', nargs='+', default=[], type=int,
+            help="Input for your template", required=True)
+    parser.add_argument('max', type=int)
+    return parser.parse_args()
+
+arguments = parse_arguments()
+segments = sorted(arguments.list, reverse=True)
+value = decoupe(arguments.max, segments)
+print('List of combinations: ')
+print(str(value))
+print('Number of combinations: ')
+print(str(len(value)))
