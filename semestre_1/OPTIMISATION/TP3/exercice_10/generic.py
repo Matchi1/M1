@@ -13,6 +13,7 @@ class GenericsFileParserForLP:
         self.data = []
         self.opt = .0        # Value of objective function
         self.values = []     # Variables actual values
+        self.min = False
 
     def setParam(self, optionTab) -> None:
         self.nbFormule = int(optionTab[0])
@@ -34,13 +35,19 @@ class GenericsFileParserForLP:
         for i in range(2, len(lines)):
             self.data.append(lines[i].split(" "))
 
-    def generate_lp(self) -> None:
-        self.generate_max()
+    def generate_lp(self, arguments) -> None:
+        if arguments.min :
+            self.generate_min()
+        else:
+            self.generate_max()
 
-    def generate_max(self) -> None:
-        self.output.write("max: ")
+    def generate_condition(self) -> None:
+        if self.min:
+            self.output.write("min: ")
+        else:
+            self.output.write("max: ")
         add = ""
-        for i in range(self.nbVariable):
+        for i in range(self.nbFormule):
             self.output.write(add)
             add = "+"
             self.output.write("" + self.data[i][-1] + self.data[i][0])
@@ -49,9 +56,16 @@ class GenericsFileParserForLP:
     def generate_equation(self) -> None:
         labels = self.getLabels()
         coeffs = self.getVariableCoeff()
-        for i in range(self.nbFormule):
-            equation = [coeffs[j][i] + labels[j] for j in range(self.nbVariable)]
-            message = "+".join(equation) + " <= " + self.result[i] + ";\n"
+        print(labels)
+        print(coeffs)
+        print(self.nbFormule)
+        print(self.nbVariable)
+        for i in range(self.nbVariable):
+            equation = [coeffs[j][i] + labels[j] for j in range(self.nbFormule)]
+            if self.min:
+                message = "+".join(equation) + " >= " + self.result[i] + ";\n"
+            else: 
+                message = "+".join(equation) + " <= " + self.result[i] + ";\n"
             self.output.write(message)
 
     def generate_int(self) -> None:
@@ -104,6 +118,7 @@ def parse_arguments():
     parser.add_argument('input', nargs='+', type=argparse.FileType('r'), default=sys.stdin, help="Input for your template")
     parser.add_argument('output', nargs='+', type=argparse.FileType('w'), default=sys.stdout, help="Output LP file generated from your template")
     parser.add_argument('-int', action='store_true')
+    parser.add_argument('-min', action='store_true')
     return parser.parse_args()
 
 
@@ -112,12 +127,11 @@ if __name__ == '__main__':
     arguments = parse_arguments()
     parser = GenericsFileParserForLP(arguments.input[0], arguments.output[0])
 
+    parser.min = arguments.min
     parser.parse_file()
     print(parser)
-    parser.generate_lp()
+    parser.generate_condition()
     parser.generate_equation()
-    if arguments.int:
-        parser.generate_int()
     parser.close()
     parser.run_lp_solve(arguments)
     parser.save_result()
