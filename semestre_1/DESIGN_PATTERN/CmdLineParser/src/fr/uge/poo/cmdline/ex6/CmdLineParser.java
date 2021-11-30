@@ -10,6 +10,12 @@ public class CmdLineParser {
     private final OptionsManager manager = new OptionsManager();
     private final UsageObserver usageObserver = new UsageObserver();
 
+    CmdLineParser() {
+        manager.registerObserver(new LoggerObserver());
+        manager.registerObserver(new ConflictObserver());
+        manager.registerObserver(new MandatoryOptionObserver());
+    }
+
     interface OptionsManagerObserver {
         default void onRegisteredOption(OptionsManager optionsManager, Option option) {};
 
@@ -51,7 +57,7 @@ public class CmdLineParser {
         @Override
         public void onFinishedProcess(OptionsManager optionsManager) {
             if(!optionsManager.mandatoryOptions.isEmpty()) {
-                throw new IllegalStateOptions("Following mandatory options are still not called : " + optionsManager.mandatoryOptions);
+                throw new ParseException("Following mandatory options are still not called : " + optionsManager.mandatoryOptions);
             }
         }
     }
@@ -77,6 +83,7 @@ public class CmdLineParser {
         @Override
         public void onRegisteredOption(OptionsManager optionsManager, Option option) {
             optionsManager.encounteredOptions.add(option.getName());
+            optionsManager.encounteredOptions.addAll(option.getAliases());
         }
 
         @Override
@@ -84,7 +91,7 @@ public class CmdLineParser {
             var conflicts = option.getConflicts();
             conflicts.forEach(name -> {
                 if(optionsManager.encounteredOptions.contains(name)) {
-                    throw new IllegalStateOptions("Options conflict between" + option.getName() + " and " + name);
+                    throw new ParseException("Options conflict between" + option.getName() + " and " + name);
                 }
             });
         }
@@ -98,6 +105,7 @@ public class CmdLineParser {
 
         /**
          * Register the option with all its possible names
+         *
          * @param option
          */
         void register(Option option) {
@@ -116,7 +124,7 @@ public class CmdLineParser {
         }
 
         /**
-         * This method is called to signal that an option is encountered during 
+         * This method is called to signal that an option is encountered during
          * a command line process
          *
          * @param optionName
@@ -124,7 +132,7 @@ public class CmdLineParser {
          */
 
         Optional<Option> processOption(String optionName) {
-        	var option = Optional.ofNullable(byName.get(optionName));
+            var option = Optional.ofNullable(byName.get(optionName));
             option.ifPresent(this::notifyAllObserverProcessedOption);
             return option;
         }
@@ -133,24 +141,24 @@ public class CmdLineParser {
          * This method is called to signal the method process of the CmdLineParser is finished
          */
         void finishProcess() {
-        	notifyAllObservedFinishedProcess();
+            notifyAllObservedFinishedProcess();
         }
-        
+
         void registerObserver(OptionsManagerObserver observer) {
-        	Objects.requireNonNull(observer);
-        	this.observers.add(observer);
+            Objects.requireNonNull(observer);
+            this.observers.add(observer);
         }
-        
+
         private void notifyAllObserverRegisterOption(Option option) {
-        	observers.forEach(observer -> observer.onRegisteredOption(this, option));
+            observers.forEach(observer -> observer.onRegisteredOption(this, option));
         }
-        
+
         private void notifyAllObserverProcessedOption(Option option) {
-        	observers.forEach(observer -> observer.onProcessedOption(this, option));
+            observers.forEach(observer -> observer.onProcessedOption(this, option));
         }
-        
+
         private void notifyAllObservedFinishedProcess() {
-        	observers.forEach(observer -> observer.onFinishedProcess(this));
+            observers.forEach(observer -> observer.onFinishedProcess(this));
         }
     }
 
@@ -166,10 +174,10 @@ public class CmdLineParser {
     	Objects.requireNonNull(code);
     	Consumer<List<String>> action = arguments -> {
     		if(arguments.size() < 1) {
-        		throw new IllegalStateOptions("Not enough parameters");
+        		throw new ParseException("Not enough parameters");
     		}
     		if(Option.isOption(arguments.get(0))) {
-    			throw new IllegalStateOptions("This option is waiting for an argument");
+    			throw new ParseException("This option is waiting for an argument");
     		}
     		code.accept(arguments.get(0));
         };
@@ -209,30 +217,18 @@ public class CmdLineParser {
     		if(arguments.hasNext()) {
     			var argument = arguments.next();
     			if(Option.isOption(argument)) {
-    				throw new IllegalStateOptions("Option is waiting for parameters");
+    				throw new ParseException("Option is waiting for parameters");
     			}
     			nextArguments.add(argument);
     		} else {
-    			throw new IllegalStateOptions("Not enough parameters");
+    			throw new ParseException("Not enough parameters");
     		}
     	}
     	return nextArguments;
     }
 
-    /*
-	private void addHelpOption() {
-		var aliases = List.of(new String[]{"-h"});
-		addOptions("--help", arguments -> help(), 0,false, aliases,
-				"Show this message");
-	}
-	*/
-
     private String usage() {
         return usageObserver.usage(manager);
-    }
-    
-    public void registerObserver(OptionsManagerObserver observer) {
-    	manager.registerObserver(observer);
     }
 
     public List<String> process(String[] arguments) {

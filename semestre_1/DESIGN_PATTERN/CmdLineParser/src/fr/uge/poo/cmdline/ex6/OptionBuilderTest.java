@@ -2,7 +2,6 @@ package fr.uge.poo.cmdline.ex6;
 
 import org.junit.jupiter.api.Test;
 
-import java.text.ParseException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class OptionBuilderTest {
@@ -16,18 +15,16 @@ public class OptionBuilderTest {
         assertThrows(ParseException.class,()->{cmdParser.process(arguments);});
     }
 
-    /*
     @Test
     public void processConflicts() {
         var cmdParser = new CmdLineParser();
         var option= new Option.OptionBuilder("-test",0, l->{}).conflictWith("-test1").build();
         cmdParser.addOption(option);
-        var option2= new OptionBuilder("-test1",0, l->{}).build();
+        var option2= new Option.OptionBuilder("-test1",0, l->{}).build();
         cmdParser.addOption(option2);
         String[] arguments = {"-test","-test1"};
         assertThrows(ParseException.class,()->{cmdParser.process(arguments);});
     }
-     */
 
     @Test
     public void processConflicts2() {

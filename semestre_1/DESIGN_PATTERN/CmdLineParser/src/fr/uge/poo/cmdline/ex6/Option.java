@@ -67,10 +67,10 @@ public class Option {
 
         public Option build() {
             if(Objects.equals(name, "")) {
-                throw new IllegalStateOptions("Name of the option should be initialized");
+                throw new ParseException("Name of the option should be initialized");
             }
             if(numberOfParameters == -1) {
-                throw new IllegalStateOptions("Number of parameter should be initialized");
+                throw new ParseException("Number of parameter should be initialized");
             }
             if(action == null) {
                 this.action = it -> {};
@@ -133,7 +133,7 @@ public class Option {
 
     @Override
     public String toString() {
-        var aliasesMessage = new StringJoiner(", ", "", "");
+        var aliasesMessage = new StringJoiner(", ", this.name, "");
         aliases.forEach(aliasesMessage::add);
         return aliasesMessage + "\t\t" + description;
     }

@@ -100,18 +100,17 @@ class CmdLineParserTest {
         String[] arguments = {"-window-name", "-border-width", "500", "filename"};
         parser.addFlagWithParameter("-window-name", argument -> {});
         parser.addFlagWithParameter("-border-width", argument -> {});
-        assertThrows(IllegalStateOptions.class, () -> parser.process(arguments));
+        assertThrows(ParseException.class, () -> parser.process(arguments));
     }
 
     @Test
     public void shouldThrowIllegalStateOptionWithMandatoryOption() {
         var parser = new CmdLineParser();
-        parser.registerObserver(new CmdLineParser.MandatoryOptionObserver());
         String[] arguments = {"500", "filename"};
         var builder = CmdLineParser.oneIntParameter("-window-name", 1, value -> {})
                 .required();
         parser.addOption(builder.build());
-        assertThrows(IllegalStateOptions.class, () -> parser.process(arguments));
+        assertThrows(ParseException.class, () -> parser.process(arguments));
     }
 
     @Test
@@ -120,7 +119,7 @@ class CmdLineParserTest {
         String[] arguments = {"-import", "file1", "file2"};
         var builder = Option.createBuilder("-import", 3, list -> {});
         parser.addOption(builder.build());
-        assertThrows(IllegalStateOptions.class, () -> parser.process(arguments));
+        assertThrows(ParseException.class, () -> parser.process(arguments));
     }
 
     @Test
@@ -147,7 +146,6 @@ class CmdLineParserTest {
     @Test
     public void testWithNoConflictsShouldBeSuccessful() {
         var parser = new CmdLineParser();
-        parser.registerObserver(new CmdLineParser.ConflictObserver());
         String[] arguments = {"-import", "file1", "file2", "-no-conflict"};
         var builder = Option.createBuilder("-import", 2, list -> {})
                 .conflictWith("-conflict");
@@ -160,13 +158,12 @@ class CmdLineParserTest {
     @Test
     public void testWithConflictsShouldThrowIllegalStateOption() {
         var parser = new CmdLineParser();
-        parser.registerObserver(new CmdLineParser.ConflictObserver());
         String[] arguments = {"-import", "file1", "file2", "-no-conflict"};
         var builder = Option.createBuilder("-import", 2, list -> {})
                 .conflictWith("-no-conflict");
         parser.addOption(builder.build());
         builder = Option.createBuilder("-no-conflict", 0, list -> {});
         parser.addOption(builder.build());
-        assertThrows(IllegalStateOptions.class, () -> parser.process(arguments));
+        assertThrows(ParseException.class, () -> parser.process(arguments));
     }
 }
