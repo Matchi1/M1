@@ -80,3 +80,196 @@ J'ai désormais séparer la classe **PaintSettings** en 2 classes:
 | setWindowName      | PaintSettingsBuilder | void               | Définie le nom de la fenêtre                     |
 | setWindowHeightMin | PaintSettingsBuilder | void               | Définie la hauteur minimale de la fenêtre        |
 | setWindowWidthMin  | PaintSettingsBuilder | void               | Définie la largeur minimale de la fenêtre        |
+
+# Exercice 1-2
+
+**précisez quel(s) accès avez vous laissé (pour le main de Application) à la
+classe CmdLineParser?**
+
+J'ai laissé l'accès *package* pour que la classe soit visible que dans le
+package.
+
+**Quels sont les modificateurs d'accessiblilité des champs et des méthodes dans
+cette dernière?**
+
+**private final** car les champs doivent respecter l'**encapsulation**.
+
+**Comment gérez vous la situation où une option est enregistrée plusieurs fois
+(plusieurs appels à la méthode addFlag() avec le même nom)?**
+
+On renvoie un **IllegalStateOption** car cela veut dire que le développeur tente
+d'ajouter plusieurs avec le même nom.
+
+**Quel est le type de l'action d'une option enregistrée par addFlag()?**
+
+Le type de l'action d'une option enregistré par **addFlag()** est un
+**Runnable**.
+
+**Même question pour l'action d'une option enregistrée avec
+addOptionWithOneParameter()?**
+
+Le type de l'action d'une option enregistré par **addOptionWithOneParameter()**
+est un **Consumer<String>**.
+
+**Comment avez vous enregistré ces actions de manière cohérente dans une seule 
+et même map?**
+
+J'ai enregistré ces actions dans un **HashMap<String, Iterator<String>>**.
+
+**Décrivez comment l'exécution d'une telle action a accès à son argument, le cas
+échéant?**
+
+L'action va chercher son argument dans un **Iterator** et exécuté l'action avec
+cette argument dans le **Consumer<String>**.
+
+**Cet accès est il sécurisé? protégé? pose-t-il des problèmes?**
+
+Les fonctions **addFlag()** et **addOptionWithOneParameter()** sont dédiés à des
+actions qui prennent respectivement 0 ou 1 argument, donc en terme de sécurité,
+il ne doit pas y avoir de problème.
+
+**Comment gérez vous le cas où il manque un paramètre?**
+
+S'il manque un paramètre, alors on renvoie un **IllegalStateOption** exception.
+
+**Le cas où il y a un erreur de conversion d'un paramètre de String vers int?**
+
+La méthode **parseInt()** renvoie une **NumberFormatException** lorsqu'il y a un
+problème de conversion.
+
+# Exercice 2-5
+
+**Listez les avantages procurés par le design pattern que vous avez mis en oeuvre
+dans l’exercice 3.**
+
+Le builder dans **PaintSettings** permet de mieux répartir les responsabilités
+la classe et de mettre la responsabilité de construire le **PaintSettings** dans
+**PaintSettingsBuilder**.
+
+Le builder va aussi permettre de simplifier l'extension de la classe en terme de
+fonctionnalité.
+
+**Pourquoi est il devenu important de créer une classe Option dès l'exercice
+4?**
+
+Il est devenu important de créer une classe **Option** car on commence à
+beaucoup fonctionnalités, il faut donc rendre cela le plus simple possible et
+faire en sorte d'utiliser une seule fonction pour utiliser une **Option**: 
+**addOption()**
+
+**Discutez des responsabilités que vous avez donné à cette classe dans les
+exercices 4 et 5.**
+
+**Option** va contenir seulement informations sur une option mais aussi définir
+ce qu'est une option (un **String** avec un tiret au début)
+
+**OptionBuilder** est aussi définit pour la même raison que **PaintSettings**,
+c'est-à-dire mieux répartir les responsabilités entre construire la classe et
+fournir les informations.
+
+**Discutez de tous les moyens offerts aux utilisateurs (depuis
+le main de Application) pour en créer des instances dans les exercices 4 et 5.**
+
+Comme souligner ci-dessus, l'utilisation **OptionBuilder** va permettre créer un
+**Option**.
+
+**Discutez de la manière dont vous avez assuré la compatibilité ascendante entre
+le code de la version 3.0 et celui de la version 2.0.**
+
+Maintenant que l'on stocke un **HashMap<String, Option>**, il faut que l'on
+construit une **Option** dans les méthodes **addFlag()** et
+**addOptionWithOneParameter()**.
+
+**Quels sont les avantages et les inconvénients de cette compatibilité 
+ascendante?**
+
+Les avantages sont que le code qui compiler précedemment continue de compiler,
+les désavantages sont qu'il faut maintenir tout le code fait jusqu'à maintenant.
+
+**La gestion de la "consommation" des paramètres par l'exécution de l'action
+associée à une option lorsqu'elle est rencontrée sur la ligne de commande par
+process() a-t-elle changé depuis la fin de l'exercice 2? Si oui, décrivez
+pourquoi et comment sont gérés les problèmes (du genre paramètre manquant ou
+incorrect)?**
+
+Oui, au lieu d'utiliser un **Iterator**, on utilise à la place une
+**List<String>** pour l'essayer la responsabilité de gérer l'itérateur au
+développeur.
+
+**Listez les cas/situations que vous avez testé avec vos tests unitaires (en
+langage naturel, de manière synthétique).**
+
+J'ai pricipalement testé les situations où des exceptions doivent être levées,
+mais aussi l'ordre d'exécution des options et la liste retournée par la méthode
+**process()**, ce qui permet de vérifier que les arguments ont bien été pris en
+compte.
+
+**Décrire brièvement comment vous avez fait (à quel endroit dans le code et dans
+vos classes) pour gérer les alias, la documentation et la gestion des conflits
+entre options.**
+
+TODO
+
+**Quels problèmes voyez-vous dans la solution que vous avez mis en
+oeuvre à la fin de l'exercice 5?**
+
+On s'aperçoit que la méthode **process()** devient assez imposant et qu'il faut
+commencer à déléguer les responsabilités de la méthode à d'autre classe plus
+adapté pour rendre le code plus lisible.
+
+# Exercice 6
+
+**Les observers qui sont utilisés dans l'exercice 6 sont-ils push ou pull ?**
+
+TODO
+
+**Quels sont les avantages et inconvénients d'utiliser le patron observer pour
+traiter les relations entre les options?**
+
+TODO
+
+**Dans votre code, quelle est l'utilité que les méthodes de l'interface
+OptionsManagerObserver prennent l'OptionsManager en paramètre.**
+
+TODO
+
+**Donnez un exemple précis où le code d'un de vos OptionsManagerObserver utilise
+l'OptionsManager.**
+
+TODO
+
+**Les conflits entre options peuvent être déclarés au niveau de l'option ou au
+niveau de CmdLineParser. De plus, le conflit peut être déclaré avec le nom de
+l'option ou avec un objet Option. Quelle solution avez vous choisi ? Discutez
+des avantages et inconvénients de chaque choix.**
+
+TODO
+
+**Implicitement on suppose que la méthode process n'est appelée qu'une seule
+fois. Quelles modifications faudrait-il faire pour pouvoir appeler process
+plusieurs fois (soyez précis) ?**
+
+TODO
+
+# Exercice 7
+
+**Dans cette exercice, donnez une description complète de votre solution avec le
+code.**
+
+TODO
+
+**Si l'on voulait implémenter une stratégie SMARTRELAXED similaire à RELAXED
+mais qui s'arrête à la premiere option déclarée au près du CmdLineParser et pas
+simplement qui commence par un tiret. Est-ce que cela est possible avec
+l'interface ParametersRetrievalStrategy ? Décrivez les modifications à apporter
+à l'interface ParametersRetrievalStrategy et donnez le code de la strategy
+SMARTRELAXED.**
+
+TODO
+
+# Bilan
+
+**Décrivez l'architecture globale de la librairie CmdLineParser avec un texte et
+un diagramme UML.**
+
+TODO
