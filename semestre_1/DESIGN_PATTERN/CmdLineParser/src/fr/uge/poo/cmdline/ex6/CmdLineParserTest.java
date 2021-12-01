@@ -107,7 +107,7 @@ class CmdLineParserTest {
     public void shouldThrowIllegalStateOptionWithMandatoryOption() {
         var parser = new CmdLineParser();
         String[] arguments = {"500", "filename"};
-        var builder = CmdLineParser.oneIntParameter("-window-name", 1, value -> {})
+        var builder = Option.oneIntParameter("-window-name", 1, value -> {})
                 .required();
         parser.addOption(builder.build());
         assertThrows(ParseException.class, () -> parser.process(arguments));

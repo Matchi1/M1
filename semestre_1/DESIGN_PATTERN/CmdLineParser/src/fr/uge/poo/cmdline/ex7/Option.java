@@ -1,10 +1,15 @@
 package fr.uge.poo.cmdline.ex7;
 
+import fr.uge.poo.cmdline.ex6.ParseException;
+
+import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 public class Option {
     private final String name;
@@ -70,7 +75,7 @@ public class Option {
 
         public Option build() {
             if(Objects.equals(name, "")) {
-                throw new ParseException("Name of the option should be initialized");
+                throw new fr.uge.poo.cmdline.ex6.ParseException("Name of the option should be initialized");
             }
             if(numberOfParameters == -1) {
                 throw new ParseException("Number of parameter should be initialized");
@@ -91,6 +96,27 @@ public class Option {
         this.aliases = builder.aliases;
         this.description = builder.description;
         this.conflicts = builder.conflicts;
+    }
+
+    public static OptionBuilder oneIntParameter(String optionName, int numberOfParameters, IntConsumer action) {
+        return new OptionBuilder(
+                optionName,
+                numberOfParameters,
+                arguments -> action.accept(Integer.parseInt(arguments.get(0))));
+    }
+
+    public static OptionBuilder twoIntParameter(String optionName, int numberOfParameters, BiConsumer<Integer, Integer> action) {
+        return new OptionBuilder(
+                optionName,
+                numberOfParameters,
+                arguments -> action.accept(Integer.parseInt(arguments.get(0)), Integer.parseInt(arguments.get(1))));
+    }
+
+    public static OptionBuilder oneInetSocketParameter(String optionName, int numberOfParameters, Consumer<InetSocketAddress> action) {
+        return new OptionBuilder(
+                optionName,
+                numberOfParameters,
+                arguments -> action.accept(new InetSocketAddress(arguments.get(0), Integer.parseInt(arguments.get(1)))));
     }
 
     public static OptionBuilder createBuilder(String name, int numberOfParameters, Consumer<List<String>> action) {

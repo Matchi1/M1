@@ -1,11 +1,7 @@
 package fr.uge.poo.cmdline.ex7;
 
-import java.lang.reflect.ParameterizedType;
-import java.net.InetSocketAddress;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.IntConsumer;
 
 public class CmdLineParser {
     private final OptionsManager manager = new OptionsManager();
@@ -58,14 +54,14 @@ public class CmdLineParser {
     }
 
     interface OptionsManagerObserver {
-        default void onRegisteredOption(OptionsManager optionsManager, Option option) {};
+        default void onRegisteredOption(OptionsManager optionsManager, Option option) {}
 
-        default void onProcessedOption(OptionsManager optionsManager, Option option) {};
+        default void onProcessedOption(OptionsManager optionsManager, Option option) {}
 
-        default void onFinishedProcess(OptionsManager optionsManager) {};
+        default void onFinishedProcess(OptionsManager optionsManager) {}
     }
 
-    static class MandatoryOptionObserver implements OptionsManagerObserver {
+    private static class MandatoryOptionObserver implements OptionsManagerObserver {
         private final HashSet<String> mandatoryOptions = new HashSet<>();
         @Override
         public void onRegisteredOption(OptionsManager optionsManager, Option option) {
@@ -82,12 +78,12 @@ public class CmdLineParser {
         @Override
         public void onFinishedProcess(OptionsManager optionsManager) {
             if(!mandatoryOptions.isEmpty()) {
-                throw new ParseException("Following mandatory options are still not called : " + optionsManager.mandatoryOptions);
+                throw new ParseException("Following mandatory options are still not called : " + mandatoryOptions);
             }
         }
     }
 
-    static class UsageObserver implements OptionsManagerObserver {
+    private static class UsageObserver implements OptionsManagerObserver {
         public String usage(OptionsManager optionsManager) {
             var options = new HashSet<>(optionsManager.byName.values());
             var usage = new StringBuilder();
@@ -104,7 +100,7 @@ public class CmdLineParser {
         }
     }
 
-    static class ConflictObserver implements OptionsManagerObserver {
+    private static class ConflictObserver implements OptionsManagerObserver {
         private final HashSet<String> encounteredOptions = new HashSet<>();
         @Override
         public void onRegisteredOption(OptionsManager optionsManager, Option option) {
@@ -130,7 +126,7 @@ public class CmdLineParser {
         /**
          * Register the option with all its possible names
          *
-         * @param option
+         * @param option Option object
          */
         void register(Option option) {
             register(option.getName(), option);
@@ -151,7 +147,7 @@ public class CmdLineParser {
          * This method is called to signal that an option is encountered during
          * a command line process
          *
-         * @param optionName
+         * @param optionName name of the option
          * @return the corresponding object option if it exists
          */
 
@@ -198,10 +194,10 @@ public class CmdLineParser {
     	Objects.requireNonNull(code);
     	Consumer<List<String>> action = arguments -> {
     		if(arguments.size() < 1) {
-        		throw new ParseException("Not enough parameters");
+        		throw new fr.uge.poo.cmdline.ex6.ParseException("Not enough parameters");
     		}
     		if(Option.isOption(arguments.get(0))) {
-    			throw new ParseException("This option is waiting for an argument");
+    			throw new fr.uge.poo.cmdline.ex6.ParseException("This option is waiting for an argument");
     		}
     		code.accept(arguments.get(0));
         };
@@ -214,44 +210,7 @@ public class CmdLineParser {
         manager.register(option);
     }
 
-	public static Option.OptionBuilder oneIntParameter(String optionName, int numberOfParameters, IntConsumer action) {
-		return new Option.OptionBuilder(
-				optionName,
-				numberOfParameters,
-				arguments -> action.accept(Integer.parseInt(arguments.get(0))));
-	}
-
-	public static Option.OptionBuilder twoIntParameter(String optionName, int numberOfParameters, BiConsumer<Integer, Integer> action) {
-		return new Option.OptionBuilder(
-				optionName,
-				numberOfParameters,
-				arguments -> action.accept(Integer.parseInt(arguments.get(0)), Integer.parseInt(arguments.get(1))));
-	}
-
-	public static Option.OptionBuilder oneInetSocketParameter(String optionName, int numberOfParameters, Consumer<InetSocketAddress> action) {
-		return new Option.OptionBuilder(
-				optionName,
-				numberOfParameters,
-				arguments -> action.accept(new InetSocketAddress(arguments.get(0), Integer.parseInt(arguments.get(1)))));
-	}
-    
-    private List<String> getArguments(Iterator<String> arguments, int numberOfParameters){
-    	var nextArguments = new ArrayList<String>();
-    	for(var i = 0; i < numberOfParameters; i++) {
-    		if(arguments.hasNext()) {
-    			var argument = arguments.next();
-    			if(Option.isOption(argument)) {
-    				throw new ParseException("Option is waiting for parameters");
-    			}
-    			nextArguments.add(argument);
-    		} else {
-    			throw new ParseException("Not enough parameters");
-    		}
-    	}
-    	return nextArguments;
-    }
-
-    private String usage() {
+    public String usage() {
         return usageObserver.usage(manager);
     }
 
@@ -262,14 +221,13 @@ public class CmdLineParser {
 
     public List<String> process(String[] arguments, ParameterRetrievalStrategy strategy) {
         Objects.requireNonNull(arguments);
-        Objects.requireNonNull(strategy);
         var files = new ArrayList<String>();
         for(var iterator = List.of(arguments).iterator(); iterator.hasNext();) {
-        	var argument = iterator.next();
-		 	if(Option.isOption(argument)) {
-                 var option = manager.byName.get(argument);
-                 option.accept(strategy.execute(iterator, option.getNumberOfParameters()));
-                 manager.processOption(argument);
+            var argument = iterator.next();
+            if(Option.isOption(argument)) {
+                var option = manager.byName.get(argument);
+                option.accept(strategy.execute(iterator, option.getNumberOfParameters()));
+                manager.processOption(argument);
             } else {
                 files.add(argument);
             }

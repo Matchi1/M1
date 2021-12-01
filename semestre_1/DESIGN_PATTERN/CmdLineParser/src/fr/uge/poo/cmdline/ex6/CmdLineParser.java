@@ -1,68 +1,48 @@
 package fr.uge.poo.cmdline.ex6;
 
-import java.net.InetSocketAddress;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.IntConsumer;
 
 public class CmdLineParser {
     private final OptionsManager manager = new OptionsManager();
     private final UsageObserver usageObserver = new UsageObserver();
 
     CmdLineParser() {
-        manager.registerObserver(new LoggerObserver());
         manager.registerObserver(new ConflictObserver());
         manager.registerObserver(new MandatoryOptionObserver());
     }
 
     interface OptionsManagerObserver {
-        default void onRegisteredOption(OptionsManager optionsManager, Option option) {};
+        default void onRegisteredOption(OptionsManager optionsManager, Option option) {}
 
-        default void onProcessedOption(OptionsManager optionsManager, Option option) {};
+        default void onProcessedOption(OptionsManager optionsManager, Option option) {}
 
-        default void onFinishedProcess(OptionsManager optionsManager) {};
-    }
-    
-    static class LoggerObserver implements OptionsManagerObserver {
-        @Override
-        public void onRegisteredOption(OptionsManager optionsManager, Option option) {
-            System.out.println("Option "+option+ " is registered");
-        }
-
-        @Override
-        public void onProcessedOption(OptionsManager optionsManager, Option option) {
-            System.out.println("Option "+option+ " is processed");
-        }
-
-        @Override
-        public void onFinishedProcess(OptionsManager optionsManager) {
-            System.out.println("Process method is finished");
-        }
+        default void onFinishedProcess(OptionsManager optionsManager) {}
     }
 
-    static class MandatoryOptionObserver implements OptionsManagerObserver {
+    private static class MandatoryOptionObserver implements OptionsManagerObserver {
+        private final HashSet<String> mandatoryOptions = new HashSet<>();
         @Override
         public void onRegisteredOption(OptionsManager optionsManager, Option option) {
             if(option.isMandatory()) {
-                optionsManager.mandatoryOptions.add(option.getName());
+                mandatoryOptions.add(option.getName());
             }
         }
 
         @Override
         public void onProcessedOption(OptionsManager optionsManager, Option option) {
-            optionsManager.mandatoryOptions.remove(option.getName());
+            mandatoryOptions.remove(option.getName());
         }
 
         @Override
         public void onFinishedProcess(OptionsManager optionsManager) {
-            if(!optionsManager.mandatoryOptions.isEmpty()) {
-                throw new ParseException("Following mandatory options are still not called : " + optionsManager.mandatoryOptions);
+            if(!mandatoryOptions.isEmpty()) {
+                throw new ParseException("Following mandatory options are still not called : " + mandatoryOptions);
             }
         }
     }
 
-    static class UsageObserver implements OptionsManagerObserver {
+    private static class UsageObserver implements OptionsManagerObserver {
         public String usage(OptionsManager optionsManager) {
             var options = new HashSet<>(optionsManager.byName.values());
             var usage = new StringBuilder();
@@ -79,18 +59,20 @@ public class CmdLineParser {
         }
     }
 
-    static class ConflictObserver implements OptionsManagerObserver {
+    private static class ConflictObserver implements OptionsManagerObserver {
+        private final HashSet<String> encounteredOptions = new HashSet<>();
+
         @Override
         public void onRegisteredOption(OptionsManager optionsManager, Option option) {
-            optionsManager.encounteredOptions.add(option.getName());
-            optionsManager.encounteredOptions.addAll(option.getAliases());
+            encounteredOptions.add(option.getName());
+            encounteredOptions.addAll(option.getAliases());
         }
 
         @Override
         public void onProcessedOption(OptionsManager optionsManager, Option option) {
             var conflicts = option.getConflicts();
             conflicts.forEach(name -> {
-                if(optionsManager.encounteredOptions.contains(name)) {
+                if(encounteredOptions.contains(name)) {
                     throw new ParseException("Options conflict between" + option.getName() + " and " + name);
                 }
             });
@@ -100,13 +82,11 @@ public class CmdLineParser {
     private static class OptionsManager {
         private final HashMap<String, Option> byName = new HashMap<>();
         private final HashSet<OptionsManagerObserver> observers = new HashSet<>();
-        private final HashSet<String> mandatoryOptions = new HashSet<>();
-        private final HashSet<String> encounteredOptions = new HashSet<>();
 
         /**
          * Register the option with all its possible names
          *
-         * @param option
+         * @param option Option object
          */
         void register(Option option) {
             register(option.getName(), option);
@@ -127,7 +107,7 @@ public class CmdLineParser {
          * This method is called to signal that an option is encountered during
          * a command line process
          *
-         * @param optionName
+         * @param optionName name of the option
          * @return the corresponding object option if it exists
          */
 
@@ -189,27 +169,6 @@ public class CmdLineParser {
         Objects.requireNonNull(option);
         manager.register(option);
     }
-
-	public static Option.OptionBuilder oneIntParameter(String optionName, int numberOfParameters, IntConsumer action) {
-		return new Option.OptionBuilder(
-				optionName,
-				numberOfParameters,
-				arguments -> action.accept(Integer.parseInt(arguments.get(0))));
-	}
-
-	public static Option.OptionBuilder twoIntParameter(String optionName, int numberOfParameters, BiConsumer<Integer, Integer> action) {
-		return new Option.OptionBuilder(
-				optionName,
-				numberOfParameters,
-				arguments -> action.accept(Integer.parseInt(arguments.get(0)), Integer.parseInt(arguments.get(1))));
-	}
-
-	public static Option.OptionBuilder oneInetSocketParameter(String optionName, int numberOfParameters, Consumer<InetSocketAddress> action) {
-		return new Option.OptionBuilder(
-				optionName,
-				numberOfParameters,
-				arguments -> action.accept(new InetSocketAddress(arguments.get(0), Integer.parseInt(arguments.get(1)))));
-	}
     
     private List<String> getArguments(Iterator<String> arguments, int numberOfParameters){
     	var nextArguments = new ArrayList<String>();

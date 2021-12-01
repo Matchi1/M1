@@ -1,7 +1,10 @@
 package fr.uge.poo.cmdline.ex6;
 
+import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 public class Option {
     private final String name;
@@ -88,6 +91,27 @@ public class Option {
         this.aliases = builder.aliases;
         this.description = builder.description;
         this.conflicts = builder.conflicts;
+    }
+
+    public static OptionBuilder oneIntParameter(String optionName, int numberOfParameters, IntConsumer action) {
+        return new OptionBuilder(
+                optionName,
+                numberOfParameters,
+                arguments -> action.accept(Integer.parseInt(arguments.get(0))));
+    }
+
+    public static OptionBuilder twoIntParameter(String optionName, int numberOfParameters, BiConsumer<Integer, Integer> action) {
+        return new OptionBuilder(
+                optionName,
+                numberOfParameters,
+                arguments -> action.accept(Integer.parseInt(arguments.get(0)), Integer.parseInt(arguments.get(1))));
+    }
+
+    public static OptionBuilder oneInetSocketParameter(String optionName, int numberOfParameters, Consumer<InetSocketAddress> action) {
+        return new OptionBuilder(
+                optionName,
+                numberOfParameters,
+                arguments -> action.accept(new InetSocketAddress(arguments.get(0), Integer.parseInt(arguments.get(1)))));
     }
 
     public static OptionBuilder createBuilder(String name, int numberOfParameters, Consumer<List<String>> action) {
