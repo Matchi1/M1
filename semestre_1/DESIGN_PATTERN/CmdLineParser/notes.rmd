@@ -1,3 +1,28 @@
+---
+title: |
+	| \vspace{5cm} Design Pattern: Paint
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-10-24"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+	\usepackage{caption}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{Compte rendu de CmdLineParser}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
 # 29 October
 
 # Classe CmdLineParser
@@ -81,6 +106,8 @@ J'ai désormais séparer la classe **PaintSettings** en 2 classes:
 | setWindowHeightMin | PaintSettingsBuilder | void               | Définie la hauteur minimale de la fenêtre        |
 | setWindowWidthMin  | PaintSettingsBuilder | void               | Définie la largeur minimale de la fenêtre        |
 
+\pagebreak
+
 # Exercice 1-2
 
 **précisez quel(s) accès avez vous laissé (pour le main de Application) à la
@@ -98,7 +125,7 @@ cette dernière?**
 (plusieurs appels à la méthode addFlag() avec le même nom)?**
 
 On renvoie un **IllegalStateOption** car cela veut dire que le développeur tente
-d'ajouter plusieurs avec le même nom.
+d'ajouter plusieurs options avec le même nom.
 
 **Quel est le type de l'action d'une option enregistrée par addFlag()?**
 
@@ -136,6 +163,8 @@ S'il manque un paramètre, alors on renvoie un **IllegalStateOption** exception.
 
 La méthode **parseInt()** renvoie une **NumberFormatException** lorsqu'il y a un
 problème de conversion.
+
+\pagebreak
 
 # Exercice 2-5
 
@@ -217,21 +246,26 @@ On s'aperçoit que la méthode **process()** devient assez imposant et qu'il fau
 commencer à déléguer les responsabilités de la méthode à d'autre classe plus
 adapté pour rendre le code plus lisible.
 
+\pagebreak
+
 # Exercice 6
 
 **Les observers qui sont utilisés dans l'exercice 6 sont-ils push ou pull ?**
 
-TODO
+Les observers qui sont utilisés dans l'exercice 6 sont push car on ajoute
+l'option en argument des **notify**.
 
 **Quels sont les avantages et inconvénients d'utiliser le patron observer pour
 traiter les relations entre les options?**
 
-TODO
+Les **Observers** vont permettre d'éviter de créer un couplage fort entre
+lors de l'ajout de fonctionnalités.
+Les inconvénients sont que cela peut affaiblir l'encapsulation et ou plus couteux.
 
 **Dans votre code, quelle est l'utilité que les méthodes de l'interface
 OptionsManagerObserver prennent l'OptionsManager en paramètre.**
 
-TODO
+Cela permet de spécifier l'objet observé.
 
 **Donnez un exemple précis où le code d'un de vos OptionsManagerObserver utilise
 l'OptionsManager.**
@@ -245,11 +279,16 @@ des avantages et inconvénients de chaque choix.**
 
 TODO
 
+J'ai déclaré les conflits au niveau du **CmdLineParser** et j'ai stocker le
+nom des options dans un **HashSet**.
+
 **Implicitement on suppose que la méthode process n'est appelée qu'une seule
 fois. Quelles modifications faudrait-il faire pour pouvoir appeler process
 plusieurs fois (soyez précis) ?**
 
 TODO
+
+\pagebreak
 
 # Exercice 7
 
@@ -267,9 +306,18 @@ SMARTRELAXED.**
 
 TODO
 
+Il faudrait rajouter la liste des fichiers à renvoyer car on peut considérer
+n'importe argument comme une option.
+
+\pagebreak
+
 # Bilan
 
 **Décrivez l'architecture globale de la librairie CmdLineParser avec un texte et
 un diagramme UML.**
 
-TODO
+\begin{figure}[h]
+	\centering
+	\caption{Architecture de la librairie CmdLineParser}\label{fig:1}
+	\includegraphics[width=18cm]{images/CmdLineParser.png}
+\end{figure}

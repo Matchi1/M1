@@ -66,21 +66,22 @@ public class CmdLineParser {
     }
 
     static class MandatoryOptionObserver implements OptionsManagerObserver {
+        private final HashSet<String> mandatoryOptions = new HashSet<>();
         @Override
         public void onRegisteredOption(OptionsManager optionsManager, Option option) {
             if(option.isMandatory()) {
-                optionsManager.mandatoryOptions.add(option.getName());
+                mandatoryOptions.add(option.getName());
             }
         }
 
         @Override
         public void onProcessedOption(OptionsManager optionsManager, Option option) {
-            optionsManager.mandatoryOptions.remove(option.getName());
+            mandatoryOptions.remove(option.getName());
         }
 
         @Override
         public void onFinishedProcess(OptionsManager optionsManager) {
-            if(!optionsManager.mandatoryOptions.isEmpty()) {
+            if(!mandatoryOptions.isEmpty()) {
                 throw new ParseException("Following mandatory options are still not called : " + optionsManager.mandatoryOptions);
             }
         }
@@ -104,17 +105,18 @@ public class CmdLineParser {
     }
 
     static class ConflictObserver implements OptionsManagerObserver {
+        private final HashSet<String> encounteredOptions = new HashSet<>();
         @Override
         public void onRegisteredOption(OptionsManager optionsManager, Option option) {
-            optionsManager.encounteredOptions.add(option.getName());
-            optionsManager.encounteredOptions.addAll(option.getAliases());
+            encounteredOptions.add(option.getName());
+            encounteredOptions.addAll(option.getAliases());
         }
 
         @Override
         public void onProcessedOption(OptionsManager optionsManager, Option option) {
             var conflicts = option.getConflicts();
             conflicts.forEach(name -> {
-                if(optionsManager.encounteredOptions.contains(name)) {
+                if(encounteredOptions.contains(name)) {
                     throw new ParseException("Options conflict between" + option.getName() + " and " + name);
                 }
             });
@@ -124,8 +126,6 @@ public class CmdLineParser {
     private static class OptionsManager {
         private final HashMap<String, Option> byName = new HashMap<>();
         private final HashSet<OptionsManagerObserver> observers = new HashSet<>();
-        private final HashSet<String> mandatoryOptions = new HashSet<>();
-        private final HashSet<String> encounteredOptions = new HashSet<>();
 
         /**
          * Register the option with all its possible names
