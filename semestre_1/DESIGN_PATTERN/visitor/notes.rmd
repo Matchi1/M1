@@ -1,6 +1,10 @@
 # Exercice 1
 
+<<<<<<< HEAD
 - single responsibility and open close principle
+=======
+- single responsability and open close principle
+>>>>>>> ff4d5c8... DESIGN_PATTERN/visitor: create new tp
 
 On pourrait ajouter une méthode qui affiche les messages selon le
 type l'objet (donc avec le polymorphisme)
