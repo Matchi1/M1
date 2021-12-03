@@ -1,14 +1,18 @@
 package fr.umlv.seq;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-public class Seq <E> {
+public class Seq <E> implements Iterable<E> {
 	private final List<Object> liste;
 	private final Function<? super Object, ? extends E> mapping;
 	
@@ -34,6 +38,7 @@ public class Seq <E> {
 		return liste.size();
 	}
 	
+	@SafeVarargs
 	public static <T> Seq<T> of(T... elements) {
 		var temporary = Arrays.asList(elements);
 		return new Seq<>(temporary);
@@ -57,5 +62,31 @@ public class Seq <E> {
 		var joiner = new StringJoiner(", ", "<", ">");
 		liste.forEach(element -> joiner.add(mapping.apply(element).toString()));
 		return joiner.toString();
+	}
+
+	@Override
+	public Iterator<E> iterator() {
+		return new Iterator<E>() {
+			private int i = 0;
+
+			@Override
+			public boolean hasNext() {
+				return i < size();
+			}
+
+			@Override
+			public E next() {
+				if(!hasNext()) {
+					throw new NoSuchElementException("No more available element");
+				}
+				var element = mapping.apply(liste.get(i));
+				i++;
+				return element;
+			}
+		};
+	}
+	
+	public Stream<E> stream() {
+		return StreamSupport.stream(liste.spliterator(), false).map(mapping);
 	}
 }
