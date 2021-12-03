@@ -1,5 +1,5 @@
 ---
-title: "OPTIMISATION: TP3"
+title: "OPTIMISATION: LP_SOLVE"
 subtitle: "M1 Informatique, groupe apprenti, chargé de td: Yohann Thapper"
 author: "Mathieu Chan - Orhan Uyar"
 date: "2021-12-02"
@@ -19,7 +19,19 @@ output:
 		font-size: 10
 ---
 
+install.package()
+
+\pagebreak
+
+\tableofcontents
+
+\pagebreak
+
 # User specification
+
+Before starting to explore the report, here are some information about how to
+execute `generic.py` and `decoupe.py` and the output that are created from the
+execution.
 
 ## generic.py
 
@@ -31,6 +43,7 @@ result into the specified output file.
 Some option can be used to have specific actions on the input file.
 
 | option | description                                            |
+|:------:+:------------------------------------------------------:|
 | -int   | type of all ressources are set to int instead of float |
 | -min   | change objective from 'max' to 'min' and '<=' to '>='  |
 
@@ -38,14 +51,43 @@ This script will show all relevant information about the input file.
 It will show the number of equation, the number of variable, the list of
 solution and the list of all resources and its corresponding coefficient.
 
+This script will produce the following files:
+
+- **result.txt**: summary of the operation
+- **output file**: output into lp solver format
+
 ## decoupe.py
 
 To execute the split of a bar:
 
-`python3 decoupe.py <maximum size> -l [list of measurement]`
+`python3 decoupe.py <maximum size> -l value1 value2 ... -e value1 value2 ...`
+
+| option | description                         |
+|:------:+:-----------------------------------:|
+| -l     | list of all the possible measures   |
+| -e     | number of slicing for each measures |
 
 This script will show the list of all possible combinations for the specified
 value on the command line, and the number of combinations.
+
+- **data.txt**: representation of the slicing into the imposed format
+- **result.txt**: summary of the operation
+- **output file**: output into lp solver format
+
+**NOTE:** the list of all the possible measures and the list of number of
+slicing should have the same size.
+
+## Exemples
+
+`python3 generic.py data.txt output.lp`
+
+(see **exercice_6** directory)
+
+`python3 decoupe.py 500 -l 200 120 100 50 -e 60 100 150 350`
+
+(see **exercice_10** directory)
+
+\pagebreak
 
 # Exercice 1
 
@@ -53,31 +95,27 @@ Optimal values for x1 and x2 are correspondingly 1.85185 and 9.07407.
 
 # Exercice 2
 
-With **free** we can see the problem is not bounded anymore.
+With **free** we can see the problem is **not bounded** anymore.
 
 # Exercice 3
 
 With the solver, we correctly find 4500.0 for objective function, 20 for x1 and
 15 for x2.
 
-# Exercice 4
+# Exercice 4 and 5
 
-see `exercice_4/generic.py` file.
-
-# Exercice 5
-
-see `exercice_5/generic.py` file.
+see respectively `exercice_4/generic.py` and `exercice_5/generic.py` files.
 
 # Exercice 6
 
 a. The objective function value is : 21654.79332331
-b. There are 6 different product that needs to be created.
+b. There are 6 different products that needs to be created.
 c. The time spent for the calculation was 25 ms
 
 # Exercice 7
 
 a. The objective function value is : 21638.0
-b. There are 12 different product that needs to be created.
+b. There are 12 different products that needs to be created.
 c. The time spent for the calculation was 20 s
 
 # Exercice 8
@@ -85,16 +123,16 @@ c. The time spent for the calculation was 20 s
 ## without -int option
 
 a. The objective function value is : 5050533.10609334
-b. There are ? different product that needs to be created.
+b. There are 11 different products that needs to be created.
 c. The time spent for the calculation was 1 s
 
 ## with -int option
 
-Took too much time to solve problem (more than an hour)
+Took too much time to solve the problem (more than an hour)
 
 # Exercice 9
 
-We have actually 7 ways to split a segment of 3 m and maximize the production.
+We actually have 7 ways to split a segment of 3 m and maximize the production.
 The table below represents all the possible combinations with the specified
 measures.
 
@@ -115,6 +153,23 @@ See `exercice_10/decoupe.py`
 With 500 as the length of the bar and [200, 120, 100, 50] as the list of all
 the measurement, 25 combinations are possible.
 
+To verify that our script was correct, we compared the result obtained with
+the following data:
+
+- 300 as the maximum length of the board
+- 120, 100, 50 as the possible measurement
+- 100, 130 300 as the number of element for each measurement
+
 # Exercice 11
 
-TODO
+We correctly found 114 as the optimum and 4 slicing that are used to maximize the
+slicing, which are P1, P12, P23 and P24.
+
+We also tested with the following entries:
+
+- 300 the maximum length
+- 120, 100, 50 as the possible mesurement size
+- 100, 130 300 as the number of element for each measurement
+
+We found 135 as the optimum and a total of 4 slicing that are used to maximize
+the slicing.

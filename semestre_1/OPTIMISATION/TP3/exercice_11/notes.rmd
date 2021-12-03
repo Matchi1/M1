@@ -1,7 +1,0 @@
-opt = 5050533.10609334
-number of ressources = ?
-excution time = 1s
-
-```
-python3 generic.py bigdata.txt output.lp -int
-```

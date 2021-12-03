@@ -56,12 +56,8 @@ class GenericsFileParserForLP:
     def generate_equation(self) -> None:
         labels = self.getLabels()
         coeffs = self.getVariableCoeff()
-        print(labels)
-        print(coeffs)
-        print(self.nbFormule)
-        print(self.nbVariable)
-        for i in range(self.nbVariable):
-            equation = [coeffs[j][i] + labels[j] for j in range(self.nbFormule)]
+        for i in range(self.nbFormule):
+            equation = [coeffs[j][i] + labels[j] for j in range(self.nbVariable)]
             if self.min:
                 message = "+".join(equation) + " >= " + self.result[i] + ";\n"
             else: 
@@ -98,7 +94,8 @@ class GenericsFileParserForLP:
         f = open('result.txt', 'w')
         message = "opt = {}\n".format(self.opt)
         for key, value in self.values:
-            message += "{} = {}\n".format(key, value)
+            if value != 0:
+                message += "{} = {}\n".format(key, value)
         f.write(message)  
 
     def close(self) -> None:
@@ -132,6 +129,8 @@ if __name__ == '__main__':
     print(parser)
     parser.generate_condition()
     parser.generate_equation()
+    if arguments.int:
+        parser.generate_int()
     parser.close()
     parser.run_lp_solve(arguments)
     parser.save_result()
