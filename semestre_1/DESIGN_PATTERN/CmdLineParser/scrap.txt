@@ -1,0 +1,43 @@
+setLegacy(boolean): PaintSettingsBuilder
+setBordered(boolean): PaintSettingsBuilder
+setWindowName(String): PaintSettingsBuilder
+setBorderWidth(int): PaintSettingsBuilder
+setWindowWidthMin(int): PaintSettingsBuilder
+setWindowHeightMin(int): PaintSettingsBuilder
+setSocketAddress(InetSocketAddress): PaintSettingsBuilder
+build(): PaintSettings
+
+ - name: String
+ - numberOfParameters: int
+ - mandatory: boolean
+ - action: Consumer<List<String>>
+ - aliases: HashSet<String>
+ - conflicts: HashSet<String>
+ - description: String
+
++ oneIntParameter(String, int, IntConsumer): OptionBuilder
++ twoIntParameter(String, int, BiConsumer<Integer, Integer>): OptionBuilder
++ oneInetSocketParameter(String, int, Consumer<InetSocketAddress>): OptionBuilder
++ createBuilder(String, int, Consumer<List<String>>): OptionBuilder
++ isOption(String): boolean
++ getName(): String
++ isMandatory(): boolean
++ getNumberOfParameters(): int
++ containsAlias(String): boolean
++ getAliases(): List<String>
++ getDescription(): String
++ accept(List<String>): void
++ getConflicts(): HashSet<String>
+
++ setName(String): OptionBuilder
++ setCode(Consumer<List<String>>): OptionBuilder
++ required(): OptionBuilder
++ setNumberOfParameters(int): OptionBuilder
++ setDescription(String): OptionBuilder
++ conflictWith(String): OptionBuilder
++ alias(String): OptionBuilder
++ build(): Option
+
++ onRegisteredOption(OptionsManager, Option)
++ onProcessedOption(OptionsManager, Option)
++ onFinishedProcess(OptionsManager)
