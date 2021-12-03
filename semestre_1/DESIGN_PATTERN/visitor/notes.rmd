@@ -1,0 +1,6 @@
+# Exercice 1
+
+- single responsibility and open close principle
+
+On pourrait ajouter une méthode qui affiche les messages selon le
+type l'objet (donc avec le polymorphisme)
