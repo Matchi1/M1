@@ -3,10 +3,10 @@ package fr.uge.poo.cmdline.ex7;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class CmdLineParser {
+class CmdLineParser {
     private final OptionsManager manager = new OptionsManager();
     private final UsageObserver usageObserver = new UsageObserver();
-    static final ParameterRetrievalStrategy STANDARD = (arguments, numberOfParameters) -> {
+    static final ParameterRetrievalStrategy STANDARD = (options, arguments, numberOfParameters) -> {
         var nextArguments = new ArrayList<String>();
         for(var i = 0; i < numberOfParameters; i++) {
             if(arguments.hasNext()) {
@@ -21,7 +21,7 @@ public class CmdLineParser {
         }
         return nextArguments;
     };
-    static final ParameterRetrievalStrategy RELAXED = (arguments, numberOfParameters) -> {
+    static final ParameterRetrievalStrategy RELAXED = (options, arguments, numberOfParameters) -> {
         var nextArguments = new ArrayList<String>();
         for(var i = 0; i < numberOfParameters; i++) {
             if(arguments.hasNext()) {
@@ -36,11 +36,26 @@ public class CmdLineParser {
         }
         return nextArguments;
     };
-    static final ParameterRetrievalStrategy OLDSCHOOL = (arguments, numberOfParameters) -> {
+    static final ParameterRetrievalStrategy OLDSCHOOL = (options, arguments, numberOfParameters) -> {
         var nextArguments = new ArrayList<String>();
         for(var i = 0; i < numberOfParameters; i++) {
             if(arguments.hasNext()) {
                 nextArguments.add(arguments.next());
+            } else {
+                return nextArguments;
+            }
+        }
+        return nextArguments;
+    };
+    static final ParameterRetrievalStrategy SMARTRELAXED = (options, arguments, numberOfParameters) -> {
+        var nextArguments = new ArrayList<String>();
+        for(var i = 0; i < numberOfParameters; i++) {
+            if(arguments.hasNext()) {
+                var argument = arguments.next();
+                if(options.containsKey(argument)) {
+                    return nextArguments;
+                }
+                nextArguments.add(argument);
             } else {
                 return nextArguments;
             }
@@ -95,7 +110,10 @@ public class CmdLineParser {
                 usage.append(optionUsage);
             });
             usage.append("\n\n");
-            options.forEach(option -> usage.append(option.toString()));
+            options.forEach(option -> {
+                usage.append(option.toString());
+                usage.append("\n");
+            });
             return usage.toString();
         }
     }
@@ -210,8 +228,14 @@ public class CmdLineParser {
         manager.register(option);
     }
 
-    public String usage() {
+    private String usage() {
         return usageObserver.usage(manager);
+    }
+
+    public void callHelp(String argument) {
+        if(argument.equals("-h") || argument.equals("--help")) {
+            System.out.println(usage());
+        }
     }
 
     public List<String> process(String[] arguments) {
@@ -224,10 +248,13 @@ public class CmdLineParser {
         var files = new ArrayList<String>();
         for(var iterator = List.of(arguments).iterator(); iterator.hasNext();) {
             var argument = iterator.next();
+            callHelp(argument);
             if(Option.isOption(argument)) {
                 var option = manager.byName.get(argument);
-                option.accept(strategy.execute(iterator, option.getNumberOfParameters()));
-                manager.processOption(argument);
+                if(option != null) {
+                    option.accept(strategy.execute(manager.byName, iterator, option.getNumberOfParameters()));
+                    manager.processOption(argument);
+                }
             } else {
                 files.add(argument);
             }

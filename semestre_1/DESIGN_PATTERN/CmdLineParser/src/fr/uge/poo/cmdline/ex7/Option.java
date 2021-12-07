@@ -140,16 +140,8 @@ public class Option {
     	return numberOfParameters;
     }
 
-    public boolean containsAlias(String alias) {
-        return aliases.contains(alias);
-    }
-
 	public List<String> getAliases() {
 		return aliases.stream().toList();
-	}
-
-	public String getDescription() {
-		return description;
 	}
 
     public void accept(List<String> parameters) {
