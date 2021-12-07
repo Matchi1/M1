@@ -1,9 +1,7 @@
 package fr.umlv.main.ex1.part1;
 
-import fr.umlv.main.ex1.com.evilcorp.stp.STPCommand;
 import fr.umlv.main.ex1.com.evilcorp.stp.STPParser;
 
-import java.util.Optional;
 import java.util.Scanner;
 
 public class Application {
@@ -16,12 +14,12 @@ public class Application {
             if (line.equals("quit")){
                 break;
             }
-            Optional<STPCommand> answer = STPParser.parse(line);
+            var answer = STPParser.parse(line);
             if (answer.isEmpty()){
                 System.out.println("Unrecognized command");
                 continue;
             }
-            STPCommand cmd = answer.get();
+            var cmd = answer.get();
             cmd.accept(visitor);
         }
     }
