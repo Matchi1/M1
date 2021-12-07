@@ -1,0 +1,52 @@
+---
+title: "Java avancé TP10: Sequence"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-12-05"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu de java}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+# Exercice 1
+
+## Question 5
+
+**Avant de se lancer dans l'implantation de map, quelle doit être sa signature
+?**
+
+La méthode **map** doit renvoyer un type **Seq** de type paramétré **T**, elle
+prend également en paramètre une interface fonctionnelle **Function** qui prend
+un **? super E** (E ou une super classe E) et renvoie un **? extends T** (T ou
+un sous-type de T).
+
+**Quel doit être le type des éléments de la liste ? Et le type de la fonction
+stockée ?**
+
+La liste contient désormais des éléments type **? super Object** (donc Object)
+et le type de la fonction est un **Function<? super Object, ? extends E>**.
+
+# Conclusion
+
+Ce tp m'a permit de comprendre le fonctionnement globale des **?**.
+L'intérêt de ce tp est de prendre en main les types paramétrés, les **?** et
+l'utilisation des **Collections**.
+Ce TP était particulièrement difficile au niveau des types paramétrés car on est
+très tenter d'utiliser des cast pour faire fonctionner son programme.
+Éviter d'utiliser des cast permet de mieux comprendre les types que l'on
+manipule et permet de rendre le code plus *safe* au niveau des erreur.
+Je pense revoir ce tp et le cours pour mieux comprendre ces concepts un peu dur
+à prendre en main.
