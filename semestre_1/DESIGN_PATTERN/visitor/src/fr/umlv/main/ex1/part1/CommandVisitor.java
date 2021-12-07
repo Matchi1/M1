@@ -24,28 +24,28 @@ public class CommandVisitor implements  Visitors {
 
         @Override
         public void onStartOfTimer(ApplicationManager manager, int timer, Long startTime) {
-            if(counters.putIfAbsent("start", 0) != null) {
+            if(counters.putIfAbsent("start", 1) != null) {
                 counters.put("start", counters.get("start") + 1);
             }
         }
 
         @Override
         public void onEndOfTimer(ApplicationManager manager, int timer) {
-            if(counters.putIfAbsent("end", 0) != null) {
+            if(counters.putIfAbsent("end", 1) != null) {
                 counters.put("end", counters.get("end") + 1);
             }
         }
 
         @Override
         public void onElapsedTime(ApplicationManager manager) {
-            if(counters.putIfAbsent("elapsed", 0) != null) {
+            if(counters.putIfAbsent("elapsed", 1) != null) {
                 counters.put("elapsed", counters.get("elapsed") + 1);
             }
         }
 
         @Override
         public void onHelloCallback(ApplicationManager manager) {
-            if(counters.putIfAbsent("hello", 0) != null) {
+            if(counters.putIfAbsent("hello", 1) != null) {
                 counters.put("hello", counters.get("hello") + 1);
             }
         }
@@ -180,5 +180,9 @@ public class CommandVisitor implements  Visitors {
         var currentTime =  System.currentTimeMillis();
         System.out.println("Timer "+timerId+" was stopped after running for "+(currentTime-startTime)+"ms");
         manager.endTimer(timerId);
+    }
+
+    public void visit(QuitCmd command) {
+        manager.finishApplication();
     }
 }

@@ -7,4 +7,5 @@ public interface Visitors {
     void visit(HelloCmd command);
     void visit(StartTimerCmd command);
     void visit(StopTimerCmd command);
+    void visit(QuitCmd command);
 }

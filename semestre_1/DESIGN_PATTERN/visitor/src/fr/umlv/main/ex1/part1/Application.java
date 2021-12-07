@@ -12,6 +12,7 @@ public class Application {
         while(scan.hasNextLine()){
             var line = scan.nextLine();
             if (line.equals("quit")){
+                new QuitCmd().accept(visitor);
                 break;
             }
             var answer = STPParser.parse(line);
