@@ -34,7 +34,7 @@ public class BinOp implements Expr {
     }
 
     @Override
-    public <T> T accept(ExprVisitor visitor) {
-        return visitor.visitBinOp(this);
+    public <T, C> T accept(ExprVisitor<T, C> visitor, C context) {
+        return visitor.visitBinOp(this, context);
     }
 }

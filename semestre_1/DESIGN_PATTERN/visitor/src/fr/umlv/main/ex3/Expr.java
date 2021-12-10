@@ -3,7 +3,8 @@ package fr.umlv.main.ex3;
 import java.util.Iterator;
 
 public interface Expr {
-    public Object accept(ExprVisitor visitor);
+    // public <T> T accept(ExprVisitor<T> visitor);
+    public <T, C> T accept(ExprVisitor<T, C> visitor, C context);
 
     public static Expr parseExpr(Iterator<String> it) {
         if (!it.hasNext()) {

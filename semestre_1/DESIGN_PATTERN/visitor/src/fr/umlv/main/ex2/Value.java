@@ -12,7 +12,7 @@ public class Value implements Expr {
     }
 
     @Override
-    public <T> T accept(ExprVisitor visitor){
-        return visitor.visitValue(this);
+    public <T, C> T accept(ExprVisitor<T, C> visitor, C context){
+        return visitor.visitValue(this, context);
     }
 }

@@ -5,13 +5,14 @@ import java.util.regex.Pattern;
 
 public class Calculette {
     public static void main(String[] args) {
-        Iterator<String> it = Pattern.compile(" ").splitAsStream("+ * 4 + 1 1 + 2 3").iterator();
+        var it = Pattern.compile(" ").splitAsStream("+ * 4 + 1 1 + 2 3").iterator();
         Expr expr = Expr.parseExpr(it);
         var visitor = new EvalExprVisitor();
         var visitorString = new ToStringVisitor();
+        var context = new StringBuilder();
         System.out.println(expr);
-        System.out.println(expr.accept(visitor));
-        expr.accept(visitorString);
-        System.out.println(visitorString);
+        System.out.println(expr.accept(visitor, null));
+        expr.accept(visitorString, context);
+        System.out.println(context);
     }
 }
