@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 import itertools
 import math
+import argparse
+from subprocess import run
+
 """Sudoku"""
 
 def var(i,j,k):
@@ -49,10 +52,7 @@ def at_least_one(L):
     >>> clause == [var(1, 1, 1), var(2, 2, 2), var(3, 3, 3)]
     True
     """
-    for elt in L:
-        if elt[0] == 1:
-            return [L]
-    return [] # à compléter
+    return [L] # à compléter
 
 def at_most_one(L):
     """Return a cnf that represents the constraint: at most one of the
@@ -80,7 +80,8 @@ def assignment_rules(N):
     for i in range(1,N+1):
         for j in range(1,N+1):
             positions = [var(i, j, k) for k in range(1,N+1)]
-            cnf.append(at_least_one(positions))
+            for elt in at_least_one(positions):
+                cnf.append(elt)
             for elt in at_most_one(positions):
                 cnf.append(elt)
     return cnf
@@ -92,7 +93,8 @@ def row_rules(N):
     for i in range(1,N+1):
         for k in range(1,N+1):
             positions = [var(i, j, k) for j in range(1,N+1)]
-            cnf.append(at_least_one(positions))
+            for elt in at_least_one(positions):
+                cnf.append(elt)
             for elt in at_most_one(positions):
                 cnf.append(elt)
     return cnf # à compléter
@@ -104,12 +106,13 @@ def column_rules(N):
     for j in range(1,N+1):
         for k in range(1,N+1):
             positions = [var(i, j, k) for i in range(1,N+1)]
-            cnf.append(at_least_one(positions))
+            for elt in at_least_one(positions):
+                cnf.append(elt)
             for elt in at_most_one(positions):
                 cnf.append(elt)
     return cnf # à compléter
 
-def block(x, y, k, size, N):
+def block(x, y, k, size):
     return [var(x + i, y + j, k) for i in range(size) for j in range(size)]
 
 def subgrid_rules(N):
@@ -120,8 +123,9 @@ def subgrid_rules(N):
     for k in range(1,N+1):
         for x in range(1,N+1, step):
             for y in range(1,N+1, step):
-                positions = block(x, y, k, step, N)
-                cnf.append(at_least_one(positions))
+                positions = block(x, y, k, step)
+                for elt in at_least_one(positions):
+                    cnf.append(elt)
                 for elt in at_most_one(positions):
                     cnf.append(elt)
     return cnf # à compléter
@@ -136,7 +140,7 @@ def generate_rules(N):
     cnf.extend(subgrid_rules(N))
     return cnf
 
-def literal_to_integer(l, N):
+def literal_to_integer(l, N) -> int:
     """Return the external representation of the literal l.
 
     >>> literal_to_integer(var(1,2,3), 4)
@@ -147,9 +151,69 @@ def literal_to_integer(l, N):
     (s,i,j,k) = l[0], l[1], l[2], l[3]
     return s * (N**2 * (i - 1) + N * (j - 1) + k)
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Generate CNF file')
+    parser.add_argument('output', type=str, default='output.cnf', help="Output LP file generated from your template")
+    return parser.parse_args()
+
+class generator():
+    def __init__(self, output, rules:list, N:int):
+        self.output = output
+        self.rules = rules
+        self.N = N
+
+    def generate_start(self) -> None:
+        init_config = initial_configuration()
+        line = ["p", "cnf", str(self.N**3), str(len(self.rules) +
+            len(init_config))]
+        self.output.write(" ".join(line))
+        self.output.write("\n")
+        # Add config clause
+        for config in init_config:
+            self.output.write(' '.join([str(literal_to_integer(config, self.N)),
+                '0', '\n']))
+
+    def generate_middle(self) -> None:
+        for clause in self.rules:
+            line = [str(literal_to_integer(elt, self.N)) for elt in clause]
+            line += str(0)
+            self.output.write(' '.join(line) + '\n')
+
+    # Generate cnf file
+    def generate(self):
+        self.generate_start()
+        self.generate_middle()
+
+def run_minisat(filename:str):
+    run(['minisat', filename, 'result.out'])
+
+def read_result(filename, N):
+    f = open(filename, "r")
+    data = f.readlines()[1].split()
+    index = 0
+    for _ in range(1,N+1):
+        for _ in range(1,N+1):
+            for value in range(1,N+1):
+                if int(data[index]) > 0:
+                    print(value, end="")
+                index += 1
+            print(" ", end="")
+        print()
+
 def main():
     import doctest
     doctest.testmod()
 
+    arguments = parse_arguments()
+    f = open(arguments.output, 'w')
+    N = 4
+    cnf = generate_rules(N)
+    g = generator(f, cnf, N)
+    g.generate()
+    f.close()
+    run_minisat(arguments.output)
+    read_result("result.out", N)
+
 if __name__ == "__main__":
     main()
+
