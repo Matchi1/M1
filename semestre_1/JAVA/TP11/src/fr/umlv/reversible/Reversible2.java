@@ -1,34 +1,40 @@
 package fr.umlv.reversible;
 
-import java.util.AbstractSequentialList;
+import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.RandomAccess;
 import java.util.Spliterator;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public interface Reversible <T> extends Iterable<T> {
+public interface Reversible2<T> extends Iterable<T>, List<T> {
 	public int size();
 	
 	public T get(int index);
 	
 	@SafeVarargs
-	public static <E> Reversible<E> fromArray(E... elements) {
+	public static <E> Reversible2<E> fromArray(E... elements) {
 		Objects.requireNonNull(elements);
 		Arrays.stream(elements).forEach(Objects::requireNonNull);
 		return fromList(Arrays.asList(elements));
 	}
 	
-	public static <E> Reversible<E> fromList(List<? extends E> list) {
+	public static <E> Reversible2<E> fromList(List<? extends E> list) {
 		Objects.requireNonNull(list);
 		list.forEach(Objects::requireNonNull);
+		if(!(list instanceof RandomAccess)) {
+			throw new IllegalArgumentException("sequential list are not permitted");
+		}
 		var size = list.size();
-		return new Reversible<>() {
+		/*
+		return new ReversibleList<E>() {
 			@Override
 			public int size() {
 				return size;
@@ -43,15 +49,39 @@ public interface Reversible <T> extends Iterable<T> {
 				var i = index < size ? index : size - 1;
 				return Objects.requireNonNull(list.get(i));
 			}
+			
+			@Override
+			public Stream<E> stream() {
+				// return StreamSupport.stream(spliterator(), false);
+				return StreamSupport.stream(spliterator(), true);
+			}
+		};
+		*/
+		
+		return new Reversible2<>() {
+			@Override
+			public int size() {
+				return size;
+			}
 
 			@Override
-			public Stream<? extends E> stream() {
+			public E get(int index) {
+				Objects.checkIndex(index, size);
+				if(list.size() < size) {
+					throw new IllegalStateException("elements has been removed");
+				}
+				var i = index < size ? index : size - 1;
+				return Objects.requireNonNull(list.get(i));
+			}
+			
+			@Override
+			public Stream<E> stream() {
 				// return StreamSupport.stream(spliterator(), false);
 				return StreamSupport.stream(spliterator(), true);
 			}
 		};
 	}
-	
+
 	public default Iterator<T> iterator() {
 		return new Iterator<T>() {
 			private int i;
@@ -74,9 +104,10 @@ public interface Reversible <T> extends Iterable<T> {
 		};
 	}
 	
-	public default Reversible<T> reversed() {
+	public default Reversible2<T> reversed() {
 		var current = this;
-		return new Reversible<T>() {
+		/*
+		return new ReversibleList<T>() {
 			@Override
 			public int size() {
 				return current.size();
@@ -88,19 +119,61 @@ public interface Reversible <T> extends Iterable<T> {
 			}
 
 			@Override
-			public Reversible<T> reversed() {
+			public Reversible2<T> reversed() {
 				return current;
 			}
 			
 			@Override
-			public Stream<? extends T> stream() {
+			public Stream<T> stream() {
 				// return StreamSupport.stream(this.spliterator(), false);
 				return StreamSupport.stream(this.spliterator(), true);
 			}
+			
 		};
+		*/
+		var ok = new AbstractList<T>() {
+			abstract class ReversibleList<T> extends AbstractList<T> implements Reversible2<T> {
+			}
+			
+			public Reversible2<T> getReversibleList() {
+				return new ReversibleList<T>() {
+					@Override
+					public int size() {
+						return current.size();
+					}
+
+					@Override
+					public T get(int index) {
+						return current.get(current.size() - 1 - index);
+					}
+
+					@Override
+					public Reversible2<T> reversed() {
+						return current;
+					}
+					
+					@Override
+					public Stream<T> stream() {
+						// return StreamSupport.stream(this.spliterator(), false);
+						return StreamSupport.stream(this.spliterator(), true);
+					}
+				};
+			}
+
+			@Override
+			public T get(int index) {
+				return null;
+			}
+
+			@Override
+			public int size() {
+				return 0;
+			}
+		};
+		return ok.getReversibleList();
 	}
-	
-	private static <E> Spliterator<E> fromReversible(int start, int end, Reversible<E> reversible) {
+
+	private static <E> Spliterator<E> fromReversible(int start, int end, Reversible2<E> reversible) {
 		return new Spliterator<E>() {
 			private int index = start;
 			
@@ -145,5 +218,5 @@ public interface Reversible <T> extends Iterable<T> {
 		return fromReversible(0, size(), this);
 	}
 	
-	public Stream<? extends T> stream();
+	public Stream<T> stream();
 }
