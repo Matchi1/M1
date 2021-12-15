@@ -12,42 +12,58 @@ public class CommandVisitor implements  Visitors {
     private final HashMap<Integer,Long> timers = new HashMap<>();
     private final HashSet<ApplicationObserver> observers = new HashSet<>();
 
+    private enum commandType {
+        START,
+        END,
+        UNVALIDEND,
+        ELAPSED,
+        HELLO
+    }
+
     interface ApplicationObserver {
-        default void onStartOfTimer(int timer, Long startTime) {}
-        default void onEndOfTimer(int timer) {}
+        default void onStartOfTimer(int timer) {}
+        default void onEndOfTimer(int timer, Long timeElapsed) {}
+        default void onUnvalidEndOfTimer(int timer) {}
         default void onElapsedTime() {}
         default void onHelloCallback() {}
         default void onFinishedApplication() {}
     }
 
     static class CounterObserver implements ApplicationObserver {
-        private final HashMap<String, Integer> counters = new HashMap<>();
+        private final HashMap<commandType, Integer> counters = new HashMap<>();
 
         @Override
-        public void onStartOfTimer(int timer, Long startTime) {
-            if(counters.putIfAbsent("start", 1) != null) {
-                counters.put("start", counters.get("start") + 1);
+        public void onStartOfTimer(int timer) {
+            if(counters.putIfAbsent(commandType.START, 1) != null) {
+                counters.put(commandType.START, counters.get(commandType.START) + 1);
             }
         }
 
         @Override
-        public void onEndOfTimer(int timer) {
-            if(counters.putIfAbsent("end", 1) != null) {
-                counters.put("end", counters.get("end") + 1);
+        public void onEndOfTimer(int timer, Long timeElapsed) {
+            if(counters.putIfAbsent(commandType.END, 1) != null) {
+                counters.put(commandType.END, counters.get(commandType.END) + 1);
             }
         }
 
         @Override
         public void onElapsedTime() {
-            if(counters.putIfAbsent("elapsed", 1) != null) {
-                counters.put("elapsed", counters.get("elapsed") + 1);
+            if(counters.putIfAbsent(commandType.ELAPSED, 1) != null) {
+                counters.put(commandType.ELAPSED, counters.get(commandType.ELAPSED) + 1);
+            }
+        }
+
+        @Override
+        public void onUnvalidEndOfTimer(int timer) {
+            if(counters.putIfAbsent(commandType.UNVALIDEND, 1) != null) {
+                counters.put(commandType.UNVALIDEND, counters.get(commandType.UNVALIDEND) + 1);
             }
         }
 
         @Override
         public void onHelloCallback() {
-            if(counters.putIfAbsent("hello", 1) != null) {
-                counters.put("hello", counters.get("hello") + 1);
+            if(counters.putIfAbsent(commandType.HELLO, 1) != null) {
+                counters.put(commandType.HELLO, counters.get(commandType.HELLO) + 1);
             }
         }
 
@@ -60,25 +76,20 @@ public class CommandVisitor implements  Visitors {
     }
 
     static class AverageObserver implements ApplicationObserver {
-        private final HashMap<Integer, ArrayList<Long>> timeElapsed = new HashMap<>();
-        private final HashMap<Integer, Long> start = new HashMap<>();
+        private final HashMap<Integer, ArrayList<Long>> averageTime = new HashMap<>();
 
         @Override
-        public void onStartOfTimer(int timer, Long startTime) {
-            start.put(timer, startTime);
-        }
-
-        @Override
-        public void onEndOfTimer(int timer) {
-            timeElapsed.computeIfAbsent(timer, key -> new ArrayList<>())
-                    .add(System.currentTimeMillis() - start.get(timer));
+        public void onEndOfTimer(int timer, Long timeElapsed) {
+            averageTime.computeIfAbsent(timer, key -> new ArrayList<>())
+                    .add(timeElapsed);
         }
 
         @Override
         public void onFinishedApplication() {
-            for(var key : start.keySet()) {
-                var sum = timeElapsed.get(key).stream().mapToLong(value -> value).sum();
-                System.out.println("Average time for timer '" + key + "' : " + sum);
+            for(var key : averageTime.keySet()) {
+                var sum = averageTime.get(key).stream().mapToLong(value -> value).sum();
+                var average = sum / averageTime.get(key).size();
+                System.out.println("Average time for timer '" + key + "' : " + average);
             }
         }
     }
@@ -90,12 +101,12 @@ public class CommandVisitor implements  Visitors {
 
     void startTimer(int timer, Long currentTime) {
         timers.put(timer, currentTime);
-        notifyStartTimer(timer, currentTime);
+        notifyStartTimer(timer);
     }
 
-    void endTimer(int timer) {
+    void endTimer(int timer, Long timeElapsed) {
         timers.put(timer, null);
-        notifyEndTimer(timer);
+        notifyEndTimer(timer, timeElapsed);
     }
 
     void elapsedTime() {
@@ -114,12 +125,16 @@ public class CommandVisitor implements  Visitors {
         return timers.get(timer);
     }
 
-    void notifyStartTimer(int timer, Long timeStart) {
-        observers.forEach(observer -> observer.onStartOfTimer(timer, timeStart));
+    void notifyStartTimer(int timer) {
+        observers.forEach(observer -> observer.onStartOfTimer(timer));
     }
 
-    void notifyEndTimer(int timer) {
-        observers.forEach(observer -> observer.onEndOfTimer(timer));
+    void notifyEndTimer(int timer, Long timeElapsed) {
+        observers.forEach(observer -> observer.onEndOfTimer(timer, timeElapsed));
+    }
+
+    void notifyUnvalidEndTimer(int timer) {
+        observers.forEach(observer -> observer.onUnvalidEndOfTimer(timer));
     }
 
     void notifyElapsedTime() {
@@ -172,10 +187,12 @@ public class CommandVisitor implements  Visitors {
         var startTime = getTimer(timerId);
         if (startTime==null){
             System.out.println("Timer "+timerId+" was never started");
+            notifyUnvalidEndTimer(timerId);
+            return;
         }
         var currentTime =  System.currentTimeMillis();
         System.out.println("Timer "+timerId+" was stopped after running for "+(currentTime-startTime)+"ms");
-        endTimer(timerId);
+        endTimer(timerId, currentTime - startTime);
     }
 
     public void visit(QuitCmd command) {
