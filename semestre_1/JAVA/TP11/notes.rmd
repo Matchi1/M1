@@ -1,0 +1,47 @@
+---
+title: "Java avancé TP11: Reversible"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-12-19"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu de java}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+# Exercice 1
+
+Le but de cet exercice est de créer une vue sur une liste d'objets et de pouvoir
+inverser le sens de lecture des éléments
+
+# Exercice 2
+
+Pour cet exercice, on considère le cas de l'utilisation des **linkedList** comme
+liste de départ pour la vue (ce qui rend la lecture des valeurs affreusement
+lente), et la possibilité de considérer un reversible mutable, et non plus comme
+une vue seulement.
+
+# Conclusion
+
+Ce tp m'a permit de comprendre le fonctionnement globale des vues sur une liste
+d'objets,
+L'intérêt de ce tp est de prendre en main l'utilisation des **spliterator**, des
+classes anonymes et des types paramétrés.
+Ce TP était particulièrement difficile au niveau de création des vues car il
+faut savoir précisément la méthode permettant de créer la structure de données
+nécessaire au TP (c'est-à-dire utiliser par exemple **Arrays.asList** pour créer
+une vue sur la liste).
+Je pense revoir ce tp au niveau de l'utilisation bien particulière que l'on fait
+d'une interface.
