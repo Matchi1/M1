@@ -35,7 +35,7 @@ def initial_configuration():
         var(3, 2, 1),
         var(4, 3, 1)
     ]
-    return config # à compléter
+    return config
 
 def at_least_one(L):
     """Return a cnf that represents the constraint: at least one of the
@@ -52,7 +52,7 @@ def at_least_one(L):
     >>> clause == [var(1, 1, 1), var(2, 2, 2), var(3, 3, 3)]
     True
     """
-    return [L] # à compléter
+    return [L]
 
 def at_most_one(L):
     """Return a cnf that represents the constraint: at most one of the
@@ -97,7 +97,7 @@ def row_rules(N):
                 cnf.append(elt)
             for elt in at_most_one(positions):
                 cnf.append(elt)
-    return cnf # à compléter
+    return cnf
 
 def column_rules(N):
     """Return a list of clauses describing the rules for the columns.
@@ -110,7 +110,7 @@ def column_rules(N):
                 cnf.append(elt)
             for elt in at_most_one(positions):
                 cnf.append(elt)
-    return cnf # à compléter
+    return cnf
 
 def block(x, y, k, size):
     return [var(x + i, y + j, k) for i in range(size) for j in range(size)]
@@ -128,7 +128,7 @@ def subgrid_rules(N):
                     cnf.append(elt)
                 for elt in at_most_one(positions):
                     cnf.append(elt)
-    return cnf # à compléter
+    return cnf
 
 def generate_rules(N):
     """Return a list of clauses describing the rules of the game.
@@ -152,42 +152,44 @@ def literal_to_integer(l, N) -> int:
     return s * (N**2 * (i - 1) + N * (j - 1) + k)
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Generate CNF file')
-    parser.add_argument('output', type=str, default='output.cnf', help="Output LP file generated from your template")
+    parser = argparse.ArgumentParser(description='Sudoku solver')
+    parser.add_argument('txt', type=str, nargs='?', default='grids/grid4x4-1.txt',
+            help="Output LP file generated from your template")
+    parser.add_argument('output', type=str, nargs='?', default='result.out',
+            help="Output LP file generated from your template")
     return parser.parse_args()
 
 class generator():
-    def __init__(self, output, rules:list, N:int):
-        self.output = output
+    def __init__(self, cnf, rules:list, N:int):
+        self.cnf = cnf
         self.rules = rules
         self.N = N
 
-    def generate_start(self) -> None:
-        init_config = initial_configuration()
+    def generate_start(self, init_config) -> None:
         line = ["p", "cnf", str(self.N**3), str(len(self.rules) +
             len(init_config))]
-        self.output.write(" ".join(line))
-        self.output.write("\n")
+        self.cnf.write(" ".join(line))
+        self.cnf.write("\n")
         # Add config clause
         for config in init_config:
-            self.output.write(' '.join([str(literal_to_integer(config, self.N)),
+            self.cnf.write(' '.join([str(literal_to_integer(config, self.N)),
                 '0', '\n']))
 
     def generate_middle(self) -> None:
         for clause in self.rules:
             line = [str(literal_to_integer(elt, self.N)) for elt in clause]
             line += str(0)
-            self.output.write(' '.join(line) + '\n')
+            self.cnf.write(' '.join(line) + '\n')
 
     # Generate cnf file
-    def generate(self):
-        self.generate_start()
+    def generate(self, config):
+        self.generate_start(config)
         self.generate_middle()
 
-def run_minisat(filename:str):
-    run(['minisat', filename, 'result.out'])
+def run_minisat(cnf:str, output:str) -> None:
+    run(['minisat', cnf, output])
 
-def read_result(filename, N):
+def read_result(filename:str, N) -> None:
     f = open(filename, "r")
     data = f.readlines()[1].split()
     index = 0
@@ -200,19 +202,32 @@ def read_result(filename, N):
             print(" ", end="")
         print()
 
+
+def parse_file(filename:str) -> tuple:
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+        N = int(lines[0])
+        config = []
+        for i in range(N):
+            line = lines[i + 1].split()
+            config += [var(i + 1, j + 1, int(line[j])) for j in range(N)
+                        if line[j] != '0']
+        return N, config
+
 def main():
     import doctest
     doctest.testmod()
 
+    cnf_file = 'tmp.cnf'
     arguments = parse_arguments()
-    f = open(arguments.output, 'w')
-    N = 4
+    f = open(cnf_file, 'w')
+    N, config = parse_file(arguments.txt)
     cnf = generate_rules(N)
     g = generator(f, cnf, N)
-    g.generate()
+    g.generate(config)
     f.close()
-    run_minisat(arguments.output)
-    read_result("result.out", N)
+    run_minisat(cnf_file, arguments.output)
+    read_result(arguments.output, N)
 
 if __name__ == "__main__":
     main()

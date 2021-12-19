@@ -1,0 +1,90 @@
+---
+title: "OPTIMISATION: Sudoku"
+subtitle: "M1 Informatique, groupe apprenti, chargé de td: Yohann Thapper"
+author: "Mathieu Chan"
+date: "2021-12-18"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu Optimisation}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+# Guide Utilisateur
+
+Voici le guide utilisateur pour exécuter le script Python **sudoku.py**.
+
+## sudoku.py
+
+Voici la commande à exécuter:
+
+`python3 sudoku.py <txt> <output>`
+
+Le script permet de transformer une grille de sudoku incomplet depuis un fichier
+texte en un fichier .cnf.
+Ce fichier .cnf va permet de résoudre le sudoku incomplet à l'aide de
+contraintes générer par le script. 
+
+Après avoir générer ce fichier, le script exécute la commande **minisat** sur le
+fichier .cnf et transmet le résultat du calcul dans le fichier spécifié en
+argument.
+
+Ce fichier *output* sera interpréter par le programme est affichera le sudoku
+résolu.
+
+| option |                    description                   |
+|:------:+:------------------------------------------------:|
+|   txt  | fichier contenant une grille de sudoku incomplet |
+| output |  nom du fichier de sortie de la commande minisat |
+
+Un fichier cnf intermédiaire *tmp.cnf* sera créer lors de l'exécution du
+programme pour pouvoir exécuter la commande **minisat** sur le cnf.
+
+## Exemples
+
+`python3 sudoku.py ./grids/grid4x4-1.txt result.out`
+
+La commande ci-dessus va essayer de résoudre le fichier texte spécifié et
+utiliser *result.out* comme nom du fichier de sortie.
+
+\pagebreak
+
+# Questions
+
+**ce qui marche, ce qui ne marche pas**
+
+La lecture des fichiers texte fonctionne correctement avec l'affichage des
+contraintes dans un fichier cnf.
+Le script peut également afficher la grille solution sur la sortie standard.
+
+Le programme ne prend pas en compte un seul cas: s'il n'y a pas de réponse pour
+la configuration actuelle de la grille.
+
+**parmi les exemples de grilles sur elearning, lesquelles pouvez-vous résoudre ?**
+
+Le script arrive à résoudre l'ensemble des grilles disponibles sur e-learning.
+On arrive à vérifier ça en vérifiant chaque ligne, colonne et sous-grille de
+chaque sudoku et on vérifie que tout est cohérent.
+
+**avez-vous essayé avec d'autres grilles ?**
+
+Non, je n'ai pas essayer avec d'autres grilles, mais si je devais vérifier avec
+une autre grille, j'utiliserai une grille impossible à résoudre pour montrer le
+fait que l'on gère le cas où il n'y a pas de réponse.
+
+**nombre de variables, de clauses, temps utilisé pour générer les clauses,
+temps utilisé pour la résolution**
+
+**qu'avez vous appris ?**
+
+J'ai appris à prendre en main l'outil **minisat** et j'ai aussi compris les cas
+dans lequel on aurait besoins de ce type de solveur.
