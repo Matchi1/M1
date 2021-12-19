@@ -1,10 +1,129 @@
+---
+title: |
+	| \vspace{5cm} Design Pattern: Visitor
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-12-17"
+geometry: margin=3cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+	\usepackage{caption}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{Compte rendu de visitor}
+
+footer-left: "2021-2022"
+output:
+    pdf_document:
+		number_sections: true
+		font-size: 10
+---
+
+```{r include = FALSE}
+knitr::knit_engines$set("java")
+```
+
+\pagebreak
+
+\tableofcontents
+
+\pagebreak
+
 # Exercice 1
 
-<<<<<<< HEAD
-- single responsibility and open close principle
-=======
-- single responsability and open close principle
->>>>>>> ff4d5c8... DESIGN_PATTERN/visitor: create new tp
+**Décrivez l'architecture logicielle que vous avez obtenu à la fin de
+l'exercice 1 (texte + diagramme UML) En particulier, expliquez vos choix dans 
+la réalisation du patron observer (si vous en avez utilisé un)**
 
-On pourrait ajouter une méthode qui affiche les messages selon le
-type l'objet (donc avec le polymorphisme)
+La classe la plus importante de cette application est sûrement **CommandVisitor**
+car elle contient beaucoup de classe interne, en particulier les *Observer* mais
+également les méthodes visit qui vont visiter chaque commande.
+
+Le but du patron visitor est de simplifier l'ajout d'extension au librairie déjà
+implanter, dans notre cas les commandes à faire sur le timer, et donc de
+respecter le *open-close principle*.
+Mais également de respecter le principe du *une classe, une responsabilité* pour
+garder un code clair et compréhensible.
+
+```{r eval = FALSE}
+static class CounterObserver implements ApplicationObserver {
+	private final HashMap<commandType, Integer> counters = new HashMap<>();
+
+	@Override
+	public void onStartOfTimer(int timer) {
+		if(counters.putIfAbsent(commandType.START, 1) != null) {
+			counters.put(commandType.START, counters.get(commandType.START) + 1);
+		}
+	}
+	...
+}
+
+static class AverageObserver implements ApplicationObserver {
+	private final HashMap<Integer, ArrayList<Long>> averageTime = new HashMap<>();
+
+	@Override
+	public void onEndOfTimer(int timer, Long timeElapsed) {
+		averageTime.computeIfAbsent(timer, key -> new ArrayList<>())
+				.add(timeElapsed);
+	}
+	...
+}
+```
+
+Pour faciliter les extensions, il suffit simplement de créer des classes
+internes et qui implémente l'interface *ApplicationObserver* comme les classes
+ci-dessus.
+La classe **CounterObserver** va se charger de stocker le nombre d'appel de
+chaque commande et **AverageObserver** va s'occuper d'effectuer la moyenne du
+temps d'activation de chaque timer.
+
+Ainsi, on réparti mieux les tâches entre chaque classe.
+
+Pour les *Observer*, je me suis inspiré du TP précédent qui est le 
+*CmdLineParser*.
+La seul différence est que l'on a pas besoin d'un *command manager* est on peut
+parcourir les observers directement dans les méthodes **visit()**.
+
+```{r eval = FALSE}
+public void visit(HelloCmd command) {
+	System.out.println("Hello the current date is "+ LocalDateTime.now());
+	observers.forEach(ApplicationObserver::onHelloCallback);
+}
+```
+
+Par exemple pour la méthode **visit(HelloCmd command)**, on peut directement
+appeler la méthode de la commande correspondante dans les *Observers*.
+
+
+
+\begin{figure}[h]
+	\centering
+	\caption{Architecture logicielle de l'application}\label{fig:1}
+	\includegraphics[width=16cm]{img/visitor.png}
+\end{figure}
+
+\pagebreak
+
+# Exercices 2 et 3
+
+**Décrivez les avantages et les inconvénients des deux visions du patron 
+visiteur présentées dans l'exercice 2 et l'exercice 3 respectivement.**
+
+Dans l'exercice 2, le code est organisé en classe, on gagne donc en visibilité
+et en qualité de code. Le problème est que s'il y a beaucoup de visitors, on se
+retrouvera avec beaucoup de fichiers, on perd en visibilité dans l'organisation
+des fichiers.
+
+Dans l'exercice 3, l'avantage est que l'on peut déclarer tous les visiteurs dans
+un même fichier. Le problème est que cela peut devenir assez illisible au niveau
+du code si l'on commence à tout accumuler dans le même fichier.
+
+Les avantages et les inconvénients concernent principalement la perte de
+lisibilité à différent niveau. La structure du code ne change pas réellement,
+par exemple on retrouve en général la même chose lors de la déclaration des
+visiteurs dans l'exercice 3 et les classes visiteurs de l'exercice 2.
+
+Le but de ces exercices, c'est de principalement montrer qu'il y a plusieurs
+manière d'implémenter les visiteurs. Chacune d'entre elle 

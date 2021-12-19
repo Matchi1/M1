@@ -99,56 +99,6 @@ public class CommandVisitor implements  Visitors {
         observers.add(observer);
     }
 
-    void startTimer(int timer, Long currentTime) {
-        timers.put(timer, currentTime);
-        notifyStartTimer(timer);
-    }
-
-    void endTimer(int timer, Long timeElapsed) {
-        timers.put(timer, null);
-        notifyEndTimer(timer, timeElapsed);
-    }
-
-    void elapsedTime() {
-        notifyElapsedTime();
-    }
-
-    void helloCallback() {
-        notifyHelloCallback();
-    }
-
-    void finishApplication() {
-        notifyFinishedApplication();
-    }
-
-    Long getTimer(int timer) {
-        return timers.get(timer);
-    }
-
-    void notifyStartTimer(int timer) {
-        observers.forEach(observer -> observer.onStartOfTimer(timer));
-    }
-
-    void notifyEndTimer(int timer, Long timeElapsed) {
-        observers.forEach(observer -> observer.onEndOfTimer(timer, timeElapsed));
-    }
-
-    void notifyUnvalidEndTimer(int timer) {
-        observers.forEach(observer -> observer.onUnvalidEndOfTimer(timer));
-    }
-
-    void notifyElapsedTime() {
-        observers.forEach(ApplicationObserver::onElapsedTime);
-    }
-
-    void notifyHelloCallback() {
-        observers.forEach(ApplicationObserver::onHelloCallback);
-    }
-
-    void notifyFinishedApplication() {
-        observers.forEach(ApplicationObserver::onFinishedApplication);
-    }
-
     public CommandVisitor() {
         registerObserver(new CounterObserver());
         registerObserver(new AverageObserver());
@@ -157,45 +107,48 @@ public class CommandVisitor implements  Visitors {
     public void visit(ElapsedTimeCmd command) {
         var currentTime =  System.currentTimeMillis();
         for(var timerId : command.getTimers()){
-            var startTime = getTimer(timerId);
+            var startTime = timers.get(timerId);
             if (startTime==null){
                 System.out.println("Unknown timer "+timerId);
                 continue;
             }
             System.out.println("Ellapsed time on timerId "+timerId+" : "+(currentTime-startTime)+"ms");
         }
-        elapsedTime();
-;   }
+        observers.forEach(ApplicationObserver::onElapsedTime);
+    }
 
     public void visit(HelloCmd command) {
         System.out.println("Hello the current date is "+ LocalDateTime.now());
-        helloCallback();
+        observers.forEach(ApplicationObserver::onHelloCallback);
     }
 
     public void visit(StartTimerCmd command) {
         var timerId = command.getTimerId();
-        if (getTimer(timerId)!=null){
+        if (timers.get(timerId)!=null){
             System.out.println("Timer "+timerId+" was already started");
         }
         var currentTime =  System.currentTimeMillis();
-        startTimer(timerId, currentTime);
+        timers.put(timerId, currentTime);
+        observers.forEach(observer -> observer.onStartOfTimer(timerId));
         System.out.println("Timer "+timerId+" started");
     }
 
     public void visit(StopTimerCmd command) {
         var timerId = command.getTimerId();
-        var startTime = getTimer(timerId);
+        var startTime = timers.get(timerId);
         if (startTime==null){
             System.out.println("Timer "+timerId+" was never started");
-            notifyUnvalidEndTimer(timerId);
+            observers.forEach(observer -> observer.onUnvalidEndOfTimer(timerId));
             return;
         }
         var currentTime =  System.currentTimeMillis();
         System.out.println("Timer "+timerId+" was stopped after running for "+(currentTime-startTime)+"ms");
-        endTimer(timerId, currentTime - startTime);
+        timers.put(timerId, null);
+        observers.forEach(observer -> observer.onEndOfTimer(timerId, currentTime - startTime));
+
     }
 
     public void visit(QuitCmd command) {
-        finishApplication();
+        observers.forEach(ApplicationObserver::onFinishedApplication);
     }
 }
