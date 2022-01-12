@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 public class PathLogger implements Closeable, Logger {
-    private boolean closed = true;
+    private boolean closed = false;
     private final BufferedWriter writer;
 
     public PathLogger(Path path) throws IOException {
@@ -28,8 +28,8 @@ public class PathLogger implements Closeable, Logger {
             return;
         }
         try {
+            writer.write(level + " " + message + "\n");
             writer.flush();
-            writer.write(message);
         } catch(IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -37,7 +37,7 @@ public class PathLogger implements Closeable, Logger {
 
     @Override
     public void close() throws IOException {
-        closed = false;
+        closed = true;
         writer.close();
     }
 }

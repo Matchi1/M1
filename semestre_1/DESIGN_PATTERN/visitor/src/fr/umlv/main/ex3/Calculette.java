@@ -3,6 +3,7 @@ package fr.umlv.main.ex3;
 import java.util.regex.Pattern;
 
 public class Calculette {
+
     private static ExprVisitor<Integer, Void> createEvalVisitor() {
         var evalVisitor = new ExprVisitor<Integer, Void>();
         evalVisitor
@@ -43,7 +44,6 @@ public class Calculette {
                 });
         return toStringVisitor;
     }
-
 
     public static void main(String[] args) {
         var it = Pattern.compile(" ").splitAsStream("+ * 4 + 1 1 + 2 3").iterator();
