@@ -250,7 +250,6 @@ public class TableTest {
 
 
   // Q5
-/*
   @Test @Tag("Q5")
   public void forEachPetByName() {
     record Pet(String name, String owner) { }
@@ -313,7 +312,6 @@ public class TableTest {
 
 
   // Q6
-
   @Test @Tag("Q6")
   public void groupLookup() {
     record Person(String name, int age) { }
@@ -413,7 +411,7 @@ public class TableTest {
 
 
   // Q7
-
+  /*
   @Test @Tag("Q7")
   public void newGroup2PersonByName() {
     record Person(String name, int age) { }

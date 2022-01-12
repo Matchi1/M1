@@ -1,34 +1,62 @@
 package fr.umlv.table;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class Table <T> {
     private final List<T> elements;
 
-     public static class Group <T, E> {
+     public class Group <E> {
         private final TreeMap<E, ArrayList<Integer>> indexes;
+        private final Function<? super T, E> function;
 
-        public Group(TreeMap<E, ArrayList<Integer>> indexes) {
-            this.indexes = indexes;
+        private void refresh() {
+            for(var element : elements) {
+                var list = indexes.computeIfAbsent(function.apply(element),
+                        value -> new ArrayList<>());
+                var index = elements.indexOf(element);
+                if(!list.contains(index)) {
+                    list.add(index);
+                }
+            }
         }
 
-        public static <T,E> Group<T,E> createGroup(List<T> elements, Function<? super T, E> function, Comparator<E> comparator) {
+        public Group(Function<? super T, E> function, Comparator<? super E> comparator) {
             var indexes = new TreeMap<E, ArrayList<Integer>>(comparator);
             for(var element : elements) {
                 indexes.computeIfAbsent(function.apply(element),
                         value -> new ArrayList<>()).add(elements.indexOf(element));
             }
-            return new Group<>(indexes);
+            this.indexes = indexes;
+            this.function = function;
         }
 
         public int keySize() {
+            refresh();
             return indexes.size();
         }
 
+         public void forEach(Consumer<? super T> consumer) {
+             refresh();
+             indexes.values()
+                     .stream()
+                     .flatMap(array -> array.stream().map(elements::get))
+                     .forEach(consumer);
+         }
+
+         public List<T> lookup(E key) {
+            Objects.requireNonNull(key);
+            if(indexes.containsKey(key)){
+                return indexes.get(key).stream().map(elements::get).toList();
+            }
+            return Collections.unmodifiableList(new ArrayList<>());
+         }
+
          @Override
          public String toString() {
+            refresh();
             var joiner = new StringJoiner("\n");
             for(var items : indexes.entrySet()) {
                 joiner.add(items.getKey().toString() + ": " + items.getValue().toString());
@@ -50,14 +78,14 @@ public class Table <T> {
         return elements.size();
     }
 
-    public <E> Group<T,E> groupBy(Function<? super T, E> function, Comparator<E> comparator) {
+    public <E> Group<E> groupBy(Function<? super T, E> function, Comparator<? super E> comparator) {
         Objects.requireNonNull(function);
         Objects.requireNonNull(comparator);
-        return Group.createGroup(elements, function, comparator);
+        return new Group<>(function, comparator);
     }
 
     public static <E> Table<E> dynamic() {
-        return new Table<>(Arrays.asList());
+        return new Table<>(new ArrayList<>());
     }
 
     public void add(T element) {
