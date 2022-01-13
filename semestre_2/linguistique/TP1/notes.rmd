@@ -3,6 +3,7 @@
 ## Replace
 
 Il y a la présence de 5 noeuds au total:
+
 - Préélisions
 - PréContractions
 - Ligatures
@@ -49,3 +50,14 @@ environs 108 mots détectés
 <peut,pouvoir.V> : trouve toutes les occurences de la forme pouvoir
 avec la forme fléchie 'peut'
 environs 64 mots détectés
+
+# Exercice 3
+
+## L'heure
+
+<NB> <h> <NB> : Trouve les heures sous le format HH'h'mm
+Un seul résultat obtenu : 11 h 40
+
+## Graphe
+
+Tout comme la section précédente, on obtient l'horaire suivant : 11 h 40
