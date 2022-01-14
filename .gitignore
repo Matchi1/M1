@@ -7,3 +7,4 @@ lib
 *.zip
 __pycache__
 CHAN_MATHIEU*/
+*.bin
