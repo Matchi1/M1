@@ -8,3 +8,4 @@ lib
 __pycache__
 CHAN_MATHIEU*/
 *.bin
+out
