@@ -1,0 +1,32 @@
+---
+title: "Java avancé TP12: JSON, Réflexion et annotations"
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2021-12-23"
+geometry: margin=2cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{compte rendu de java}
+	\fancyfoot[L]{\thedate}
+footer-left: "2021-2022"
+output:
+    pdf_document:
+        number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+# Conclusion
+
+Ce tp m'a permit de comprendre le fonctionnement des réflexions et des
+annotations, mais également sur les types paramétrés.
+L'intérêt de ce tp est de prendre en main l'utilisation des réflexions, des
+annotations et la manipulation des type **Class**.
+Ce TP était particulièrement intéressant car on manipule des objets nouveaux qui
+sont les **Class**.
+Je pense revoir le cours pour mieux comprendre ce nouveau concept.
