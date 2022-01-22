@@ -1,0 +1,31 @@
+1 jeu	.N:ms
+2 jeux	1.N:mp
+3 genou 	.N:ms
+4 genoux 	1.N:mp
+5 moteur 	.N:ms
+6 moteurs 	1.N:mp
+7 abri 	.N:ms
+8 abris 	1.N:mp
+9 as 	.N:ms
+10 pareil 	.A:ms
+11 pareille 	2.A:fs
+12 pareilles 	3.A:fp
+13 pareils 	1.A:mp
+14 moteur 	.A:ms
+15 moteurs 	1.s:mp
+16 motrice 	4eur.A:fs
+17 motrices 	5eur.A:fp
+18 aère 	3érer.V:P3s
+9 aère 	3érer.V:P1s
+19 aères 	4érer.V:P2s
+20 aérons 	3er.V:P1p
+21 aérez 	1r.V:P2p
+22 aèrent 	5érer.V:P3p
+23 obsède 	3éder.V:P3s
+9 obsède	3éder.V:P1s
+24 obsèdes 	4éder.V:P2s
+25 obsédons 	3er.V:P1p
+26 obsédez 	1r.V:P2p
+27 obsèdent 	5éder.V:P3p
+
+27 différents
