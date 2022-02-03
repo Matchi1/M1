@@ -2,7 +2,6 @@ package fr.umlv.net.udp;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.DatagramChannel;
@@ -12,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Optional;
 import java.util.Scanner;
-import java.util.logging.Logger;
 
 public class ClientBetterUpperCaseUDP {
 	private static final int MAX_PACKET_SIZE = 1024;
@@ -43,7 +41,7 @@ public class ClientBetterUpperCaseUDP {
 		buffer.putInt(charsetName.length());
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 		buffer.put(charsetName.getBytes(ASCII_CHARSET));
-		if(4 + charsetName.length() + encodedMessage.remaining() > MAX_PACKET_SIZE) {
+		if(Integer.BYTES + charsetName.length() + encodedMessage.remaining() > MAX_PACKET_SIZE) {
 			return Optional.empty();
 		}
 		buffer.put(encodedMessage);
@@ -64,23 +62,26 @@ public class ClientBetterUpperCaseUDP {
 	 */
 	public static Optional<String> decodeMessage(ByteBuffer buffer) {
 		buffer.flip();
-		if(buffer.remaining() < 4) {
+		if(buffer.remaining() < Integer.BYTES) {
 			return Optional.empty();
 		}
+		// Get length of the charset
 		var size = buffer.getInt();
 		if(size == -1 || size > buffer.remaining()) {
 			return Optional.empty();
 		}
-		byte[] charSet = new byte[size];
-		buffer.get(charSet);
-		var charSetName = new String(charSet, ASCII_CHARSET);
-		try {
-			var cs = Charset.forName(charSetName);
-			var message = cs.decode(buffer).toString();
-			return Optional.of(message);
-		} catch (UnsupportedCharsetException | IllegalCharsetNameException e) {
+		var currentLimit = buffer.limit();
+		buffer.limit(Integer.BYTES + size);
+		// Get the charset name
+		var charSetName = ASCII_CHARSET.decode(buffer);
+		if(!Charset.isSupported(charSetName.toString())) {
 			return Optional.empty();
 		}
+		buffer.limit(currentLimit);
+		// Decode the message with the charset
+		var cs = Charset.forName(charSetName.toString());
+		var message = cs.decode(buffer).toString();
+		return Optional.of(message);
 	}
 
 	public static void usage() {
@@ -99,13 +100,12 @@ public class ClientBetterUpperCaseUDP {
 
 		var destination = new InetSocketAddress(host, port);
 		// buffer to receive messages
-		var buffer = ByteBuffer.allocateDirect(MAX_PACKET_SIZE);
+		var receive = ByteBuffer.allocateDirect(MAX_PACKET_SIZE);
 
 		try(var scanner = new Scanner(System.in);
 				var dc = DatagramChannel.open()){
 			while (scanner.hasNextLine()) {
 				var line = scanner.nextLine();
-				
 				var message = encodeMessage(line, charsetName);
 				if (message.isEmpty()) {
 					System.out.println("Line is too long to be sent using the protocol BetterUpperCase");
@@ -113,13 +113,15 @@ public class ClientBetterUpperCaseUDP {
 				}
 				var packet = message.get();
 				packet.flip();
+				// Send header with message
 				dc.send(packet, destination);
-				buffer.clear();
-				dc.receive(buffer);
-				
-				decodeMessage(buffer).ifPresentOrElse(
+				// Receive package
+				dc.receive(receive);
+
+				decodeMessage(receive).ifPresentOrElse(
 						(str) -> System.out.println("Received: " + str), 
 						() -> System.out.println("Received an invalid paquet"));
+				receive.clear();
 			}
 		}
 	}
