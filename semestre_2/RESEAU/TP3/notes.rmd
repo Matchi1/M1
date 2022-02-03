@@ -1,0 +1,7 @@
+# Exercice 1
+
+Lorsqu'un packet est jeté, le client est bloqué et ne peut plus envoyer de
+message. Le client est sûrement en train d'attendre qu'un message soit envoyer
+de la part du serveur pour pouvoir continuer.
+
+# Exercice 2
