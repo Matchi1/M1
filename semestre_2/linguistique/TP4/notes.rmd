@@ -1,0 +1,46 @@
+# Exercice 1
+
+## Question 1
+
+pas+nulle part+rien+personne+jamais
+
+## Question 2
+
+((n'+ne)<V>).pas+nulle<E>part+rien+personne+jamais
+
+## Question 3
+
+<V><E><V>*
+
+# Exercice 2
+
+## Question 1
+
+<!WORD>+<NB>
+
+## Question 2
+
+<V>(-+-t-)<PRO>
+
+## Question 3
+
+<N+Territoire>
+
+# Exercice 3
+
+## Question 1
+
+suiteVerb.grf
+
+## Question 2
+
+negation.grf
+
+## Question 3
+
+29 matches
+PR.grf
+
+# Exercice 4
+
+## Question 1

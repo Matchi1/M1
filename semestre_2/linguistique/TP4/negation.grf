@@ -1,0 +1,30 @@
+#Unigraph
+SIZE 1188 840
+FONT Times New Roman:  10
+OFONT Arial Unicode MS:B 12
+BCOLOR 16777215
+FCOLOR 0
+ACOLOR 13487565
+SCOLOR 16711680
+CCOLOR 255
+DBOXES y
+DFRAME n
+DDATE n
+DFILE n
+DDIR n
+DRIG n
+DRST n
+FITS 100
+PORIENT L
+#
+10
+"<E>" 77 208 2 2 3 
+"" 749 210 0 
+"ne" 176 158 1 9 
+"n'" 178 242 1 9 
+"pas" 611 132 1 1 
+"jamais" 600 177 1 1 
+"nulle part" 584 215 1 1 
+"rien" 599 259 1 1 
+"personne" 598 297 1 1 
+"<V>" 359 196 5 4 5 6 7 8 
