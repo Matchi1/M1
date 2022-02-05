@@ -1,0 +1,321 @@
+---
+title: |
+	| \vspace{5cm} Rapport TP3 linguistique
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2022-01-30"
+geometry: margin=3cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+	\usepackage{caption}
+	\usepackage{subcaption}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{Rapport linguistique}
+
+footer-left: "2021-2022"
+output:
+    pdf_document:
+		number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+\tableofcontents
+
+\pagebreak
+
+# Exercice 1
+
+## Question 1
+
+### Un singulier et un pluriel, pas de féminin
+
+* abus de confiance: masculin, singulier & pluriel
+* cercle polaire: masculin, singulier & pluriel
+* mauvais coup: masculin, singulier & pluriel
+* pois de senteur: masculin, singulier & pluriel
+
+### Un singulier et un pluriel, pas de masculin
+
+* planche à voile: féminin, singulier & pluriel
+* poule mouillée: féminin, singulier & pluriel
+* pousse de bambou: féminin, singulier & pluriel
+
+### Les 4 combinaisons
+
+* gardien de but: masculin & féminin , singulier & pluriel
+* metteur en scène: masculin & féminin, singulier & pluriel
+
+### Seulement une des 4 combinaisons
+
+* argent frais: masculin, singulier
+* mal du pays: masculin, singulier
+* clair et net: masculin, singulier
+* beaux-arts: masculin, pluriel
+* entrailles de la Terre: féminin, pluriel
+
+\pagebreak
+
+## Question 2
+
+argent frais: masculin, singulier
+-> nom + adjectif
+(src/ex1/NC_m_s_NXA.grf)
+
+mal du pays: masculin, singulier
+-> nom + article + nom
+(src/ex1/NC_m_s_NXXXN.grf)
+
+clair et net: masculin, singulier
+-> adjectif + X + adjectif
+(src/ex1/NC_m_s_AXXXA.grf)
+
+beaux-arts: masculin, pluriel
+-> adjectif + nom
+(src/ex1/NC_m_p_AXN.grf)
+
+entrailles de la Terre: féminin, pluriel
+-> nom + X + X + X + X + X + nom
+(src/ex1/NC_f_p_NXXXXXN.grf)
+
+\begin{figure}[h]
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/argent.png}
+	    \caption{Graphe du mot composé argent frais comme exemple}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/pays.png}
+        \caption{Graphe du mot composé mal du pays comme exemple}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/clair.png}
+	    \caption{Graphe du mot composé clair et net comme exemple}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/beaux.png}
+        \caption{Graphe du mot composé beaux-arts comme exemple}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{img/entrailles.png}
+    \caption{Graphe du mot composé entrailles de la Terre comme exemple}
+\end{figure}
+
+\pagebreak
+
+## Question 3
+
+### Aucun des composants ne varie
+
+abus de confiance: masculin, singulier & pluriel
+mauvais coup: masculin, singulier & pluriel
+pois de senteur: masculin, singulier & pluriel
+
+### seul le premier composant varie
+
+planche à voile: féminin, singulier & pluriel
+-> planches à voile
+
+pousse de bambou: féminin, singulier & pluriel
+-> pousses de bamboo
+
+### tous les composants varient
+
+cercle polaire: masculin, singulier & pluriel
+-> cercles polaires
+
+poule mouillée: féminin, singulier & pluriel
+-> poules mouillées
+
+### seul le dernier composant varie
+
+Aucune expression
+
+### seuls le premier et le dernier composants varient
+
+Aucune expression
+
+## Question 4
+
+On associe chaque mot composé à son graphe correspondant:
+
+* abus de confiance : NC_m_NXXXNinv
+* mauvais coup : NC_m_AXNinv
+* pois de senteur : NC_m_NXXXNinv
+* argent frais : NC_m_s_NXA
+* mal du pays : NC_m_s_NXXXN
+* clair et net : NC_m_s_AXXXA
+* beaux-arts : NC_m_p_AXN
+* entrailles de la Terre : NC_f_p_NXXXXXN
+
+\begin{figure}[h]
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/pois.png}
+	    \caption{Graphe du mot composé pois de senteur comme exemple}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/coup.png}
+        \caption{Graphe du mot composé mauvais coup comme exemple}
+	\end{minipage}
+\end{figure}
+
+\pagebreak
+
+# Exercice 2
+
+## Question 1
+
+Dans le fichier **delac-TP.dic**, on a:
+
+```
+abus de confiance,NC_m_NXXXNinv
+mauvais coup,NC_m_AXNinv
+pois de senteur,NC_m_NXXXNinv
+argent frais,NC_m_s_NXA
+mal du pays,NC_m_s_NXXXN
+clair et net,NC_m_s_AXXXA
+beaux-arts,NC_m_p_AXN
+entrailles de la Terre,NC_f_p_NXXXXXN
+```
+
+## Question 2
+
+On obtient donc le fichier **delac-TPflx.dic** suivant:
+
+```
+abus de confiance,abus de confiance.N:ms
+abus de confiance,abus de confiance.N:mp
+mauvais coup,mauvais coup.N:ms
+mauvais coup,mauvais coup.N:mp
+pois de senteur,pois de senteur.N:ms
+pois de senteur,pois de senteur.N:mp
+argent frais,argent frais.N:ms
+mal du pays,mal du pays.N:ms
+clair et net,clair et net.N:ms
+beaux-arts,beaux-arts.N:ms
+entrailles de la Terre,entrailles de la Terre.N:fp
+```
+
+\pagebreak
+
+# Exercice 3
+
+## Question 1
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{img/planche.png}
+    \caption{Graphe du mot composé planche à voile comme exemple}
+\end{figure}
+
+## Question 2
+
+Dans le fichier **delac-TP.dic**, on a:
+
+```
+abus de confiance,NC_m_NXXXNinv
+mauvais coup,NC_m_AXNinv
+pois de senteur,NC_m_NXXXNinv
+argent frais,NC_m_s_NXA
+mal du pays,NC_m_s_NXXXN
+clair et net,NC_m_s_AXXXA
+beaux-arts,NC_m_p_AXN
+entrailles de la Terre,NC_f_p_NXXXXXN
+planche(planche.N21:fs) à voile,NC_g_NXXXX
+pousse(pousse.N21:fs) de bambou,NC_g_NXXXX
+```
+
+## Question 3
+
+On obtient donc le fichier **delac-TPflx.dic** suivant:
+
+```
+abus de confiance,abus de confiance.N:ms
+abus de confiance,abus de confiance.N:mp
+mauvais coup,mauvais coup.N:ms
+mauvais coup,mauvais coup.N:mp
+pois de senteur,pois de senteur.N:ms
+pois de senteur,pois de senteur.N:mp
+argent frais,argent frais.N:ms
+mal du pays,mal du pays.N:ms
+clair et net,clair et net.N:ms
+beaux-arts,beaux-arts.N:mp
+entrailles de la Terre,entrailles de la Terre.N:fp
+planche à voile,planche à voile.N:fs
+planches à voile,planche à voile.N:fp
+pousse de bambou,pousse de bambou.N:fs
+pousses de bambou,pousse de bambou.N:fp
+```
+
+\pagebreak
+
+## Question 4
+
+Dans le fichier **delac-TP.dic**, on a:
+
+```
+abus de confiance,NC_m_NXXXNinv
+mauvais coup,NC_m_AXNinv
+pois de senteur,NC_m_NXXXNinv
+argent frais,NC_m_s_NXA
+mal du pays,NC_m_s_NXXXN
+clair et net,NC_m_s_AXXXA
+beaux-arts,NC_m_p_AXN
+entrailles de la Terre,NC_f_p_NXXXXXN
+planche(planche.N21:fs) à voile,NC_g_NXXXX
+pousse(pousse.N21:fs) de bambou,NC_g_NXXXX
+gardien(gardien.N41:ms) de but,NC_2g_NXXXX
+metteur(metteur.N35:ms) en scène,NC_2g_NXXXX
+```
+
+On obtient donc le fichier **delac-TPflx.dic** suivant:
+
+```
+abus de confiance,abus de confiance.N:ms
+abus de confiance,abus de confiance.N:mp
+mauvais coup,mauvais coup.N:ms
+mauvais coup,mauvais coup.N:mp
+pois de senteur,pois de senteur.N:ms
+pois de senteur,pois de senteur.N:mp
+argent frais,argent frais.N:ms
+mal du pays,mal du pays.N:ms
+clair et net,clair et net.N:ms
+beaux-arts,beaux-arts.N:mp
+entrailles de la Terre,entrailles de la Terre.N:fp
+planche à voile,planche à voile.N:fs
+planches à voile,planche à voile.N:fp
+pousse de bambou,pousse de bambou.N:fs
+pousses de bambou,pousse de bambou.N:fp
+gardien de but,gardien de but.N:ms
+gardiens de but,gardien de but.N:mp
+gardienne de but,gardien de but.N:fs
+gardiennes de but,gardien de but.N:fp
+metteur en scène,metteur en scène.N:ms
+metteurs en scène,metteur en scène.N:mp
+metteuse en scène,metteur en scène.N:fs
+metteuses en scène,metteur en scène.N:fp
+```
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{img/gardien.png}
+    \caption{Graphe du mot composé gardien de but comme exemple}
+\end{figure}
