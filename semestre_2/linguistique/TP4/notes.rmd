@@ -1,46 +1,134 @@
+---
+title: |
+	| \vspace{5cm} Rapport TP4 linguistique
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2022-02-05"
+geometry: margin=3cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+	\usepackage{caption}
+	\usepackage{subcaption}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{Rapport linguistique}
+
+footer-left: "2021-2022"
+output:
+    pdf_document:
+		number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+\tableofcontents
+
+\pagebreak
+
 # Exercice 1
 
-## Question 1
-
-pas+nulle part+rien+personne+jamais
-
-## Question 2
-
-((n'+ne)<V>).pas+nulle<E>part+rien+personne+jamais
-
-## Question 3
-
-<V><E><V>*
+1. pas+nulle part+rien+personne+jamais
+2. ((n'+ne)\<V\>).pas+nulle\<E\>part+rien+personne+jamais
+3. \<V\>\<E\>\<V\>*
 
 # Exercice 2
 
-## Question 1
-
-<!WORD>+<NB>
-
-## Question 2
-
-<V>(-+-t-)<PRO>
-
-## Question 3
-
-<N+Territoire>
+1. <!WORD>+<NB>
+2. <V>(-+-t-)<PRO>
+3. <N+Territoire>
 
 # Exercice 3
 
+Les graphes de l'exercice 3 sont présents dans le répertoire `src/ex3`
+
+\begin{figure}[h]
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/suiteVerbe.png}
+	    \caption{Graphe suiteVerbe}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/negation.png}
+        \caption{Graphe negation}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{img/PR.png}
+    \caption{Graphe PR}
+\end{figure}
+
+
 ## Question 1
 
-suiteVerb.grf
+résultats obtenus : 200 matches
+
+**Remarque:** les 'À' sont remplacées par des 'A' dans le texte, ces lettre sont
+donc considérées comme des verbes issues du verbe 'avoir'.
+
+`voir src/ex3/suiteVerb.grf`
 
 ## Question 2
 
-negation.grf
+résultats obtenus : 200 matches
+
+`voir src/ex3/negation.grf`
 
 ## Question 3
 
-29 matches
-PR.grf
+résultats obtenus : 200 matches
+
+`voir src/ex3/PR.grf`
 
 # Exercice 4
 
+Les graphes de l'exercice 4 sont présents dans le répertoire `src/ex4`
+
+\begin{figure}[h]
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/NPP.png}
+	    \caption{Graphe NPP}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/NPP2.png}
+        \caption{Graphe NPP2}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{img/NPP3.png}
+    \caption{Graphe NPP}
+\end{figure}
+
 ## Question 1
+
+résultats obtenus : 49 matches
+
+`voir src/ex4/NPP.grf`
+
+## Question 2
+
+résultats obtenus : 49 matches
+
+**Remarque:** Les combinaisons 'nom propre + nom propre' sont entourées de
+l'étiquette \<PR\>
+
+`voir src/ex4/NPP2.grf`
+
+## Question 3
+
+résultats obtenus : 49 matches
+
+**Remarque:** Les civilités ne sont pas surlignées.
+
+`voir src/ex4/NPP3.grf`
