@@ -3,6 +3,7 @@ package fr.umlv.net.udp.ex3;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.DatagramChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -13,10 +14,12 @@ import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import static java.nio.file.StandardOpenOption.*;
 
 public class ClientUpperCaseUDPFile {
+    private final static Logger logger = Logger.getLogger(ClientUpperCaseUDPFile.class.getName());
     private final static Charset UTF8 = StandardCharsets.UTF_8;
     private final static int BUFFER_SIZE = 1024;
 
@@ -26,16 +29,18 @@ public class ClientUpperCaseUDPFile {
 
     private static Thread createListener(DatagramChannel channel, BlockingQueue<String> queue, Charset cs) {
         return new Thread(() -> {
-            var buffer = ByteBuffer.allocate(BUFFER_SIZE);
-            while(true) {
-                try {
+            try {
+                var buffer = ByteBuffer.allocate(BUFFER_SIZE);
+                while (true) {
                     channel.receive(buffer);
                     buffer.flip();
-                    queue.add(cs.decode(buffer).toString());
-                } catch (IOException e) {
-                    System.out.println("Can't read the channel");
+                    queue.put(cs.decode(buffer).toString());
+                    buffer.clear();
                 }
-                buffer.clear();
+            } catch (InterruptedException | AsynchronousCloseException e) {
+                logger.info("Interruption of the listener");
+            } catch (IOException e) {
+                logger.severe("I/O issues");
             }
         });
     }
@@ -61,7 +66,7 @@ public class ClientUpperCaseUDPFile {
             createListener(dc, queue, StandardCharsets.UTF_8).start();
             for(var line : lines) {
                 buffer.clear();
-                buffer.put(line.getBytes(StandardCharsets.UTF_8));
+                buffer.put(UTF8.encode(line));
                 String message;
                 do {
                     buffer.flip();
