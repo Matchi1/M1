@@ -20,12 +20,12 @@ import static java.nio.file.StandardOpenOption.*;
 
 public class ClientIdUpperCaseUDPOneByOne {
 
-	private static Logger logger = Logger.getLogger(ClientIdUpperCaseUDPOneByOne.class.getName());
+	private static final Logger logger = Logger.getLogger(ClientIdUpperCaseUDPOneByOne.class.getName());
 	private static final Charset UTF8 = StandardCharsets.UTF_8;
 	private static final int BUFFER_SIZE = 1024;
 
 	private record Response(long id, String message) {
-	};
+	}
 
 	private final String inFilename;
 	private final String outFilename;
@@ -54,7 +54,9 @@ public class ClientIdUpperCaseUDPOneByOne {
 			while (true) {
 				dc.receive(buffer);
 				buffer.flip();
-				queue.put(new Response(buffer.getLong(), UTF8.decode(buffer).toString()));
+				var id = buffer.getLong();
+				var message = UTF8.decode(buffer).toString();
+				queue.put(new Response(id, message));
 				buffer.clear();
 			}
 		} catch (InterruptedException | AsynchronousCloseException e) {
@@ -83,14 +85,12 @@ public class ClientIdUpperCaseUDPOneByOne {
 				buffer.putLong(id);
 				buffer.put(UTF8.encode(line));
 				var lastSent = 0L;
-				buffer.flip();
-				dc.send(buffer, server);
 				for(;;) {
 					var currentTime = System.currentTimeMillis();
 					if(currentTime - lastSent > timeout) {
+						buffer.flip();
 						dc.send(buffer, server);
 						lastSent = currentTime;
-						buffer.flip();
 					}
 					var remainingTime = (lastSent + timeout) - currentTime;
 					response = queue.poll(remainingTime, TimeUnit.MILLISECONDS);
@@ -98,9 +98,7 @@ public class ClientIdUpperCaseUDPOneByOne {
 						lastSent = 0;
 						continue;
 					}
-					if(response.id() != id) {
-						continue;
-					} else {
+					if(response.id() == id) {
 						upperCaseLines.add(response.message());
 						break;
 					}
