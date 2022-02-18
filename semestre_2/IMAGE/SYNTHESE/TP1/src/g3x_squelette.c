@@ -33,6 +33,17 @@ static void init(void)
   g3x_SetLightSpecular(1.,1.,1.);
   /* fixe la position                                        */
   g3x_SetLightPosition (10.,10.,10.);
+  int p, m;
+  double Om = 2*PI/NBM, Pp = PI/NBP;
+  for(p = 0; p < NBP; p++)
+  {
+	  double z = g3x_Radcos(p * Pp);
+	  double r = g3x_Radsin(p * Pp);
+	  for(m = 0; m < NBM; m++)
+	  {
+		  P[p][m] = g3x_Point(r * (g3x_Radcos(m * Om)), r * g3x_Radsin(m * Om), z);
+	  }
+  }
 }
 
 /* la fonction de contrôle : appelée 1 seule fois, juste après <init> */
@@ -43,24 +54,42 @@ static void ctrl(void)
 /* la fonction de dessin : appelée en boucle */
 static void draw(void)
 {
-	glBegin(GL_QUADS);
-	for(int p=0; p < NBP - 1; p++)
-	{
-		for(int m=0; m < NBM - 1; m++)
-		{
-			g3x_Vertex3dv(P[p][m]);
-			g3x_Vertex3dv(P[p][m+1]);
-			g3x_Vertex3dv(P[p+1][m+1]);
-			g3x_Vertex3dv(P[p+1][m]);
-		}
-	}
+  glDisable(GL_LIGHTING);    /* <BALISE.GL>  "débranche" la lumière, pour permettre le tracé en mode point/ligne */
+  	int pas = 20;
 	glPointSize(4);
 	glBegin(GL_POINTS);
-	for(int i = 0; i < NBP - 1; i++)
+	for(int p=0; p < NBP - 1; p += pas)
 	{
-		g3x_Normal3dv(P[i][i]);
-		g3x_Vertex3dv(P[i][i]);
+		for(int m=0; m < NBM - 1; m += pas)
+		{
+			g3x_Normal3dv(P[p][m]);
+			g3x_Vertex3dv(P[p][m]);
+		}
 	}
+	glEnd();
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	glBegin(GL_QUADS);
+	int p, m;
+	for(p=0; p < NBP - pas - 1; p += pas)
+	{
+		for(m=0; m < NBM - pas - 1; m += pas)
+		{
+			g3x_Vertex3dv(P[p][m]);
+			g3x_Vertex3dv(P[p][m+pas]);
+			g3x_Vertex3dv(P[p+pas][m+pas]);
+			g3x_Vertex3dv(P[p+pas][m]);
+		}
+		g3x_Vertex3dv(P[p][m]);
+		g3x_Vertex3dv(P[p][0]);
+		g3x_Vertex3dv(P[0][0]);
+		g3x_Vertex3dv(P[0][m]);
+	}
+	glEnd();
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glEnable(GL_LIGHTING);
 }
 
 /* la fonction d'animation (facultatif) */
