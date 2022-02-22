@@ -1,4 +1,69 @@
+---
+title: |
+	| \vspace{5cm} Rapport TP6 linguistique
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2022-02-20"
+geometry: margin=3cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+	\usepackage{caption}
+	\usepackage{subcaption}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{Rapport linguistique}
+
+footer-left: "2021-2022"
+output:
+    pdf_document:
+		number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+\tableofcontents
+
+\pagebreak
+
 # Exercice 1
 
-être
-îles
+Le graphe ci-dessous permet de séparer les verbes composés d'un auxiliaire et
+d'un participe passé, des adverbes situés entre eux.
+On les entoure par des balises pour mieux les distinguer.
+
+\begin{figure}[h]
+	\begin{minipage}[t]{7cm}
+		\centering
+        \includegraphics[width=7cm]{img/var1.png}
+	    \caption{Graphe séparant les auxiliaires + participe passé avec les adverbes }
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/var1_exemple.png}
+        \caption{Résultats de l'application du graphe}
+	\end{minipage}
+\end{figure}
+
+\pagebreak
+
+# Exercice 2
+
+Le graphe ci-dessous permet de définir les types de lieux.
+
+\begin{figure}[h]
+	\begin{minipage}[t]{7cm}
+		\centering
+        \includegraphics[width=7cm]{img/var2.png}
+	    \caption{Graphe classifiant le type des lieux}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/var2_exemple.png}
+        \caption{Résultats de l'application du graphe}
+	\end{minipage}
+\end{figure}
