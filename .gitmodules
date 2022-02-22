@@ -1,6 +1,6 @@
-[submodule "semestre_2/CPP_Learning_Code"]
-	path = semestre_2/CPP_Learning_Code
-	url = git@github.com:Matchi1/CPP_Learning_Code.git
 [submodule "semestre_2/CPP"]
 	path = semestre_2/CPP
 	url = git@github.com:Matchi1/CPP_Learning_Code.git
+[submodule "Projets/tower_control"]
+	path = Projets/tower_control
+	url = git@github.com:Matchi1/CPP_Learning_Project.git
