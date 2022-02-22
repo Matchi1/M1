@@ -1,0 +1,25 @@
+#Unigraph
+SIZE 1188 840
+FONT Times New Roman:  10
+OFONT Arial Unicode MS:B 12
+BCOLOR 16777215
+FCOLOR 0
+ACOLOR 13487565
+SCOLOR 16711680
+CCOLOR 255
+DBOXES y
+DFRAME n
+DDATE n
+DFILE n
+DDIR n
+DRIG n
+DRST n
+FITS 100
+PORIENT L
+#
+5
+"<E>" 70 200 1 2 
+"" 698 205 0 
+"environs+pendant+en+{S}" 234 208 1 4 
+":heure" 410 205 1 1 
+"$*" 337 205 1 3 

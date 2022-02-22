@@ -1,0 +1,165 @@
+---
+title: |
+	| \vspace{5cm} Rapport TP5 linguistique
+subtitle: "M1 Informatique, groupe apprenti"
+author: "Mathieu Chan"
+date: "2022-02-13"
+geometry: margin=3cm
+header-includes: |
+	\usepackage{titling}
+	\usepackage{fancyhdr}
+	\usepackage{graphicx}
+	\usepackage{caption}
+	\usepackage{subcaption}
+
+	\pagestyle{fancy}
+	\fancyhead[LO,LE]{Rapport linguistique}
+
+footer-left: "2021-2022"
+output:
+    pdf_document:
+		number_sections: true
+		font-size: 10
+---
+
+\pagebreak
+
+\tableofcontents
+
+\pagebreak
+
+# Exercice 1
+
+## Question 1
+
+On peut repérer quelques horaires ou durée tel que cinq heures, deux heures.
+Il y a quelques valeurs qui sont mal détectés comme vingt-**cinq heures**, les
+**-** ou autre expression qui coupe notre expression va causé une erreur.
+
+**Remarque :** Dans notre cas, l'erreur n'est pas très importante car on
+s'intéresse principalement au contexte **gauche** et **droite**.
+
+\begin{figure}[h]
+	\begin{minipage}[t]{7cm}
+		\centering
+        \includegraphics[width=7cm]{img/ex1/heure.png}
+	    \caption{Graphe sur la détection des heures}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/ex1/exemple1.png}
+        \caption{Résultats de l'application du graphe}
+	\end{minipage}
+\end{figure}
+
+## Question 2
+
+Pour les horaires, on a 127 matches avec environs une dizaine de fautes.
+Par exemple, dans la phrase "pendant **trois heures**", c'est une durée pourtant
+il est détecté comme un horaire.
+Sûrement parce que le mot **pendant** est considéré comme un verbe et non comme
+une préposition.
+
+\begin{figure}[h]
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/ex1/duree.png}
+	    \caption{Graphe pour repérer les durées}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{7cm}
+		\centering
+	    \includegraphics[width=7cm]{img/ex1/horaire.png}
+        \caption{Graphe pour repérer les horaires}
+	\end{minipage}
+\end{figure}
+
+\pagebreak
+
+# Exercice 2
+
+## Question 1
+
+Il y a 18 matches avec le graphe `r_duration.grf` avec aucune faute, cependant
+il se peut que ce graphe ne prenne pas en compte toutes les durées possibles
+présentes dans le texte.
+
+\begin{figure}[h]
+	\begin{minipage}[t]{7cm}
+		\centering
+        \includegraphics[width=7cm]{img/ex2/r_duration.png}
+	    \caption{Graphe repérant les durées selon le contexte droit}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{7cm}
+        \centering
+        \includegraphics[width=7cm]{img/ex2/exemple1.png}
+        \caption{Résultat de l'application du graphe}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{img/ex2/r_time.png}
+    \caption{Graphe repérant tous sauf les durées selon le contexte droit}
+\end{figure}
+
+\pagebreak
+
+# Exercice 3
+
+## Question 1
+
+Dans le graphe ci-dessous, on remarque que certaines phrases sont incorrectes,
+notamment la phrase contenant "a été **commis**". Le mot **commis** ne décrit
+pas une profession.
+
+\begin{figure}[h]
+	\begin{minipage}[t]{7cm}
+		\centering
+        \includegraphics[width=7cm]{img/ex3/metier.png}
+	    \caption{Graphe repérant les verbes être/devenir suivis d'une profession}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{7cm}
+        \centering
+        \includegraphics[width=7cm]{img/ex3/exemple1.png}
+        \caption{Résultat de l'application du graphe}
+	\end{minipage}
+\end{figure}
+
+## Question 2
+
+Voici une version améliorée du graphe ci-dessus, elle permet d'exclure les
+participes passés qui précèdent le verbe devenir/être.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{img/ex3/negation_metier.png}
+    \caption{Graphe amélioré excluant les participes passés après les verbes
+    être/devenir}
+\end{figure}
+
+\pagebreak
+
+# Exercice 4
+
+Voici le graphe permettant de labelliser les heures en horaire ou en durée.
+Ce graphe n'est pas totalement correct car elle ne détecte qu'une seule durée,
+ce qui n'est pas cohérent avec les résultats que l'on a obtenu jusqu'à présent.
+
+\begin{figure}[h]
+	\begin{minipage}[t]{7cm}
+		\centering
+        \includegraphics[width=7cm]{img/ex4/sort.png}
+	    \caption{Graphe qui permet de labelliser une heure en horaire ou en
+        durée}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{7cm}
+        \centering
+        \includegraphics[width=7cm]{img/ex4/exemple1.png}
+        \caption{Résultat de l'application du graphe}
+	\end{minipage}
+\end{figure}
