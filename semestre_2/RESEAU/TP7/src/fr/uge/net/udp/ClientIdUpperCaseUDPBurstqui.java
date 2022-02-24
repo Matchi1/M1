@@ -1,19 +1,16 @@
-package fr.uge.net.udp;
+package fr.upem.net.udp.nonblocking;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -22,7 +19,7 @@ import static java.nio.file.StandardOpenOption.*;
 public class ClientIdUpperCaseUDPOneByOne {
 
     private static Logger logger = Logger.getLogger(ClientIdUpperCaseUDPOneByOne.class.getName());
-    private static final Charset UTF8 = StandardCharsets.UTF_8;
+    private static final Charset UTF8 = Charset.forName("UTF8");
     private static final int BUFFER_SIZE = 1024;
 
     private enum State {
@@ -38,9 +35,6 @@ public class ClientIdUpperCaseUDPOneByOne {
     private final SelectionKey uniqueKey;
 
     // TODO add new fields
-    private long lastSent = 0;
-    private long id = 0;
-    private ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 
     private State state;
 
@@ -94,9 +88,6 @@ public class ClientIdUpperCaseUDPOneByOne {
 
     private List<String> launch() throws IOException, InterruptedException {
         try {
-            buffer.putLong(id);
-            buffer.put(UTF8.encode(lines.get(Long.valueOf(id).intValue())));
-            buffer.flip();
             while (!isFinished()) {
                 try {
                     selector.select(this::treatKey, updateInterestOps());
@@ -130,19 +121,7 @@ public class ClientIdUpperCaseUDPOneByOne {
      */
 
     private long updateInterestOps() {
-        if (state == State.RECEIVING) {
-            uniqueKey.interestOps(SelectionKey.OP_READ);
-            var currentTime = System.currentTimeMillis();
-            var remaining = currentTime - lastSent;
-            if(remaining > timeout) {
-                state = State.SENDING;
-                uniqueKey.interestOps(SelectionKey.OP_WRITE);
-                fillBuffer();
-                return 0;
-            }
-            return timeout - remaining + 1;
-        }
-        uniqueKey.interestOps(SelectionKey.OP_WRITE);
+        // TODO
         return 0;
     }
 
@@ -156,36 +135,8 @@ public class ClientIdUpperCaseUDPOneByOne {
      * @throws IOException
      */
 
-    private void fillBuffer() {
-        buffer.clear();
-        var line = lines.get(Long.valueOf(this.id).intValue());
-        buffer.putLong(this.id);
-        buffer.put(UTF8.encode(line));
-        buffer.flip();
-    }
-
     private void doRead() throws IOException {
-        dc.receive(buffer);
-        buffer.flip();
-        if(System.currentTimeMillis() - lastSent < timeout) {
-            return;
-        }
-        if(buffer.remaining() <= 8) {
-            state = State.SENDING;
-            return;
-        }
-        var id = buffer.getLong();
-        if(this.id == id) {
-            var upper = UTF8.decode(buffer).toString();
-            this.id++;
-            upperCaseLines.add(upper);
-            if(this.id == lines.size()) {
-                state = State.FINISHED;
-                return;
-            }
-            fillBuffer();
-        }
-        state = State.SENDING;
+        // TODO
     }
 
     /**
@@ -195,13 +146,6 @@ public class ClientIdUpperCaseUDPOneByOne {
      */
 
     private void doWrite() throws IOException {
-        dc.send(buffer, serverAddress);
-        if(buffer.hasRemaining()) {
-            logger.info("data not sent");
-            return;
-        }
-        buffer.clear();
-        state = State.RECEIVING;
-        lastSent = System.currentTimeMillis();
+        // TODO
     }
 }
