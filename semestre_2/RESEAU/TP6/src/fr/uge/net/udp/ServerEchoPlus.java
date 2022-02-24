@@ -54,7 +54,6 @@ public class ServerEchoPlus {
     }
 
     private void doRead(SelectionKey key) throws IOException {
-        buffer.clear();
         sender = dc.receive(buffer);
         if(sender == null) {
             logger.info("nothing has been sent");
@@ -66,16 +65,18 @@ public class ServerEchoPlus {
             var b = buffer.get() + 1;
             send.put(Integer.valueOf(b).byteValue());
         }
+        buffer.clear();
+        send.flip();
         key.interestOps(SelectionKey.OP_WRITE);
     }
 
     private void doWrite(SelectionKey key) throws IOException {
-        send.flip();
         dc.send(send, sender);
         if(send.hasRemaining()) {
             logger.info("data not sent");
             return;
         }
+        send.clear();
         key.interestOps(SelectionKey.OP_READ);
     }
 

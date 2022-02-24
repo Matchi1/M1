@@ -8,7 +8,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class ServerEchoMultiPort {
@@ -16,19 +15,15 @@ public class ServerEchoMultiPort {
 
     private final Selector selector;
     private final int BUFFER_SIZE = 1024;
-    private final ArrayList<DatagramChannel> channels = new ArrayList<>();
-    private SocketAddress sender;
     private int port;
 
     public ServerEchoMultiPort(int start, int end) throws IOException {
-        this.port = port;
         selector = Selector.open();
         for(; start < end; start++) {
             var dc = DatagramChannel.open();
             dc.bind(new InetSocketAddress(port));
             dc.configureBlocking(false);
             dc.register(selector, SelectionKey.OP_READ, new Context());
-            channels.add(dc);
         }
     }
 
@@ -56,27 +51,31 @@ public class ServerEchoMultiPort {
 
     private void doRead(SelectionKey key) throws IOException {
         var context = (Context) key.attachment();
-        context.buffer.clear();
-        if(sender == null) {
+        var dc = (DatagramChannel) key.channel();
+        var buffer = ByteBuffer.allocate(BUFFER_SIZE);
+        context.sender = dc.receive(buffer);
+        if(context.sender == null) {
             logger.info("nothing has been sent");
             return;
         }
         buffer.flip();
-        send.clear();
         while(buffer.hasRemaining()) {
             var b = buffer.get() + 1;
-            send.put(Integer.valueOf(b).byteValue());
+            context.buffer.put(Integer.valueOf(b).byteValue());
         }
+        context.buffer.flip();
         key.interestOps(SelectionKey.OP_WRITE);
     }
 
     private void doWrite(SelectionKey key) throws IOException {
-        send.flip();
-        dc.send(send, sender);
-        if(send.hasRemaining()) {
+        var context = (Context) key.attachment();
+        var dc = (DatagramChannel) key.channel();
+        dc.send(context.buffer, context.sender);
+        if(context.buffer.hasRemaining()) {
             logger.info("data not sent");
             return;
         }
+        context.buffer.clear();
         key.interestOps(SelectionKey.OP_READ);
     }
 
@@ -85,7 +84,7 @@ public class ServerEchoMultiPort {
     }
 
     public class Context {
-        private InetSocketAddress sender;
+        private SocketAddress sender;
         private final ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
     }
 
