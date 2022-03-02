@@ -2,14 +2,16 @@ package fr.uge.net.tcp;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class ClientLongSum {
-
+public class ClientConcatenation {
+    public static final int BUFFER_SIZE = 1024;
+    public static final Charset UTF8 = StandardCharsets.UTF_8;
     public static final Logger logger = Logger.getLogger(ClientLongSum.class.getName());
 
     private static List<Long> randomLongList(int size) {
@@ -45,41 +47,47 @@ public class ClientLongSum {
      * @return
      * @throws IOException
      */
-    private static Optional<Long> requestSumForList(SocketChannel sc, List<Long> list) throws IOException {
-        var bb = ByteBuffer.allocateDirect(list.size() * Long.BYTES + Integer.BYTES);
+    private static Optional<String> requestConcat(SocketChannel sc, List<String> list) throws IOException {
+        var bb = ByteBuffer.allocateDirect(BUFFER_SIZE);
+        var length = 0;
         bb.putInt(list.size());
         for(var value : list) {
-            bb.putLong(value);
+            length += value.length();
+            bb.putInt(value.length());
+            bb.put(UTF8.encode(value));
         }
         bb.flip();
         sc.write(bb);
         bb.clear();
-        if(readFully(sc, bb, Long.BYTES)) {
+        if(readFully(sc, bb, length + list.size() - 1 + Integer.BYTES)) {
             return Optional.empty();
         }
         bb.flip();
+        bb.getInt();
         if(bb.remaining() == 0) {
             return Optional.empty();
         }
-        return Optional.of(bb.getLong());
+        return Optional.of(UTF8.decode(bb).toString());
     }
 
     public static void main(String[] args) throws IOException {
         var server = new InetSocketAddress(args[0], Integer.parseInt(args[1]));
-        try (var sc = SocketChannel.open(server)) {
-            for (var i = 0; i < 5; i++) {
-                var list = randomLongList(50);
-
-                var sum = requestSumForList(sc, list);
-                if (!sum.isPresent()) {
-                    logger.warning("Connection with server lost.");
-                    return;
+        var list = new ArrayList<String>();
+        try (var sc = SocketChannel.open(server);
+            var scan = new Scanner(System.in)) {
+            while(scan.hasNextLine()) {
+                var line = scan.nextLine();
+                if(line.equals("")) {
+                    break;
                 }
-                if (!checkSum(list, sum.get())) {
-                    logger.warning("Oups! Something wrong happened!");
-                }
+                list.add(line);
             }
-            logger.info("Everything seems ok");
+            var result = requestConcat(sc, list);
+            if(result.isPresent()) {
+                System.out.println(result.get());
+            } else {
+                System.out.println("Connection with server lost.");
+            }
         }
     }
 }
