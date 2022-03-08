@@ -18,21 +18,6 @@ public class HTTPReader {
         this.buffer = buffer;
     }
 
-    private boolean isFinished(ByteBuffer bb) {
-        var base = bb.position();
-        var position = bb.limit() - 2;
-        bb.position(position);
-        var letter = (char) bb.get();
-        if(letter == '\r') {
-            letter = (char) bb.get();
-            if(letter == '\n') {
-                bb.position(base);
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * @return The ASCII string terminated by CRLF without the CRLF
      *         <p>
@@ -131,10 +116,21 @@ public class HTTPReader {
      */
     public ByteBuffer readBytes(int size) throws IOException {
         var bb = ByteBuffer.allocateDirect(size);
-        if(sc.read(bb) == -1) {
-            throw new HTTPException();
+        buffer.flip();
+        if(buffer.hasRemaining()) {
+            var index = 0;
+            while(buffer.hasRemaining() && index < size) {
+                bb.put(buffer.get());
+                index++;
+            }
         }
-        bb.flip();
+        if(!buffer.hasRemaining()) {
+            if(sc.read(bb) == -1) {
+                throw new HTTPException();
+            }
+        }
+
+        buffer.compact();
         return bb;
     }
 
@@ -144,9 +140,39 @@ public class HTTPReader {
      *                     of the chunks if chunks are ill-formed
      */
 
+    private void refillBuffer() throws IOException {
+        if(!buffer.hasRemaining()) {
+            buffer.clear();
+            if(sc.read(buffer) == -1) {
+                throw new HTTPException();
+            }
+            buffer.flip();
+        }
+    }
+
+    public byte getByte() throws IOException {
+        refillBuffer();
+        return buffer.get();
+    }
+
     public ByteBuffer readChunks() throws IOException {
-        // TODO
-        return null;
+        ByteBuffer bb = ByteBuffer.allocateDirect(BUFFER);
+        buffer.flip();
+
+        var size = 0;
+        do {
+            size = (int) getByte();
+            getByte();
+            getByte();
+            for(var i = 0; i < size; i++) {
+                getByte();
+            }
+            getByte();
+            getByte();
+        } while(size != 0);
+
+        buffer.compact();
+        return bb;
     }
 
     public static void main(String[] args) throws IOException {
