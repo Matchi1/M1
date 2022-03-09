@@ -25,28 +25,70 @@ typedef struct _shape_{
 	void (*draw_faces )(struct _shape_*, G3Xvector scale_factor); /* mode GL_TRIANGLES ou GL_QUADS */
 } Shape;
 
-static void cube(void)
+Shape cube = {0};
+
+static void cube_vertex(Shape *shape, int lines)
 {
-  int p, m, n;
-  for(p = 0; p < CXMAX; p++)
-  {
-	  for(m = 0; m < CYMAX; m++)
-	  {
-		  Pc[p][m][0] = g3x_Point(p/(float)CXMAX, m/(float)CYMAX - 1,);
-		  Pc[p][m][1] = g3x_Point(p/(float)CXMAX - 1, m/(float)CYMAX - 1, 1);
-		  Pc[p][m][2] = g3x_Point(-1, m/(float)CYMAX - 1, p/(float)CXMAX - 1);
-		  Pc[p][m][3] = g3x_Point(1, m/(float)CYMAX - 1, p/(float)CXMAX - 1);
-		  Pc[p][m][4] = g3x_Point(m/(float)CYMAX - 1, -1, p/(float)CXMAX - 1);
-		  Pc[p][m][5] = g3x_Point(m/(float)CYMAX - 1, 1, p/(float)CXMAX - 1);
-	  }
-  }
+	int faces = 6;
+	int points_per_face = lines * lines;
+	int number_points = (faces * points_per_face);
+	shape->n1 = lines;
+	shape->vrtx = (G3Xpoint*) malloc(sizeof(G3Xpoint) * number_points);
+	shape->norm = (G3Xvector*) malloc(sizeof(G3Xvector) * number_points);
+	int base = 0;
+	for(int i = 0; i < lines; i++) {
+		for(int j = 0; j < lines; j++) {
+			uint index = base + i * lines + j;
+			shape->vrtx[index] = g3x_Point(-0.5 + ((double) i) / lines, -0.5 + ((double) j) / lines, -0.5);
+			shape->norm[index] = g3x_Point(0, 0, -1);
+		}
+	}
+	base += lines * lines;
+	for(int i = 0; i < lines; i++) {
+		for(int j = 0; j < lines; j++) {
+			uint index = base + i * lines + j;
+			shape->vrtx[index] = g3x_Point(-0.5, -0.5 + ((double) i) / lines, -0.5 + ((double) j) / lines);
+			shape->norm[index] = g3x_Point(-1, 0, 0);
+		}
+	}
+	base += lines * lines;
+	for(int i = 0; i < lines; i++) {
+		for(int j = 0; j < lines; j++) {
+			uint index = base + i * lines + j;
+			shape->vrtx[index] = g3x_Point(-0.5 + ((double) j) / lines, -0.5, -0.5 + ((double) i) / lines);
+			shape->norm[index] = g3x_Point(0, -1, 0);
+		}
+	}
+	base += lines * lines;
+	for(int i = 0; i < lines; i++) {
+		for(int j = 0; j < lines; j++) {
+			uint index = base + i * lines + j;
+			shape->vrtx[index] = g3x_Point(-0.5 + ((double) i) / lines, -0.5 + ((double) j) / lines, 0.5);
+			shape->norm[index] = g3x_Point(0, 0, 1);
+		}
+	}
+	base += lines * lines;
+	for(int i = 0; i < lines; i++) {
+		for(int j = 0; j < lines; j++) {
+			uint index = base + i * lines + j;
+			shape->vrtx[index] = g3x_Point(0.5, -0.5 + ((double) i) / lines, -0.5 + ((double) j) / lines);
+			shape->norm[index] = g3x_Point(1, 0, 0);
+		}
+	}
+	base += lines * lines;
+	for(int i = 0; i < lines; i++) {
+		for(int j = 0; j < lines; j++) {
+			uint index = base + i * lines + j;
+			shape->vrtx[index] = g3x_Point(-0.5 + ((double) j) / lines, 0.5, -0.5 + ((double) i) / lines);
+			shape->norm[index] = g3x_Point(0, 1, 0);
+		}
+	}
 }
 
 /* la fonction d'initialisation : appelée 1 seule fois, au début */
 static void init(void)
 {
-	
-	cube();
+	cube_vertex(&cube, 10);
 }
 
 /* la fonction de contrôle : appelée 1 seule fois, juste après <init> */
@@ -57,21 +99,29 @@ static void ctrl(void)
 static void draw_cube(void)
 {
   glDisable(GL_LIGHTING);    /* <BALISE.GL>  "débranche" la lumière, pour permettre le tracé en mode point/ligne */
-  	int pas = 20;
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	glBegin(GL_QUADS);
-	int p, m, n;
-	for(p=0; p < CXMAX - 1; p++)
+	glBegin(GL_POINTS);
+	for(int i = 0; i < cube.n1 * cube.n1 * 6; i++)
 	{
-		for(m=0; m < CYMAX - 1; m++)
+		g3x_Normal3dv(cube.norm[i]);
+		g3x_Vertex3dv(cube.vrtx[i]);
+	}
+	glEnd();
+
+	glBegin(GL_QUADS);
+	for(int k = 0; k < 6; k++)
+	{
+		int base = k * (cube.n1 * cube.n1);
+		for(int i = 0; i < cube.n1 - 1; i++)
 		{
-			for(n=0; n < 6; n++)
+			for(int j = 0; j < cube.n1 - 1; j++)
 			{
-				g3x_Vertex3dv(Pc[p][m][n]);
-				g3x_Vertex3dv(Pc[p][m+1][n]);
-				g3x_Vertex3dv(Pc[p+1][m+1][n]);
-				g3x_Vertex3dv(Pc[p+1][m][n]);
+				int origin = base + i * cube.n1 + j;
+				g3x_Vertex3dv(cube.vrtx[origin]);
+				g3x_Vertex3dv(cube.vrtx[origin + 1]);
+				g3x_Vertex3dv(cube.vrtx[origin + cube.n1 + 1]);
+				g3x_Vertex3dv(cube.vrtx[origin + cube.n1]);
 			}
 		}
 	}
@@ -84,7 +134,6 @@ static void draw_cube(void)
 /* la fonction de dessin : appelée en boucle */
 static void draw(void)
 {
-	//draw_sphere();
 	draw_cube();
 }
 
