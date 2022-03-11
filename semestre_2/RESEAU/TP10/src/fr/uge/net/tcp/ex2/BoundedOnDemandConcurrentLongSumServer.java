@@ -1,4 +1,4 @@
-package fr.uge.net.tcp.ex1;
+package fr.uge.net.tcp.ex2;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -6,16 +6,19 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class IterativeLongSumServer {
+public class BoundedOnDemandConcurrentLongSumServer {
 
-    private static final Logger logger = Logger.getLogger(IterativeLongSumServer.class.getName());
+    private static final Logger logger = Logger.getLogger(BoundedOnDemandConcurrentLongSumServer.class.getName());
     private static final int BUFFER_SIZE = 1024;
     private final ServerSocketChannel ssc;
+    private final int maxClient = 3;
+    private final Semaphore semaphore = new Semaphore(maxClient);
 
-    public IterativeLongSumServer(int port) throws IOException {
+    public BoundedOnDemandConcurrentLongSumServer(int port) throws IOException {
         ssc = ServerSocketChannel.open();
         ssc.bind(new InetSocketAddress(port));
         logger.info(this.getClass().getName() + " starts on port " + port);
@@ -27,18 +30,25 @@ public class IterativeLongSumServer {
      * @throws IOException
      */
 
-    public void launch() throws IOException {
+    public void launch() throws IOException, InterruptedException {
         logger.info("Server started");
         while (!Thread.interrupted()) {
             SocketChannel client = ssc.accept();
-            try {
-                logger.info("Connection accepted from " + client.getRemoteAddress());
-                serve(client);
-            } catch (IOException ioe) {
-                logger.log(Level.SEVERE, "Connection terminated with client by IOException", ioe.getCause());
-            } finally {
-                silentlyClose(client);
-            }
+
+            var thread = new Thread(() -> {
+                try {
+                    semaphore.acquire();
+                    logger.info("Connection accepted from " + client.getRemoteAddress());
+                    serve(client);
+                } catch (IOException ioe) {
+                    logger.log(Level.SEVERE, "Connection terminated with client by IOException", ioe.getCause());
+                } catch (InterruptedException ie) {
+                    logger.log(Level.INFO, "Thread got interrupted", ie.getCause());
+                } finally {
+                    silentlyClose(client);
+                }
+            });
+            thread.start();
         }
     }
 
@@ -94,6 +104,7 @@ public class IterativeLongSumServer {
         if (sc != null) {
             try {
                 sc.close();
+                semaphore.release();
             } catch (IOException e) {
                 // Do nothing
             }
@@ -110,8 +121,8 @@ public class IterativeLongSumServer {
         return true;
     }
 
-    public static void main(String[] args) throws NumberFormatException, IOException {
-        var server = new IterativeLongSumServer(Integer.parseInt(args[0]));
+    public static void main(String[] args) throws NumberFormatException, IOException, InterruptedException {
+        var server = new BoundedOnDemandConcurrentLongSumServer(Integer.parseInt(args[0]));
         server.launch();
     }
 }

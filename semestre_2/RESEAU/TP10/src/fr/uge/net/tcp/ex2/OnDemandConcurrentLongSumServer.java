@@ -27,19 +27,30 @@ public class OnDemandConcurrentLongSumServer {
      * @throws IOException
      */
 
-    public void launch() throws IOException {
+    public void launch() throws IOException, InterruptedException {
         logger.info("Server started");
         while (!Thread.interrupted()) {
             SocketChannel client = ssc.accept();
-            try {
-                logger.info("Connection accepted from " + client.getRemoteAddress());
-                serve(client);
-            } catch (IOException ioe) {
-                logger.log(Level.SEVERE, "Connection terminated with client by IOException", ioe.getCause());
-            } finally {
-                silentlyClose(client);
-            }
+
+            var thread = new Thread(() -> {
+                try {
+                    logger.info("Connection accepted from " + client.getRemoteAddress());
+                    serve(client);
+                } catch (IOException ioe) {
+                    logger.log(Level.SEVERE, "Connection terminated with client by IOException", ioe.getCause());
+                } finally {
+                    silentlyClose(client);
+                }
+            });
+            thread.start();
         }
+    }
+
+    private void sendResult(SocketChannel sc, Long result) throws IOException {
+        var bb = ByteBuffer.allocate(Long.BYTES);
+        bb.putLong(result);
+        bb.flip();
+        sc.write(bb);
     }
 
     /**
@@ -58,16 +69,22 @@ public class OnDemandConcurrentLongSumServer {
             }
             bb.flip();
             var size = bb.getInt();
-            var buffer = ByteBuffer.allocate(Long.BYTES * size);
-            readFully(sc, buffer);
+            var buffer = ByteBuffer.allocate(Integer.min(size * Long.BYTES, BUFFER_SIZE));
+            if(!readFully(sc, buffer)) {
+                return;
+            }
             buffer.flip();
             for(var i = 0; i < size; i++) {
+                if(!buffer.hasRemaining()) {
+                    buffer.clear();
+                    if(!readFully(sc, buffer)) {
+                        return;
+                    }
+                    buffer.flip();
+                }
                 result += buffer.getLong();
             }
-            buffer.clear();
-            buffer.putLong(result);
-            buffer.flip();
-            sc.write(buffer);
+            sendResult(sc, result);
         }
     }
 
@@ -97,7 +114,7 @@ public class OnDemandConcurrentLongSumServer {
         return true;
     }
 
-    public static void main(String[] args) throws NumberFormatException, IOException {
+    public static void main(String[] args) throws NumberFormatException, IOException, InterruptedException {
         var server = new OnDemandConcurrentLongSumServer(Integer.parseInt(args[0]));
         server.launch();
     }

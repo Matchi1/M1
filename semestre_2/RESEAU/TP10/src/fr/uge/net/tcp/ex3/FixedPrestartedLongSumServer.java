@@ -1,4 +1,4 @@
-package fr.uge.net.tcp.ex1;
+package fr.uge.net.tcp.ex3;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -6,16 +6,20 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class IterativeLongSumServer {
+public class FixedPrestartedLongSumServer {
 
-    private static final Logger logger = Logger.getLogger(IterativeLongSumServer.class.getName());
+    private static final Logger logger = Logger.getLogger(FixedPrestartedLongSumServer.class.getName());
     private static final int BUFFER_SIZE = 1024;
     private final ServerSocketChannel ssc;
+    private final int maxThreads = 5;
+    private final ArrayList<Thread> threads = new ArrayList<>();
 
-    public IterativeLongSumServer(int port) throws IOException {
+    public FixedPrestartedLongSumServer(int port) throws IOException {
         ssc = ServerSocketChannel.open();
         ssc.bind(new InetSocketAddress(port));
         logger.info(this.getClass().getName() + " starts on port " + port);
@@ -27,11 +31,11 @@ public class IterativeLongSumServer {
      * @throws IOException
      */
 
-    public void launch() throws IOException {
-        logger.info("Server started");
-        while (!Thread.interrupted()) {
-            SocketChannel client = ssc.accept();
+    private void threadRun() {
+        while(!Thread.interrupted()) {
+            SocketChannel client = null;
             try {
+                client = ssc.accept();
                 logger.info("Connection accepted from " + client.getRemoteAddress());
                 serve(client);
             } catch (IOException ioe) {
@@ -39,6 +43,16 @@ public class IterativeLongSumServer {
             } finally {
                 silentlyClose(client);
             }
+        }
+    }
+
+    public void launch() throws IOException, InterruptedException {
+        logger.info("Server started");
+        for(var i = 0; i < maxThreads; i++) {
+            threads.add(new Thread(this::threadRun));
+        }
+        for(var thread : threads) {
+            thread.start();
         }
     }
 
@@ -110,8 +124,8 @@ public class IterativeLongSumServer {
         return true;
     }
 
-    public static void main(String[] args) throws NumberFormatException, IOException {
-        var server = new IterativeLongSumServer(Integer.parseInt(args[0]));
+    public static void main(String[] args) throws NumberFormatException, IOException, InterruptedException {
+        var server = new FixedPrestartedLongSumServer(Integer.parseInt(args[0]));
         server.launch();
     }
 }
