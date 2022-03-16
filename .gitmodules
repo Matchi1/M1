@@ -4,3 +4,6 @@
 [submodule "Projets/tower_control"]
 	path = Projets/tower_control
 	url = git@github.com:Matchi1/CPP_Learning_Project.git
+[submodule "Projets/network"]
+	path = Projets/network
+	url = git@gitlab.com:Matchi/network-project.git
