@@ -12,6 +12,8 @@
 #define CXMAX 10
 #define CYMAX 10
 
+#define MAXRES 720
+
 /* tailles de la fenêtre (en pixel) */
 static int WWIDTH=1080, WHEIGHT=1080;
 
@@ -36,7 +38,7 @@ static void cube_vertex(Shape *shape, int lines)
 	shape->vrtx = (G3Xpoint*) malloc(sizeof(G3Xpoint) * number_points);
 	shape->norm = (G3Xvector*) malloc(sizeof(G3Xvector) * number_points);
 	int base = 0;
-	for(int i = 0; i < lines; i++) {
+	for(int i = 0; i < lines - 1; i++) {
 		for(int j = 0; j < lines; j++) {
 			uint index = base + i * lines + j;
 			shape->vrtx[index] = g3x_Point(-0.5 + ((double) i) / lines, -0.5 + ((double) j) / lines, -0.5);
@@ -88,7 +90,7 @@ static void cube_vertex(Shape *shape, int lines)
 /* la fonction d'initialisation : appelée 1 seule fois, au début */
 static void init(void)
 {
-	cube_vertex(&cube, 10);
+	cube_vertex(&cube, MAXRES);
 }
 
 /* la fonction de contrôle : appelée 1 seule fois, juste après <init> */
@@ -98,15 +100,36 @@ static void ctrl(void)
 
 static void draw_cube(void)
 {
+  int ppas = 10;
   glDisable(GL_LIGHTING);    /* <BALISE.GL>  "débranche" la lumière, pour permettre le tracé en mode point/ligne */
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glBegin(GL_POINTS);
-	for(int i = 0; i < cube.n1 * cube.n1 * 6; i++)
+	for(int i = 0; i < cube.n1 * cube.n1 * 6; i += 10)
 	{
 		g3x_Normal3dv(cube.norm[i]);
 		g3x_Vertex3dv(cube.vrtx[i]);
 	}
+    for(int k = 0; k < 6; k++)
+    {
+        for(int i = 0; i < cube.n1 - 1; i += ppas)
+        {
+            for(int j = 0; j < cube.n1 - 1; j += ppas)
+            {
+                g3x_Normal3dv(cube.norm[i + j + k]);
+                g3x_Vertex3dv(cube.vrtx[i + j + k]);
+            }
+            g3x_Normal3dv(cube.norm[i + MAXRES + k]);
+            g3x_Vertex3dv(cube.vrtx[i + MAXRES + k]);
+        }
+        for(int j = 0; j < cube.n1 - 1; j += ppas)
+        {
+            g3x_Normal3dv(cube.norm[MAXRES + j + k]);
+            g3x_Vertex3dv(cube.vrtx[MAXRES + j + k]);
+        }
+        g3x_Normal3dv(cube.norm[2 * MAXRES + k]);
+        g3x_Vertex3dv(cube.vrtx[2 * MAXRES + k]);
+    }
 	glEnd();
 
 	glBegin(GL_QUADS);
