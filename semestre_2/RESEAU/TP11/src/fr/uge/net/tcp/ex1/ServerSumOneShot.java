@@ -25,9 +25,7 @@ public class ServerSumOneShot {
 		serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT, ByteBuffer.allocate(BUFFER_SIZE));
 		while (!Thread.interrupted()) {
 			Helpers.printKeys(selector); // for debug
-			System.out.println("Starting select");
 			selector.select(this::treatKey);
-			System.out.println("Select finished");
 		}
 	}
 
@@ -53,14 +51,18 @@ public class ServerSumOneShot {
 	}
 
 	private void doAccept(SelectionKey key) throws IOException {
-		logger.info("I am accepting the client");
-		System.out.println(key.interestOps());
-		key.interestOps(SelectionKey.OP_READ);
+		// only the ServerSocketChannel is registered in OP_ACCEPT
+		var ssc = (ServerSocketChannel) key.channel();
+		var sc = ssc.accept();
+		if (sc == null) {
+			return; // the selector gave a bad hint
+		}
+		sc.configureBlocking(false);
+		sc.register(selector, SelectionKey.OP_READ, ByteBuffer.allocate(BUFFER_SIZE));
 	}
 
 	private void doRead(SelectionKey key) throws IOException {
 		logger.info("now listening");
-		/*
 		var sc = (SocketChannel) key.channel();
 		var buffer = (ByteBuffer) key.attachment();
 		if(sc.read(buffer) == -1) {
@@ -75,24 +77,10 @@ public class ServerSumOneShot {
 		buffer.clear();
 		buffer.putInt(sum);
 		key.interestOps(SelectionKey.OP_WRITE);
-		* */
-
-		/*
-		var sc = (SocketChannel) key.channel();
-		var buffer = (ByteBuffer) key.attachment();
-		var sum = 0;
-		while(sc.read(buffer) != -1) {
-			if()
-			sum += buffer.getInt();
-		}
-		* */
-		System.out.println(key.interestOps());
-		key.interestOps(SelectionKey.OP_WRITE);
 	}
 
 	private void doWrite(SelectionKey key) throws IOException {
 		logger.info("now writing");
-		/*
 		var sc = (SocketChannel) key.channel();
 		var buffer = (ByteBuffer) key.attachment();
 		buffer.flip();
@@ -101,9 +89,6 @@ public class ServerSumOneShot {
 			buffer.compact();
 			return;
 		}
-		silentlyClose(key);
-		* */
-		System.out.println(key.interestOps());
 		silentlyClose(key);
 	}
 

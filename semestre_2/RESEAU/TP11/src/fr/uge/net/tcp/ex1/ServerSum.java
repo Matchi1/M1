@@ -3,10 +3,7 @@ package fr.uge.net.tcp.ex1;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.*;
 import java.util.logging.Logger;
 
 public class ServerSum {
@@ -57,13 +54,18 @@ public class ServerSum {
 
 	private void doAccept(SelectionKey key) throws IOException {
 		logger.info("I am accepting the client");
-		System.out.println(key.interestOps());
-		key.interestOps(SelectionKey.OP_READ);
+		// only the ServerSocketChannel is registered in OP_ACCEPT
+		var ssc = (ServerSocketChannel) key.channel();
+		var sc = ssc.accept();
+		if (sc == null) {
+			return; // the selector gave a bad hint
+		}
+		sc.configureBlocking(false);
+		sc.register(selector, SelectionKey.OP_READ, ByteBuffer.allocate(BUFFER_SIZE));
 	}
 
 	private void doRead(SelectionKey key) throws IOException {
 		logger.info("now listening");
-		/*
 		var sc = (SocketChannel) key.channel();
 		var buffer = (ByteBuffer) key.attachment();
 		if(sc.read(buffer) == -1) {
@@ -78,14 +80,10 @@ public class ServerSum {
 		buffer.clear();
 		buffer.putInt(sum);
 		key.interestOps(SelectionKey.OP_WRITE);
-		* */
-		System.out.println(key.interestOps());
-		key.interestOps(SelectionKey.OP_WRITE);
 	}
 
 	private void doWrite(SelectionKey key) throws IOException {
 		logger.info("now writing");
-		/*
 		var sc = (SocketChannel) key.channel();
 		var buffer = (ByteBuffer) key.attachment();
 		buffer.flip();
@@ -94,10 +92,8 @@ public class ServerSum {
 			buffer.compact();
 			return;
 		}
-		silentlyClose(key);
-		* */
-		System.out.println(key.interestOps());
-		silentlyClose(key);
+		buffer.clear();
+		key.interestOps(SelectionKey.OP_READ);
 	}
 
 	private void silentlyClose(SelectionKey key) {
