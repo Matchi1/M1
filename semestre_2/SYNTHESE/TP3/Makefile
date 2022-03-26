@@ -16,6 +16,8 @@ src = src/
 # cible pour les binaires (.a,.so)
 bin = .
 
+g3x_squelette: g3x_squelette.o cube.o
+
 # règle générique de création de xxx.o à partir de src/xxx.c
 %.o : $(src)%.c
 	@echo "module $@"
