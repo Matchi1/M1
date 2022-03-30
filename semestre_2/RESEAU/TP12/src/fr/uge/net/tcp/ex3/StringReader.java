@@ -7,37 +7,52 @@ import java.nio.charset.StandardCharsets;
 public class StringReader implements Reader<String> {
 
     private enum State {
-        DONE, WAITING, ERROR
+        DONE, WAITING_SIZE, WAITING_STRING, ERROR
     };
 
     private final static int BUFFER_SIZE = 1024;
-    private State state = State.WAITING;
+    private State state = State.WAITING_SIZE;
     private final ByteBuffer internalBuffer = ByteBuffer.allocate(BUFFER_SIZE); // write-mode
     private final static Charset UTF8 = StandardCharsets.UTF_8;
     private int size;
-    private final StringBuilder value = new StringBuilder();
+    private StringBuilder value = new StringBuilder();
+    private final IntReader reader = new IntReader();
 
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
         if (state == State.DONE || state == State.ERROR) {
             throw new IllegalStateException();
         }
-        buffer.flip();
-        if(size == 0) {
-            size = buffer.getInt() - Integer.BYTES;
+        if(state == State.WAITING_SIZE) {
+            var ret = reader.process(buffer);
+            if(ret != ProcessStatus.DONE) {
+                return ret;
+            }
+            size = reader.get();
+            if(size < 0 || size > BUFFER_SIZE) {
+                return ProcessStatus.ERROR;
+            }
+            reader.reset();
+            state = State.WAITING_STRING;
         }
-        try {
-            size -= Integer.min(buffer.remaining(), internalBuffer.remaining());
-            if (buffer.remaining() <= internalBuffer.remaining()) {
-                internalBuffer.put(buffer);
-            } else {
+
+        if(state == State.WAITING_STRING) {
+            try {
+                buffer.flip();
+                if (!buffer.hasRemaining()) {
+                    return ProcessStatus.REFILL;
+                }
+                var length = Integer.min(size, internalBuffer.remaining());
+                length = Integer.min(length, buffer.remaining());
+                var limit = buffer.position() + length;
                 var oldLimit = buffer.limit();
-                buffer.limit(internalBuffer.remaining());
+                buffer.limit(limit);
                 internalBuffer.put(buffer);
                 buffer.limit(oldLimit);
+                size -= length;
+            } finally {
+                buffer.compact();
             }
-        } finally {
-            buffer.compact();
         }
 
         if (size > 0 && internalBuffer.hasRemaining()) {
@@ -46,6 +61,7 @@ public class StringReader implements Reader<String> {
 
         internalBuffer.flip();
         value.append(UTF8.decode(internalBuffer));
+        internalBuffer.clear();
 
         if (size > 0) {
             reset();
@@ -65,7 +81,8 @@ public class StringReader implements Reader<String> {
 
     @Override
     public void reset() {
-        state = State.WAITING;
+        state = State.WAITING_SIZE;
+        value = new StringBuilder();
         internalBuffer.clear();
     }
 }
