@@ -107,7 +107,7 @@ static void sol(void)
         glVertex3d(-1.+(i+1)*in , -1.+(j  )*in , 0.);
       glEnd();
     }
-    glPopMatrix();
+  glPopMatrix();
 }
 
 /*! création l'objet "pied" de section carrée ou cylindique !*/
